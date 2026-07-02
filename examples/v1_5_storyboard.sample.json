@@ -1,4 +1,6 @@
 {
+  "story_id": "delivery_storyboard_check_001",
+  "story_title": "取餐分镜验收测试",
   "scene": "取外卖侧面",
   "clothing": "外卖职业服",
   "mood": "真实、轻松、动作清楚",
@@ -21,5 +23,12 @@
   "in_image_storyboard": "开启",
   "storyboard_view": "第一人称 + 第三人称",
   "storyboard_layout": "上下分镜",
-  "extra": "当前图允许 2 个分镜，上半部分展示手拿外卖袋的第一人称视角，下半部分展示人猫在取餐口的第三人称视角。"
+  "extra": "当前图允许 2 个分镜，上半部分展示手拿外卖袋的第一人称视角，下半部分展示人猫在取餐口的第三人称视角。",
+  "qa_failures": [
+    {
+      "frame_index": 2,
+      "failed_items": ["服装道具连续性", "视觉证据不足"],
+      "reason": "猫背带贴片变化明显，检查装备动作不清楚"
+    }
+  ]
 }

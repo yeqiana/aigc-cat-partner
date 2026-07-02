@@ -1,38 +1,82 @@
-# AIGC 人猫搭档 Project V1.5
+# AIGC 人猫搭档 Project V1.7
 
 这是一个用于稳定生成“同一个女生 + 同一只白色银渐层猫”的 AIGC 图片项目包。
 
-## V1.5 修改重点
+V1.7 的重点不是继续堆单张 Prompt 字段，而是把连续故事图拆成可检查、可返工的文本流水线：
 
-V1.5 继承 V1.4 的连续故事顺序生成机制，并补充三项能力：
+```text
+最小入参
+-> story_plan
+-> frame_plan[]
+-> copy_plan[]
+-> prompt_plan[]
+-> qa_result[]
+-> retake_prompt[]
+```
 
-1. `text_render_mode`：输出每张图的标题、旁白、女生台词、猫咪台词，并支持“空白气泡 + 后期叠字图层”。
-2. `outfit_style_lock` / `outfit_reference`：锁定同一组图的服装风格、颜色、配饰和关键道具。
-3. `in_image_storyboard`：当前图内分镜默认关闭，只有明确开启时才允许 2-3 个分镜或视角窗口。
+## V1.7 修改重点
 
-任务文件会额外生成：
-
-- 抖音图文发布顺序清单
-- 每张图验收表
-- 失败返工 Prompt
-- 上一张不够连贯时的修复 Prompt
-- 抖音 / 小红书平台发布文案
+1. `tools/generate_prompt.py` 会同时输出 Markdown 任务和结构化 JSON 产物。
+2. 第 1 张标记为锚点图，第 2 张引用第 1 张锚点图，第 3-N 张引用第 1 张锚点图和上一张成图。
+3. 每张图都有分镜动作、视觉证据、文案、正向 Prompt、反向 Prompt、验收项和返工 Prompt。
+4. 默认使用“空白气泡 + 后期叠字图层”，避免图片模型直接生成中文乱码。
+5. 可在输入 JSON 中加入 `qa_failures`，手动标记失败项并生成对应返工 Prompt。
 
 ## 最快使用方式
 
 1. 打开 `99_跨会话身份锁定包/新会话_必须上传清单.md`。
 2. 新会话里先上传 3 张原始参考图。
-3. 打开 `入口/入口_开始这里.html`。
-4. 选择：`比例=9:16`、`生成张数>=3`、`连续情节=是`。
-5. 推荐开启：`服装风格锁定=强锁定`、`文字落地模式=生成空白气泡 + 后期叠字图层`。
-6. 按任务文件顺序一张张生成，不要一次并行生成全部图片。
-7. 第 2 张开始，把“第 1 张锚点 + 上一张成图 + 本张母版图”继续作为参考图上传。
-
-## 连续故事推荐命令
+3. 先生成 V1.7 文本流水线：
 
 ```bash
-python tools/generate_prompt.py --scene 送外卖正面 --ratio 9:16 --platform 抖音竖屏 --image-count 6 --continuous-story 是 --story-template 外卖跑单故事 --story-coherence 强 --bubble-mode 双气泡 --text-mode 空白气泡后期加字 --text-render-mode "生成空白气泡 + 后期叠字图层" --copywriting-mode 自动根据情节生成 --interaction-mode 评论引导 --outfit-style-lock 强锁定 --outfit-reference "第一张锚点图 + 人物参考图" --in-image-storyboard 关闭
+python tools/generate_prompt.py --input examples/v1_7_delivery_story_pipeline.sample.json
 ```
+
+4. 打开输出目录 `06_最终可用图/生成任务/*_V1_7_pipeline/`。
+5. 先检查 `story_plan.json`、`frame_plan.json`、`copy_plan.json`、`prompt_plan.json`。
+6. 人工确认后，按 `prompt_task.md` 的顺序逐张生成图片。
+7. 每张图生成后按 `qa_result.json` 和 `retake_prompt.json` 验收；失败先返工，不进入下一张。
+
+## 输出产物
+
+每次生成会创建一个 V1.7 pipeline 目录，包含：
+
+- `input.json`
+- `story_plan.json`
+- `frame_plan.json`
+- `copy_plan.json`
+- `prompt_plan.json`
+- `qa_result.json`
+- `retake_prompt.json`
+- `prompt_task.md`
+
+## 示例命令
+
+外卖连续故事 6 张：
+
+```bash
+python tools/generate_prompt.py --input examples/v1_7_delivery_story_pipeline.sample.json
+```
+
+居家治愈故事 5 张：
+
+```bash
+python tools/generate_prompt.py --input examples/v1_7_home_story_pipeline.sample.json
+```
+
+分镜和失败返工测试：
+
+```bash
+python tools/generate_prompt.py --input examples/v1_5_storyboard.sample.json
+```
+
+缺字段校验测试：
+
+```bash
+python tools/generate_prompt.py --input examples/minimal_input.sample.json
+```
+
+预期会提示缺少 V1.7 必填字段，例如 `story_template`。
 
 ## 关键提醒
 
@@ -49,7 +93,8 @@ python tools/generate_prompt.py --scene 送外卖正面 --ratio 9:16 --platform 
 ## 重点文件
 
 - `tools/generate_prompt.py`
-- `入口/入口_开始这里.html`
 - `config/minimal_input_schema.json`
-- `examples/douyin_story_continuous.sample.json`
+- `examples/v1_7_delivery_story_pipeline.sample.json`
+- `examples/v1_7_home_story_pipeline.sample.json`
 - `examples/v1_5_storyboard.sample.json`
+- `入口/入口_开始这里.html`

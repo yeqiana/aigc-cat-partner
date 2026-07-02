@@ -1,12 +1,12 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 """
-人猫搭档 Prompt 生成入口 V1.5
+人猫搭档 Prompt 生成入口 V1.7
 
-V1.5 重点：
-1. 输出每张图的标题、旁白、女生台词、猫咪台词和叠字图层建议。
-2. 增加服装风格锁定和服装参考来源。
-3. 增加当前图内分镜开关，默认保持单张完整大图。
+V1.7 重点：
+1. 在原 Prompt 包基础上输出 story/frame/copy/prompt/qa/retake 六类结构化产物。
+2. 明确第 1 张锚点图、第 2 张续图、第 3-N 张续图的引用规则。
+3. 支持用 qa_failures 手动标记失败，并生成可执行返工 Prompt。
 """
 from __future__ import annotations
 
@@ -38,6 +38,8 @@ OUTFIT_REFERENCES = ["文字描述", "人物参考图", "第一张锚点图", "�
 IN_IMAGE_STORYBOARD_VALUES = ["关闭", "开启"]
 STORYBOARD_VIEWS = ["第一人称", "第三人称", "第一人称 + 第三人称"]
 STORYBOARD_LAYOUTS = ["上下分镜", "左右分镜", "主画面 + 小视角窗口"]
+V17_REQUIRED_INPUT_FIELDS = ["image_count", "continuous_story", "story_template"]
+QA_FAILURE_TYPES = ["剧情动作", "人物一致性", "猫咪一致性", "服装道具连续性", "气泡可用性", "文案完整性", "镜头构图", "平台适配"]
 
 
 BASE_COPY = {
@@ -80,10 +82,42 @@ HOME_STORY = [
     {"scene": "收工回家", "angle": "正面半身", "action": "女生和猫一起放松休息", "extra": "第5幕：结尾纪念照。", "state": "结尾收束，氛围平静。"},
 ]
 
+VISUAL_EVIDENCE_BY_SCENE = {
+    "送外卖正面": ["手机订单页", "浅色电动车", "黑色网格前车篮", "浅色后外卖箱"],
+    "取外卖侧面": ["取餐窗口", "外卖袋", "店门招牌", "前车篮里的猫"],
+    "骑车45度": ["行驶中的电动车", "外卖箱", "路面动感", "前篮里的猫"],
+    "楼下抬头": ["楼栋入口", "门牌或楼号", "停好的电动车", "手里的外卖袋"],
+    "爬楼疲惫": ["楼梯扶手", "外卖袋", "背上的外卖箱", "宠物背包或猫背带"],
+    "送达门口": ["住户门口", "外卖袋", "门牌区域", "猫探头看门口"],
+    "收工回家": ["沙发", "放松姿态", "猫靠在身边", "室内暖光"],
+    "沙发绿植正面": ["沙发", "绿植背景", "女生正面坐姿", "猫在怀里或身边"],
+    "沙发绿植45度": ["沙发", "绿植背景", "侧身抱猫", "衣服图案或猫咪表情"],
+}
+
+MOOD_CURVES = {
+    "外卖跑单故事": ["紧张", "小心", "专注", "进入状态", "有点慌", "放松", "短暂休息", "收工"],
+    "居家治愈故事": ["放松", "亲密", "展示", "调皮", "安静", "治愈"],
+}
+
 
 def load_json(path: Path) -> dict:
     with path.open("r", encoding="utf-8") as f:
         return json.load(f)
+
+
+def validate_v17_input(raw_data: dict, source_name: str = "输入 JSON") -> list[str]:
+    missing = [field for field in V17_REQUIRED_INPUT_FIELDS if field not in raw_data or raw_data.get(field) in [None, ""]]
+    errors = [f"{source_name} 缺少必填字段：{', '.join(missing)}"] if missing else []
+    if "image_count" in raw_data:
+        try:
+            count = int(raw_data["image_count"])
+            if count < 1 or count > 12:
+                errors.append("image_count 必须在 1 到 12 之间")
+        except Exception:
+            errors.append("image_count 必须是整数")
+    if raw_data.get("continuous_story") not in [None, "", "是", "否", True, False, "true", "false", "True", "False", "1", "0"]:
+        errors.append("continuous_story 必须是 是/否 或布尔值")
+    return errors
 
 
 def safe_filename(text: str) -> str:
@@ -188,6 +222,249 @@ def copy_for_frame(data: dict, frame: dict) -> dict:
     if frame.get("total", 1) > 1:
         base["narration"] = short_text(f"{frame.get('story_phase', '这一幕')}继续", 16)
     return {k: short_text(v, 16 if k in ["title", "narration"] else 14) for k, v in base.items()}
+
+
+def build_story_plan(data: dict) -> dict:
+    tpl = choose_story_template(data)
+    count = clamp_count(data.get("image_count", 1))
+    mood_curve = list(data.get("mood_curve") or MOOD_CURVES.get(tpl, ["日常", "推进", "收束"]))
+    if len(mood_curve) < count:
+        mood_curve.extend([mood_curve[-1]] * (count - len(mood_curve)))
+    return {
+        "story_id": data.get("story_id") or f"{'delivery' if tpl == '外卖跑单故事' else 'home'}_{datetime.now().strftime('%Y%m%d_%H%M%S')}",
+        "story_title": data.get("story_title") or ("第一天送外卖" if tpl == "外卖跑单故事" else "居家治愈日常"),
+        "platform": data.get("platform") or "抖音竖屏",
+        "ratio": data.get("ratio") or "9:16",
+        "image_count": count,
+        "continuous_story": to_bool_text(data.get("continuous_story", "否")) == "是",
+        "story_template": tpl,
+        "mood_curve": mood_curve[:count],
+        "anchor_frame_index": 1,
+        "text_render_mode": data.get("text_render_mode") or "生成空白气泡 + 后期叠字图层",
+    }
+
+
+def visual_evidence_for_frame(frame: dict) -> list[str]:
+    scene_name = frame.get("scene") or "沙发绿植正面"
+    evidence = list(VISUAL_EVIDENCE_BY_SCENE.get(scene_name, []))
+    if len(evidence) < 2:
+        evidence.extend(["人物动作清楚", "猫咪位置清楚"])
+    return evidence[:4]
+
+
+def cat_state_for_frame(frame: dict) -> str:
+    scene_name = frame.get("scene") or ""
+    if scene_name in ["送外卖正面", "骑车45度"]:
+        return "坐在电动车前篮里，保持同一只白色银渐层猫"
+    if scene_name in ["楼下抬头", "爬楼疲惫", "送达门口"]:
+        return "在前篮、宠物背包或人物旁边探头，状态承接上一张"
+    return "待在女生怀里或身边，表情自然稳定"
+
+
+def build_frame_plan(data: dict, frames: list[dict]) -> list[dict]:
+    story = build_story_plan(data)
+    result = []
+    for frame in frames:
+        idx = frame.get("index", 1)
+        role = "anchor" if idx == story["anchor_frame_index"] else ("continuation" if story["continuous_story"] else "variant")
+        if idx == 1:
+            continuity = "首张锚点图，无上一张"
+        elif story["continuous_story"]:
+            continuity = f"承接第 {idx - 1} 张成图，保持人物、猫、服装和关键道具连续"
+        else:
+            continuity = "非连续同主题变体，不强制引用上一张成图"
+        result.append(
+            {
+                "frame_index": idx,
+                "main_action": frame.get("action") or data.get("action") or "保持同主题小变化",
+                "continuity_from_previous": continuity,
+                "visual_evidence": visual_evidence_for_frame(frame),
+                "character_emotion": story["mood_curve"][idx - 1] if idx - 1 < len(story["mood_curve"]) else data.get("mood", "自然"),
+                "cat_state": cat_state_for_frame(frame),
+                "camera": frame.get("angle") or data.get("angle") or "第三人称正面中景",
+                "in_image_storyboard": data.get("in_image_storyboard") == "开启",
+                "role": role,
+                "source_scene": frame.get("scene"),
+            }
+        )
+    return result
+
+
+def build_copy_plan(data: dict, frames: list[dict]) -> list[dict]:
+    interaction = data.get("interaction_mode") or "不互动"
+    result = []
+    for frame in frames:
+        copy = copy_for_frame(data, frame)
+        comment_prompt = "" if interaction == "不互动" else f"{copy['title']}，你会怎么选？"
+        result.append(
+            {
+                "frame_index": frame.get("index", 1),
+                "title": copy["title"],
+                "girl_bubble": copy["human"],
+                "cat_bubble": copy["cat"],
+                "narration": copy.get("narration", copy["title"]),
+                "comment_prompt": comment_prompt,
+                "text_position": {
+                    "title": "顶部标题区",
+                    "girl_bubble": "人物附近安全区",
+                    "cat_bubble": "猫咪附近安全区",
+                    "comment_prompt": "底部字幕区",
+                },
+            }
+        )
+    return result
+
+
+def required_references_for_frame(data: dict, frame: dict) -> list[str]:
+    idx = frame.get("index", 1)
+    continuous = to_bool_text(data.get("continuous_story", "否")) == "是"
+    base = ["原始人物身份参考图", "原始猫咪身份参考图"]
+    if not continuous:
+        return base + ["当前场景母版图"]
+    if idx == 1:
+        return base + ["当前场景母版图"]
+    if idx == 2:
+        return base + ["第1张锚点图"]
+    return base + ["第1张锚点图", f"第{idx - 1}张成图"]
+
+
+def generation_type_for_frame(data: dict, frame: dict) -> str:
+    if frame.get("index", 1) == 1:
+        return "anchor"
+    if to_bool_text(data.get("continuous_story", "否")) == "是":
+        return "continuation"
+    return "variant"
+
+
+def build_prompt_plan(data: dict, frames: list[dict], prompts: list[tuple[dict, str]]) -> list[dict]:
+    negative = (CONFIG_DIR / "negative_prompt.txt").read_text(encoding="utf-8").strip()
+    prompt_by_index = {frame.get("index", 1): prompt for frame, prompt in prompts}
+    result = []
+    for frame in frames:
+        idx = frame.get("index", 1)
+        result.append(
+            {
+                "frame_index": idx,
+                "generation_type": generation_type_for_frame(data, frame),
+                "required_references": required_references_for_frame(data, frame),
+                "reference_rule": continuity_block(data, frame),
+                "positive_prompt": prompt_by_index[idx],
+                "negative_prompt": f"{negative}\n不要换衣服，不要换车，不要换猫，不要生成拼图，不要九宫格，不要直接生成中文乱码文字。",
+            }
+        )
+    return result
+
+
+def retake_prompt_for_frame(frame_plan_item: dict, failed_items: list[str] | None = None, reason: str = "") -> str:
+    failed_text = "、".join(failed_items or ["连续性", "视觉证据"]) or "连续性"
+    evidence = "、".join(frame_plan_item.get("visual_evidence", []))
+    scene_name = frame_plan_item.get("source_scene") or ""
+    delivery_scenes = {"送外卖正面", "取外卖侧面", "骑车45度", "楼下抬头", "爬楼疲惫", "送达门口"}
+    if scene_name in delivery_scenes:
+        stable_items = [
+            "同一个年轻女生",
+            "同一只白色银渐层猫",
+            "同一套米色外卖马甲、白 T、深色裤子",
+            "同一辆浅色电动车",
+            "同一黑色网格前车篮",
+            "同一浅色后外卖箱",
+            "同一米色猫背带",
+        ]
+    else:
+        stable_items = [
+            "同一个年轻女生",
+            "同一只白色银渐层猫",
+            "同一套居家服装、眼镜、发型和整体气质",
+            "同一个沙发绿植居家环境",
+            "同一套空白气泡和后期叠字策略",
+        ]
+    stable_block = "\n".join(f"- {item}" for item in stable_items)
+    return f"""请基于第 1 张锚点图和上一张成图重新生成第 {frame_plan_item['frame_index']} 张。
+
+本次返工重点：修复 {failed_text}。
+失败原因：{reason or '当前图未通过人工验收'}。
+
+必须保持：
+{stable_block}
+
+本张只表达一个动作：
+{frame_plan_item['main_action']}
+
+画面必须出现这些视觉证据：
+{evidence}
+
+镜头改为：
+{frame_plan_item['camera']}
+
+保留空白气泡，后期叠字，不要直接生成中文。
+不要拼图，不要九宫格，不要漫画框。""".strip()
+
+
+def build_qa_results(data: dict, frame_plan_items: list[dict]) -> list[dict]:
+    failures = {int(x.get("frame_index")): x for x in data.get("qa_failures", []) if str(x.get("frame_index", "")).isdigit()}
+    result = []
+    for item in frame_plan_items:
+        idx = item["frame_index"]
+        failure = failures.get(idx)
+        if failure:
+            failed_items = failure.get("failed_items") or ["人工标记失败"]
+            reason = failure.get("reason") or "人工标记当前图未通过"
+            result.append(
+                {
+                    "frame_index": idx,
+                    "passed": False,
+                    "status": "failed_manual_review",
+                    "failed_items": failed_items,
+                    "reason": reason,
+                    "retake_prompt": retake_prompt_for_frame(item, failed_items, reason),
+                }
+            )
+            continue
+        result.append(
+            {
+                "frame_index": idx,
+                "passed": None,
+                "status": "pending_image_review",
+                "failed_items": [],
+                "reason": "待真实图片生成后按验收标准人工检查",
+                "retake_prompt": "",
+                "check_items": QA_FAILURE_TYPES,
+            }
+        )
+    return result
+
+
+def build_retake_prompts(frame_plan_items: list[dict], qa_results: list[dict]) -> list[dict]:
+    retakes = []
+    qa_by_index = {x["frame_index"]: x for x in qa_results}
+    for item in frame_plan_items:
+        qa = qa_by_index[item["frame_index"]]
+        retakes.append(
+            {
+                "frame_index": item["frame_index"],
+                "trigger_items": qa.get("failed_items") or QA_FAILURE_TYPES,
+                "retake_prompt": qa.get("retake_prompt") or retake_prompt_for_frame(item),
+            }
+        )
+    return retakes
+
+
+def build_pipeline_artifacts(data: dict, frames: list[dict], prompts: list[tuple[dict, str]]) -> dict:
+    story = build_story_plan(data)
+    frame_items = build_frame_plan(data, frames)
+    copy_items = build_copy_plan(data, frames)
+    prompt_items = build_prompt_plan(data, frames, prompts)
+    qa_items = build_qa_results(data, frame_items)
+    retake_items = build_retake_prompts(frame_items, qa_items)
+    return {
+        "input": data,
+        "story_plan": story,
+        "frame_plan": frame_items,
+        "copy_plan": copy_items,
+        "prompt_plan": prompt_items,
+        "qa_result": qa_items,
+        "retake_prompt": retake_items,
+    }
 
 
 def copywriting_block(data: dict, frame: dict) -> str:
@@ -324,7 +601,7 @@ def build_prompt(data: dict, frame: dict) -> str:
     style = spec["style"]
     idx, total = frame.get("index", 1), frame.get("total", 1)
 
-    return f"""基于《人猫搭档 AIGC 统一出图规范 V1.5》，保持同一个女生、同一只白色银渐层猫、同一套真实拍立得生活摄影风格，只改变本次场景、动作、角度和剧情推进，不改变核心视觉基因。
+    return f"""基于《人猫搭档 AIGC 统一出图规范 V1.7》，保持同一个女生、同一只白色银渐层猫、同一套真实拍立得生活摄影风格，只改变本次场景、动作、角度和剧情推进，不改变核心视觉基因。
 
 {reference_block(scene_name)}
 
@@ -430,7 +707,7 @@ def build_prompt_bundle(data: dict):
     prompts = [(frame, build_prompt(data, frame)) for frame in frames]
     if len(prompts) == 1:
         return prompts[0][1], prompts
-    guide = f"""# 人猫搭档连续故事生成任务 V1.5
+    guide = f"""# 人猫搭档连续故事生成任务 V1.7
 
 本任务共 {len(prompts)} 张图。
 
@@ -474,26 +751,53 @@ def write_task(data: dict, bundle_text: str, prompts):
     scene = safe_filename(data.get("scene") or "人猫搭档")
     ratio = safe_filename(data.get("ratio") or "4:3").replace(":", "x")
     suffix = f"{clamp_count(data.get('image_count', 1))}张" if clamp_count(data.get("image_count", 1)) > 1 else "单张"
-    out = OUTPUT_DIR / f"{ts}_{scene}_{ratio}_{suffix}_V1_5_Prompt.md"
+    task_dir = OUTPUT_DIR / f"{ts}_{scene}_{ratio}_{suffix}_V1_7_pipeline"
+    task_dir.mkdir(parents=True, exist_ok=True)
+    out = task_dir / "prompt_task.md"
+    frames = [frame for frame, _ in prompts]
+    artifacts = build_pipeline_artifacts(data, frames, prompts)
+    artifact_files = {
+        "input.json": artifacts["input"],
+        "story_plan.json": artifacts["story_plan"],
+        "frame_plan.json": artifacts["frame_plan"],
+        "copy_plan.json": artifacts["copy_plan"],
+        "prompt_plan.json": artifacts["prompt_plan"],
+        "qa_result.json": artifacts["qa_result"],
+        "retake_prompt.json": artifacts["retake_prompt"],
+    }
+    for filename, payload in artifact_files.items():
+        (task_dir / filename).write_text(json.dumps(payload, ensure_ascii=False, indent=2), encoding="utf-8")
     checklist = "\n".join(
         [
             "- [ ] 第 1 张已先单独生成为锚点图",
             "- [ ] 第 2 张开始已带上“第 1 张锚点 + 上一张成图”继续生成",
+            "- [ ] 已确认 story_plan / frame_plan / copy_plan / prompt_plan",
             "- [ ] 每张图都有标题、旁白、女生台词、猫咪台词",
             "- [ ] 文字落地模式符合预期，气泡或叠字不遮挡主体",
             "- [ ] 服装、道具、电动车、外卖箱前后连续一致",
             "- [ ] 当前图内分镜只在明确开启时出现",
             "- [ ] 每张图都是独立大图，不是拼图或多宫格",
+            "- [ ] 每张图已写入 qa_result，失败项已生成 retake_prompt",
         ]
     )
     task_body = bundle_text if len(prompts) > 1 else f"```text\n{bundle_text}\n```"
-    content = f"""# 人猫搭档生成任务 V1.5
+    content = f"""# 人猫搭档生成任务 V1.7
 
 ## 最小入参
 
 ```json
 {json.dumps(data, ensure_ascii=False, indent=2)}
 ```
+
+## V1.7 结构化产物
+
+- `input.json`
+- `story_plan.json`
+- `frame_plan.json`
+- `copy_plan.json`
+- `prompt_plan.json`
+- `qa_result.json`
+- `retake_prompt.json`
 
 ## 生成任务
 
@@ -538,7 +842,7 @@ def normalize_defaults(data: dict) -> dict:
 
 
 def main():
-    parser = argparse.ArgumentParser(description="人猫搭档 Prompt 生成器 V1.5")
+    parser = argparse.ArgumentParser(description="人猫搭档 Prompt 生成器 V1.7")
     parser.add_argument("--input", type=str)
     parser.add_argument("--scene", type=str)
     parser.add_argument("--angle", type=str)
@@ -572,9 +876,11 @@ def main():
     args = parser.parse_args()
 
     data = {}
+    loaded_from_input = False
     if args.input:
         input_path = (ROOT / args.input) if not Path(args.input).is_absolute() else Path(args.input)
         data = load_json(input_path)
+        loaded_from_input = True
 
     keys = [
         "scene",
@@ -611,6 +917,11 @@ def main():
         val = getattr(args, key)
         if val not in [None, ""]:
             data[key] = val
+
+    if loaded_from_input:
+        errors = validate_v17_input(data, args.input)
+        if errors:
+            raise SystemExit("入参校验失败：\n- " + "\n- ".join(errors))
 
     data = normalize_defaults(data)
     bundle, prompts = build_prompt_bundle(data)

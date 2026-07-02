@@ -1,21 +1,31 @@
 {
-  "version": "1.5",
-  "description": "人猫搭档少量入参 Schema。v1.5 增加文字落地、服装风格锁定、当前图内可选分镜，并保留 v1.4 连续故事机制。",
+  "version": "1.7",
+  "description": "人猫搭档 V1.7 最小入参 Schema。目标是先生成可检查、可返工的 story/frame/copy/prompt/qa 文本流水线，再进入真实图片生成。",
   "required": [
-    "scene"
+    "scene",
+    "image_count",
+    "continuous_story",
+    "story_template"
   ],
+  "defaults": {
+    "ratio": "9:16",
+    "platform": "抖音竖屏",
+    "output_mode": "单张大图",
+    "text_render_mode": "生成空白气泡 + 后期叠字图层",
+    "in_image_storyboard": "关闭"
+  },
   "fields": {
     "scene": {
       "type": "string",
-      "example": "取外卖侧面"
+      "example": "送外卖正面"
     },
     "angle": {
       "type": "string",
-      "example": "侧面"
+      "example": "第三人称正面中景"
     },
     "action": {
       "type": "string",
-      "example": "取外卖"
+      "example": "接到第一单，准备出发"
     },
     "clothing": {
       "type": "string",
@@ -23,11 +33,11 @@
     },
     "mood": {
       "type": "string",
-      "example": "专注"
+      "example": "紧张但认真"
     },
     "extra": {
       "type": "string",
-      "example": "猫坐在电动车前篮里，女生从取餐窗口接过纸袋"
+      "example": "每张图只推进一个明确动作，保持人猫和道具连续。"
     },
     "output_mode": {
       "type": "string",
@@ -43,7 +53,7 @@
         "4:3",
         "9:16"
       ],
-      "default": "4:3"
+      "default": "9:16"
     },
     "platform": {
       "type": "string",
@@ -51,14 +61,14 @@
         "通用",
         "抖音竖屏"
       ],
-      "default": "通用"
+      "default": "抖音竖屏"
     },
     "image_count": {
       "type": "integer",
       "minimum": 1,
       "maximum": 12,
-      "default": 1,
-      "description": "抖音竖屏可设置多张，每张都是独立大图。"
+      "required": true,
+      "description": "本组故事需要生成的图片张数。V1.7 必填，用于保证 frame_plan/copy_plan/prompt_plan 数量一致。"
     },
     "continuous_story": {
       "type": "string",
@@ -66,8 +76,38 @@
         "否",
         "是"
       ],
-      "default": "否",
-      "description": "是：自动拆成前后承接的连续故事大图，每张图有剧情推进；否：同主题多张变体。"
+      "required": true,
+      "description": "是：第 1 张生成锚点，第 2-N 张按顺序承接；否：同主题变体，不强制引用上一张成图。"
+    },
+    "story_template": {
+      "type": "string",
+      "enum": [
+        "自动判断",
+        "外卖跑单故事",
+        "居家治愈故事"
+      ],
+      "required": true,
+      "description": "V1.7 必填。用于生成 story_plan、mood_curve 和逐张剧情动作。"
+    },
+    "story_id": {
+      "type": "string",
+      "example": "delivery_first_day_001"
+    },
+    "story_title": {
+      "type": "string",
+      "example": "第一天送外卖"
+    },
+    "mood_curve": {
+      "type": "array",
+      "items": "string",
+      "example": [
+        "紧张",
+        "小心",
+        "专注",
+        "进入状态",
+        "有点慌",
+        "放松"
+      ]
     },
     "identity_lock": {
       "type": "string",
@@ -86,7 +126,7 @@
         "双气泡",
         "旁白标题"
       ],
-      "default": "无"
+      "default": "双气泡"
     },
     "text_mode": {
       "type": "string",
@@ -95,7 +135,7 @@
         "直接生成文字",
         "空白气泡后期加字"
       ],
-      "default": "无文字"
+      "default": "空白气泡后期加字"
     },
     "text_render_mode": {
       "type": "string",
@@ -106,7 +146,7 @@
         "直接在图中生成文字"
       ],
       "default": "生成空白气泡 + 后期叠字图层",
-      "description": "控制文字内容如何落地。推荐先生成空白气泡，再输出后期叠字图层规格。"
+      "description": "推荐空白气泡后期叠字，避免图片模型直接生成中文乱码。"
     },
     "text_position": {
       "type": "string",
@@ -125,7 +165,7 @@
         "手动填写",
         "自动根据情节生成"
       ],
-      "default": "手动填写"
+      "default": "自动根据情节生成"
     },
     "interaction_mode": {
       "type": "string",
@@ -137,37 +177,27 @@
         "点赞关注",
         "选择投票"
       ],
-      "default": "不互动"
+      "default": "评论引导"
     },
     "title_text": {
       "type": "string",
       "maxLength": 16,
-      "example": "取餐完成"
+      "example": "第一单来了"
     },
     "narration_text": {
       "type": "string",
       "maxLength": 16,
-      "example": "第一单到手"
+      "example": "第一天跑单，先稳住"
     },
     "human_text": {
       "type": "string",
       "maxLength": 14,
-      "example": "马上送到"
+      "example": "我先确认下"
     },
     "cat_text": {
       "type": "string",
       "maxLength": 14,
-      "example": "累鼠啦"
-    },
-    "story_template": {
-      "type": "string",
-      "enum": [
-        "自动判断",
-        "外卖跑单故事",
-        "居家治愈故事"
-      ],
-      "default": "自动判断",
-      "description": "连续情节开启时使用的故事模板。默认自动根据场景判断。"
+      "example": "要出发了吗"
     },
     "story_coherence": {
       "type": "string",
@@ -175,8 +205,7 @@
         "普通",
         "强"
       ],
-      "default": "强",
-      "description": "连续故事的一致性强度。建议保持强。"
+      "default": "强"
     },
     "outfit_style_lock": {
       "type": "string",
@@ -185,8 +214,7 @@
         "弱锁定",
         "强锁定"
       ],
-      "default": "强锁定",
-      "description": "连续故事默认强锁定，避免同组图随机换装。"
+      "default": "强锁定"
     },
     "outfit_reference": {
       "type": "string",
@@ -225,6 +253,25 @@
         "主画面 + 小视角窗口"
       ],
       "default": "主画面 + 小视角窗口"
+    },
+    "qa_failures": {
+      "type": "array",
+      "description": "可选。用于手动标记已生成图片的失败项，脚本会写入 qa_result 并生成对应 retake_prompt。",
+      "items": {
+        "frame_index": "integer",
+        "failed_items": "array<string>",
+        "reason": "string"
+      },
+      "example": [
+        {
+          "frame_index": 2,
+          "failed_items": [
+            "服装道具连续性",
+            "视觉证据不足"
+          ],
+          "reason": "猫背带贴片变化明显，检查装备动作不清楚"
+        }
+      ]
     }
   }
 }
