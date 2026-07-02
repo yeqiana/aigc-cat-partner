@@ -238,6 +238,7 @@ def build_story_plan(data: dict) -> dict:
         "image_count": count,
         "continuous_story": to_bool_text(data.get("continuous_story", "否")) == "是",
         "story_template": tpl,
+        "story_outline": data.get("story_outline") or "",
         "mood_curve": mood_curve[:count],
         "anchor_frame_index": 1,
         "text_render_mode": data.get("text_render_mode") or "生成空白气泡 + 后期叠字图层",
@@ -595,6 +596,7 @@ def build_prompt(data: dict, frame: dict) -> str:
     action = frame.get("action") or data.get("action") or scene.get("action_description")
     clothing = data.get("clothing") if data.get("clothing") not in [None, "", "自动使用场景预设"] else scene.get("clothing_suggestion") or "居家休闲服"
     mood = data.get("mood") or "日常轻松"
+    story_outline = data.get("story_outline") or ""
     extra = frame.get("extra") or data.get("extra") or ""
     human = spec["human_visual_gene"]
     cat = spec["cat_visual_gene"]
@@ -615,6 +617,7 @@ def build_prompt(data: dict, frame: dict) -> str:
 
 【故事主线】
 故事模板：{frame.get('story_template', choose_story_template(data))}
+故事情节：{story_outline if story_outline else '未单独填写，按故事模板和本幕推进'}
 当前镜头：第 {idx}/{total} 张
 上一幕：{frame.get('prev_phase', '无')}
 本幕：{frame.get('story_phase', '当前镜头')}
@@ -812,6 +815,8 @@ def write_task(data: dict, bundle_text: str, prompts):
 
 def normalize_defaults(data: dict) -> dict:
     data = dict(data)
+    data.setdefault("preset_name", "")
+    data.setdefault("story_outline", "")
     data.setdefault("scene", "送外卖正面")
     data.setdefault("output_mode", "单张大图")
     data.setdefault("ratio", "4:3")
@@ -849,6 +854,7 @@ def main():
     parser.add_argument("--action", type=str)
     parser.add_argument("--clothing", type=str)
     parser.add_argument("--mood", type=str)
+    parser.add_argument("--story-outline", dest="story_outline", type=str)
     parser.add_argument("--extra", type=str)
     parser.add_argument("--output-mode", dest="output_mode", type=str, choices=["单张大图", "多镜头拼图"])
     parser.add_argument("--ratio", type=str, choices=["4:3", "9:16"])
@@ -888,6 +894,7 @@ def main():
         "action",
         "clothing",
         "mood",
+        "story_outline",
         "extra",
         "output_mode",
         "ratio",

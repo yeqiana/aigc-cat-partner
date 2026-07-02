@@ -15,6 +15,11 @@
     "in_image_storyboard": "关闭"
   },
   "fields": {
+    "preset_name": {
+      "type": "string",
+      "example": "外卖跑单·连续故事常用",
+      "description": "入口页常用配置模板名称。只用于记录本次使用的模板，不参与图片模型生成。"
+    },
     "scene": {
       "type": "string",
       "example": "送外卖正面"
@@ -35,9 +40,15 @@
       "type": "string",
       "example": "紧张但认真"
     },
+    "story_outline": {
+      "type": "string",
+      "example": "第一天送外卖：接到第一单，检查猫背带，到店取餐，路上配送，找楼，最后送达收束。",
+      "description": "本次故事情节。用于描述故事从哪开始、怎样推进、到哪里结束。不要再把主要故事塞进 extra。"
+    },
     "extra": {
       "type": "string",
-      "example": "每张图只推进一个明确动作，保持人猫和道具连续。"
+      "example": "每张图只推进一个明确动作，保持人猫和道具连续。",
+      "description": "补充约束。用于填写额外要求、禁忌项和返工注意事项。"
     },
     "output_mode": {
       "type": "string",

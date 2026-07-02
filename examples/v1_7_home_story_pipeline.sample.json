@@ -1,9 +1,11 @@
 {
+  "preset_name": "居家治愈·连续故事常用",
   "story_id": "home_healing_day_001",
   "story_title": "人猫居家治愈日",
   "scene": "沙发绿植正面",
   "clothing": "居家休闲服",
   "mood": "温暖、安静、治愈",
+  "story_outline": "居家治愈故事：人和猫在沙发绿植环境里开场互动，抱猫、展示衣服、猫咪抢镜，最后一起安静休息。",
   "output_mode": "单张大图",
   "ratio": "9:16",
   "platform": "抖音竖屏",
