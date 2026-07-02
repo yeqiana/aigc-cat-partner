@@ -1,0 +1,166 @@
+{
+  "version": "1.4",
+  "description": "人猫搭档少量入参 Schema。v1.4 修复连续故事问题：多张图会形成场景连贯的故事，不再只是同角色换背景。",
+  "required": [
+    "scene"
+  ],
+  "fields": {
+    "scene": {
+      "type": "string",
+      "example": "取外卖侧面"
+    },
+    "angle": {
+      "type": "string",
+      "example": "侧面"
+    },
+    "action": {
+      "type": "string",
+      "example": "取外卖"
+    },
+    "clothing": {
+      "type": "string",
+      "example": "外卖职业服"
+    },
+    "mood": {
+      "type": "string",
+      "example": "专注"
+    },
+    "extra": {
+      "type": "string",
+      "example": "猫坐在电动车前篮里，女生从取餐窗口接过纸袋"
+    },
+    "output_mode": {
+      "type": "string",
+      "enum": [
+        "单张大图",
+        "多镜头拼图"
+      ],
+      "default": "单张大图"
+    },
+    "ratio": {
+      "type": "string",
+      "enum": [
+        "4:3",
+        "9:16"
+      ],
+      "default": "4:3"
+    },
+    "platform": {
+      "type": "string",
+      "enum": [
+        "通用",
+        "抖音竖屏"
+      ],
+      "default": "通用"
+    },
+    "image_count": {
+      "type": "integer",
+      "minimum": 1,
+      "maximum": 12,
+      "default": 1,
+      "description": "抖音竖屏可设置多张，每张都是独立大图。"
+    },
+    "continuous_story": {
+      "type": "string",
+      "enum": [
+        "否",
+        "是"
+      ],
+      "default": "否",
+      "description": "是：自动拆成前后承接的连续故事大图，每张图有剧情推进；否：同主题多张变体。"
+    },
+    "identity_lock": {
+      "type": "string",
+      "enum": [
+        "强锁定",
+        "普通锁定"
+      ],
+      "default": "强锁定"
+    },
+    "bubble_mode": {
+      "type": "string",
+      "enum": [
+        "无",
+        "人物气泡",
+        "猫咪气泡",
+        "双气泡",
+        "旁白标题"
+      ],
+      "default": "无"
+    },
+    "text_mode": {
+      "type": "string",
+      "enum": [
+        "无文字",
+        "直接生成文字",
+        "空白气泡后期加字"
+      ],
+      "default": "无文字"
+    },
+    "text_position": {
+      "type": "string",
+      "enum": [
+        "自动",
+        "顶部标题区",
+        "人物旁边",
+        "猫咪旁边",
+        "底部字幕区"
+      ],
+      "default": "自动"
+    },
+    "copywriting_mode": {
+      "type": "string",
+      "enum": [
+        "手动填写",
+        "自动根据情节生成"
+      ],
+      "default": "手动填写"
+    },
+    "interaction_mode": {
+      "type": "string",
+      "enum": [
+        "不互动",
+        "看向观众",
+        "提问互动",
+        "评论引导",
+        "点赞关注",
+        "选择投票"
+      ],
+      "default": "不互动"
+    },
+    "human_text": {
+      "type": "string",
+      "maxLength": 14,
+      "example": "马上送到"
+    },
+    "cat_text": {
+      "type": "string",
+      "maxLength": 14,
+      "example": "累鼠啦"
+    },
+    "title_text": {
+      "type": "string",
+      "maxLength": 14,
+      "example": "取餐完成"
+    },
+    "story_template": {
+      "type": "string",
+      "enum": [
+        "自动判断",
+        "外卖跑单故事",
+        "居家治愈故事"
+      ],
+      "default": "自动判断",
+      "description": "连续情节开启时使用的故事模板。默认自动根据场景判断。"
+    },
+    "story_coherence": {
+      "type": "string",
+      "enum": [
+        "普通",
+        "强"
+      ],
+      "default": "强",
+      "description": "连续故事的一致性强度。建议保持强。"
+    }
+  }
+}

@@ -1,0 +1,47 @@
+{
+  "batch_name": "第一批人猫搭档标准资产",
+  "tasks": [
+    {
+      "scene": "沙发绿植正面",
+      "angle": "正面",
+      "action": "抱猫",
+      "clothing": "白T互印头像",
+      "mood": "温馨"
+    },
+    {
+      "scene": "沙发绿植45度",
+      "angle": "45度",
+      "action": "抱猫",
+      "clothing": "居家休闲服",
+      "mood": "温馨"
+    },
+    {
+      "scene": "送外卖正面",
+      "angle": "正面",
+      "action": "骑车",
+      "clothing": "外卖职业服",
+      "mood": "日常轻松"
+    },
+    {
+      "scene": "取外卖侧面",
+      "angle": "侧面",
+      "action": "取外卖",
+      "clothing": "外卖职业服",
+      "mood": "专注"
+    },
+    {
+      "scene": "骑车45度",
+      "angle": "45度",
+      "action": "骑车",
+      "clothing": "外卖职业服",
+      "mood": "日常轻松"
+    },
+    {
+      "scene": "爬楼疲惫",
+      "angle": "背面45度",
+      "action": "爬楼",
+      "clothing": "外卖职业服",
+      "mood": "疲惫搞笑"
+    }
+  ]
+}

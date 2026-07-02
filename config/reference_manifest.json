@@ -1,0 +1,26 @@
+{
+  "version": "1.4",
+  "purpose": "cross_session_identity_lock",
+  "required_each_new_session": [
+    "99_跨会话身份锁定包/01_原始参考图_每次新会话必传/R01_human_identity_ref.jpg",
+    "99_跨会话身份锁定包/01_原始参考图_每次新会话必传/R02_cat_identity_ref_front.jpg",
+    "99_跨会话身份锁定包/01_原始参考图_每次新会话必传/R03_cat_identity_ref_close.jpg"
+  ],
+  "optional_master_references": {
+    "沙发绿植正面": "99_跨会话身份锁定包/02_母版参考图_稳定风格可选/M01_sofa_green_front_4x3.png",
+    "沙发绿植45度": "99_跨会话身份锁定包/02_母版参考图_稳定风格可选/M02_sofa_green_45deg_4x3.png",
+    "送外卖正面": "99_跨会话身份锁定包/02_母版参考图_稳定风格可选/M03_delivery_front_4x3.png",
+    "取外卖侧面": "99_跨会话身份锁定包/02_母版参考图_稳定风格可选/M04_delivery_pickup_side_4x3.png",
+    "骑车45度": "99_跨会话身份锁定包/02_母版参考图_稳定风格可选/M05_delivery_riding_45deg_4x3.png",
+    "爬楼疲惫": "99_跨会话身份锁定包/02_母版参考图_稳定风格可选/M06_delivery_stairs_back_4x3.png",
+    "楼下抬头": "99_跨会话身份锁定包/02_母版参考图_稳定风格可选/M05_delivery_riding_45deg_4x3.png",
+    "送达门口": "99_跨会话身份锁定包/02_母版参考图_稳定风格可选/M06_delivery_stairs_back_4x3.png",
+    "收工回家": "99_跨会话身份锁定包/02_母版参考图_稳定风格可选/M01_sofa_green_front_4x3.png"
+  },
+  "priority_order": [
+    "raw_human_identity",
+    "raw_cat_identity",
+    "master_reference",
+    "prompt_scene_details"
+  ]
+}

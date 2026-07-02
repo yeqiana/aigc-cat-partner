@@ -1,0 +1,16 @@
+{
+  "scene": "爬楼疲惫",
+  "clothing": "外卖职业服",
+  "mood": "累但好笑",
+  "output_mode": "单张大图",
+  "ratio": "9:16",
+  "platform": "抖音竖屏",
+  "image_count": 1,
+  "continuous_story": "否",
+  "identity_lock": "强锁定",
+  "bubble_mode": "旁白标题",
+  "text_mode": "空白气泡后期加字",
+  "text_position": "顶部标题区",
+  "copywriting_mode": "自动根据情节生成",
+  "interaction_mode": "选择投票"
+}
