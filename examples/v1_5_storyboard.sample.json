@@ -1,11 +1,11 @@
 {
-  "scene": "送外卖正面",
+  "scene": "取外卖侧面",
   "clothing": "外卖职业服",
-  "mood": "真实、轻松、有一点点累但很治愈",
+  "mood": "真实、轻松、动作清楚",
   "output_mode": "单张大图",
   "ratio": "9:16",
   "platform": "抖音竖屏",
-  "image_count": 6,
+  "image_count": 2,
   "continuous_story": "是",
   "story_template": "外卖跑单故事",
   "story_coherence": "强",
@@ -17,9 +17,9 @@
   "text_render_mode": "生成空白气泡 + 后期叠字图层",
   "text_position": "自动",
   "copywriting_mode": "自动根据情节生成",
-  "interaction_mode": "评论引导",
-  "in_image_storyboard": "关闭",
-  "storyboard_view": "第三人称",
-  "storyboard_layout": "主画面 + 小视角窗口",
-  "extra": "我要的是前后连贯的送外卖故事，不是同一角色在不同场景的散图。每张图都要承接上一张，并推动剧情。"
+  "interaction_mode": "提问互动",
+  "in_image_storyboard": "开启",
+  "storyboard_view": "第一人称 + 第三人称",
+  "storyboard_layout": "上下分镜",
+  "extra": "当前图允许 2 个分镜，上半部分展示手拿外卖袋的第一人称视角，下半部分展示人猫在取餐口的第三人称视角。"
 }

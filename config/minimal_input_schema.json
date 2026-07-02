@@ -1,6 +1,6 @@
 {
-  "version": "1.4",
-  "description": "人猫搭档少量入参 Schema。v1.4 修复连续故事问题：多张图会形成场景连贯的故事，不再只是同角色换背景。",
+  "version": "1.5",
+  "description": "人猫搭档少量入参 Schema。v1.5 增加文字落地、服装风格锁定、当前图内可选分镜，并保留 v1.4 连续故事机制。",
   "required": [
     "scene"
   ],
@@ -97,6 +97,17 @@
       ],
       "default": "无文字"
     },
+    "text_render_mode": {
+      "type": "string",
+      "enum": [
+        "仅生成文案清单",
+        "生成空白气泡 + 文案清单",
+        "生成空白气泡 + 后期叠字图层",
+        "直接在图中生成文字"
+      ],
+      "default": "生成空白气泡 + 后期叠字图层",
+      "description": "控制文字内容如何落地。推荐先生成空白气泡，再输出后期叠字图层规格。"
+    },
     "text_position": {
       "type": "string",
       "enum": [
@@ -128,6 +139,16 @@
       ],
       "default": "不互动"
     },
+    "title_text": {
+      "type": "string",
+      "maxLength": 16,
+      "example": "取餐完成"
+    },
+    "narration_text": {
+      "type": "string",
+      "maxLength": 16,
+      "example": "第一单到手"
+    },
     "human_text": {
       "type": "string",
       "maxLength": 14,
@@ -137,11 +158,6 @@
       "type": "string",
       "maxLength": 14,
       "example": "累鼠啦"
-    },
-    "title_text": {
-      "type": "string",
-      "maxLength": 14,
-      "example": "取餐完成"
     },
     "story_template": {
       "type": "string",
@@ -161,6 +177,54 @@
       ],
       "default": "强",
       "description": "连续故事的一致性强度。建议保持强。"
+    },
+    "outfit_style_lock": {
+      "type": "string",
+      "enum": [
+        "不锁定",
+        "弱锁定",
+        "强锁定"
+      ],
+      "default": "强锁定",
+      "description": "连续故事默认强锁定，避免同组图随机换装。"
+    },
+    "outfit_reference": {
+      "type": "string",
+      "enum": [
+        "文字描述",
+        "人物参考图",
+        "第一张锚点图",
+        "当前故事模板默认服装",
+        "第一张锚点图 + 人物参考图"
+      ],
+      "default": "第一张锚点图 + 人物参考图"
+    },
+    "in_image_storyboard": {
+      "type": "string",
+      "enum": [
+        "关闭",
+        "开启"
+      ],
+      "default": "关闭",
+      "description": "默认关闭。只有明确开启时，当前图才允许 2-3 个分镜。"
+    },
+    "storyboard_view": {
+      "type": "string",
+      "enum": [
+        "第一人称",
+        "第三人称",
+        "第一人称 + 第三人称"
+      ],
+      "default": "第三人称"
+    },
+    "storyboard_layout": {
+      "type": "string",
+      "enum": [
+        "上下分镜",
+        "左右分镜",
+        "主画面 + 小视角窗口"
+      ],
+      "default": "主画面 + 小视角窗口"
     }
   }
 }

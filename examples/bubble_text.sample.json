@@ -9,9 +9,13 @@
   "ratio": "9:16",
   "platform": "抖音竖屏",
   "identity_lock": "强锁定",
+  "outfit_style_lock": "强锁定",
+  "outfit_reference": "第一张锚点图 + 人物参考图",
   "bubble_mode": "双气泡",
   "text_mode": "空白气泡后期加字",
+  "text_render_mode": "生成空白气泡 + 后期叠字图层",
   "text_position": "自动",
+  "copywriting_mode": "手动填写",
   "human_text": "还有几层？",
   "cat_text": "累鼠啦"
 }

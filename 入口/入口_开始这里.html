@@ -3,35 +3,66 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>人猫搭档 Prompt 生成入口 V1.4</title>
+  <title>人猫搭档 Prompt 生成入口 V1.5</title>
   <style>
-    :root{--bg:#f7f3ec;--card:#fffaf3;--text:#2d2a26;--muted:#7a7167;--line:#e4d9c9;--accent:#7b5f43}
-    *{box-sizing:border-box}body{margin:0;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI","Microsoft YaHei",Arial,sans-serif;background:linear-gradient(135deg,#f7f3ec,#edf3ea);color:var(--text)}
-    .wrap{max-width:1240px;margin:0 auto;padding:28px 18px 44px}.hero{display:flex;justify-content:space-between;gap:18px;align-items:flex-end;margin-bottom:20px}.hero h1{margin:0;font-size:30px}.hero p{margin:8px 0 0;color:var(--muted);line-height:1.6}.grid{display:grid;grid-template-columns:430px 1fr;gap:18px}.card{background:rgba(255,250,243,.94);border:1px solid var(--line);border-radius:20px;box-shadow:0 10px 30px rgba(88,64,38,.08);padding:18px}.field{margin-bottom:14px}.field label{display:block;font-weight:800;margin-bottom:7px}.field small{display:block;color:var(--muted);margin-top:5px;line-height:1.5}.field select,.field input,.field textarea{width:100%;border:1px solid var(--line);border-radius:12px;background:#fff;padding:11px;font-size:14px;color:var(--text)}textarea{min-height:82px;resize:vertical}.two{display:grid;grid-template-columns:1fr 1fr;gap:10px}.three{display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px}.actions{display:flex;gap:10px;flex-wrap:wrap;margin-top:12px}button{border:0;border-radius:12px;padding:12px 16px;font-weight:800;cursor:pointer}button.primary{background:var(--accent);color:#fff}button.secondary{background:#ede3d6;color:#4c3b2a}.output{white-space:pre-wrap;background:#1f1d1a;color:#f8f1e8;border-radius:16px;padding:18px;min-height:840px;font-family:Consolas,"SFMono-Regular","Liberation Mono",monospace;font-size:13px;line-height:1.62;overflow:auto}.warn{background:#fff4e8;border:1px solid #e5c3a7;color:#6d3f21;border-radius:14px;padding:12px;font-size:13px;line-height:1.65;margin-bottom:14px}.section-title{font-size:14px;color:#6d3f21;font-weight:900;margin:18px 0 10px;border-top:1px solid var(--line);padding-top:16px}.pill{display:inline-block;padding:5px 9px;border:1px solid var(--line);border-radius:999px;background:#fff;font-size:12px;color:var(--muted);margin:3px 3px 0 0}@media(max-width:960px){.grid{grid-template-columns:1fr}.hero{display:block}.output{min-height:520px}}
+    :root{--bg:#f6f4ef;--panel:#fffdf8;--text:#25221f;--muted:#6f6960;--line:#ddd5ca;--accent:#5f6f52;--accent2:#8a5d3b}
+    *{box-sizing:border-box}
+    body{margin:0;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI","Microsoft YaHei",Arial,sans-serif;background:var(--bg);color:var(--text)}
+    .wrap{max-width:1240px;margin:0 auto;padding:24px 18px 40px}
+    .hero{display:flex;justify-content:space-between;gap:18px;align-items:flex-end;margin-bottom:18px}
+    .hero h1{margin:0;font-size:28px;letter-spacing:0}
+    .hero p{margin:8px 0 0;color:var(--muted);line-height:1.6}
+    .grid{display:grid;grid-template-columns:430px 1fr;gap:16px}
+    .card{background:var(--panel);border:1px solid var(--line);border-radius:8px;padding:16px}
+    .field{margin-bottom:13px}
+    .field label{display:block;font-weight:800;margin-bottom:7px}
+    .field small{display:block;color:var(--muted);margin-top:5px;line-height:1.5}
+    .field select,.field input,.field textarea{width:100%;border:1px solid var(--line);border-radius:6px;background:#fff;padding:10px;font-size:14px;color:var(--text)}
+    textarea{min-height:82px;resize:vertical}
+    .two{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+    .three{display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px}
+    .actions{display:flex;gap:10px;flex-wrap:wrap;margin-top:12px}
+    button{border:0;border-radius:6px;padding:11px 15px;font-weight:800;cursor:pointer}
+    button.primary{background:var(--accent);color:#fff}
+    button.secondary{background:#ece6dc;color:#3e352d}
+    .output{white-space:pre-wrap;background:#1f211e;color:#f6f1e9;border-radius:8px;padding:16px;min-height:860px;font-family:Consolas,"SFMono-Regular","Liberation Mono",monospace;font-size:13px;line-height:1.62;overflow:auto}
+    .warn{background:#fff7e8;border:1px solid #dfc49d;color:#593915;border-radius:8px;padding:11px;font-size:13px;line-height:1.65;margin-bottom:13px}
+    .section-title{font-size:14px;color:#4e5d43;font-weight:900;margin:16px 0 10px;border-top:1px solid var(--line);padding-top:14px}
+    .pill{display:inline-block;padding:5px 8px;border:1px solid var(--line);border-radius:999px;background:#fff;font-size:12px;color:var(--muted);margin:3px 3px 0 0}
+    @media(max-width:960px){.grid{grid-template-columns:1fr}.hero{display:block}.output{min-height:520px}.three{grid-template-columns:1fr}.two{grid-template-columns:1fr}}
   </style>
 </head>
 <body>
 <div class="wrap">
   <div class="hero">
     <div>
-      <h1>人猫搭档 Prompt 生成入口 V1.4</h1>
-      <p>修复“多张图不连贯”问题：支持连续故事、顺序生成说明、抖音 9:16 单张大图、自动文案、气泡文字与观众互动。</p>
+      <h1>人猫搭档 Prompt 生成入口 V1.5</h1>
+      <p>支持连续故事、顺序生成、文字落地、服装风格锁定、当前图内可选分镜。</p>
     </div>
-    <div><span class="pill">连续故事修复</span><span class="pill">顺序生成</span><span class="pill">9:16 大图</span><span class="pill">自动文案</span></div>
+    <div><span class="pill">V1.5</span><span class="pill">叠字图层</span><span class="pill">服装锁定</span><span class="pill">可选分镜</span></div>
   </div>
   <div class="grid">
     <div class="card">
-      <div class="warn"><b>连续故事的关键：</b>不要把 5 张同时并行生图。第 1 张先出锚点，第 2 张开始必须把“第 1 张锚点 + 上一张成图”继续作为参考图上传，这样才像同一个故事。</div>
+      <div class="warn"><b>连续故事关键：</b>第 1 张先出锚点，第 2 张开始带“第 1 张锚点 + 上一张成图 + 本张母版图”。当前图内分镜默认关闭，只有明确开启时才允许分镜框。</div>
+
       <div class="section-title">1. 基础</div>
       <div class="field"><label>起始场景</label><select id="scene"><option>送外卖正面</option><option>沙发绿植正面</option><option>沙发绿植45度</option><option>取外卖侧面</option><option>骑车45度</option><option>楼下抬头</option><option>爬楼疲惫</option><option>送达门口</option><option>收工回家</option></select></div>
       <div class="two"><div class="field"><label>服装</label><select id="clothing"><option>自动使用场景预设</option><option>白T互印头像</option><option>居家休闲服</option><option selected>外卖职业服</option></select></div><div class="field"><label>氛围</label><input id="mood" value="真实、生活感、连贯故事" /></div></div>
       <div class="field"><label>补充说明</label><textarea id="extra">我要的是前后连贯的故事，不是同一角色在不同场景的散图。每一张都要承接上一张，并推动剧情。</textarea></div>
+
       <div class="section-title">2. 故事模式</div>
-      <div class="three"><div class="field"><label>比例</label><select id="ratio"><option>4:3</option><option selected>9:16</option></select></div><div class="field"><label>平台</label><select id="platform"><option>通用</option><option selected>抖音竖屏</option></select></div><div class="field"><label>生成张数</label><select id="imageCount"><option>1</option><option>3</option><option>4</option><option selected>6</option><option>8</option></select></div></div>
+      <div class="three"><div class="field"><label>比例</label><select id="ratio"><option>4:3</option><option selected>9:16</option></select></div><div class="field"><label>平台</label><select id="platform"><option>通用</option><option selected>抖音竖屏</option></select></div><div class="field"><label>生成张数</label><select id="imageCount"><option>1</option><option>2</option><option>3</option><option>4</option><option>5</option><option selected>6</option><option>8</option><option>12</option></select></div></div>
       <div class="three"><div class="field"><label>连续情节</label><select id="continuousStory"><option>否</option><option selected>是</option></select></div><div class="field"><label>故事模板</label><select id="storyTemplate"><option selected>自动判断</option><option>外卖跑单故事</option><option>居家治愈故事</option></select></div><div class="field"><label>连续性强度</label><select id="storyCoherence"><option>普通</option><option selected>强</option></select></div></div>
+
       <div class="section-title">3. 气泡 / 文字 / 互动</div>
       <div class="two"><div class="field"><label>气泡模式</label><select id="bubbleMode"><option>无</option><option>人物气泡</option><option>猫咪气泡</option><option selected>双气泡</option><option>旁白标题</option></select></div><div class="field"><label>文字模式</label><select id="textMode"><option>无文字</option><option>直接生成文字</option><option selected>空白气泡后期加字</option></select></div></div>
+      <div class="field"><label>文字落地模式</label><select id="textRenderMode"><option>仅生成文案清单</option><option>生成空白气泡 + 文案清单</option><option selected>生成空白气泡 + 后期叠字图层</option><option>直接在图中生成文字</option></select><small>推荐“空白气泡 + 后期叠字图层”，避免图片模型直接生成中文乱码。</small></div>
       <div class="three"><div class="field"><label>文字位置</label><select id="textPosition"><option selected>自动</option><option>顶部标题区</option><option>人物旁边</option><option>猫咪旁边</option><option>底部字幕区</option></select></div><div class="field"><label>文案生成</label><select id="copywritingMode"><option>手动填写</option><option selected>自动根据情节生成</option></select></div><div class="field"><label>观众互动</label><select id="interactionMode"><option>不互动</option><option>看向观众</option><option selected>评论引导</option><option>提问互动</option><option>点赞关注</option><option>选择投票</option></select></div></div>
+
+      <div class="section-title">4. V1.5 锁定与分镜</div>
+      <div class="two"><div class="field"><label>服装风格锁定</label><select id="outfitStyleLock"><option>不锁定</option><option>弱锁定</option><option selected>强锁定</option></select></div><div class="field"><label>服装参考来源</label><select id="outfitReference"><option>文字描述</option><option>人物参考图</option><option>第一张锚点图</option><option>当前故事模板默认服装</option><option selected>第一张锚点图 + 人物参考图</option></select></div></div>
+      <div class="three"><div class="field"><label>当前图内分镜</label><select id="inImageStoryboard"><option selected>关闭</option><option>开启</option></select></div><div class="field"><label>分镜视角</label><select id="storyboardView"><option>第一人称</option><option selected>第三人称</option><option>第一人称 + 第三人称</option></select></div><div class="field"><label>分镜布局</label><select id="storyboardLayout"><option>上下分镜</option><option>左右分镜</option><option selected>主画面 + 小视角窗口</option></select></div></div>
+
       <div class="actions"><button class="primary" onclick="generate()">生成最小入参 JSON</button><button class="secondary" onclick="copyOut()">复制</button></div>
     </div>
     <div class="card"><div id="out" class="output"></div></div>
@@ -44,8 +75,10 @@ function generate(){
     scene:v('scene'), clothing:v('clothing'), mood:v('mood'), extra:v('extra'), output_mode:'单张大图',
     ratio:v('ratio'), platform:v('platform'), image_count:Number(v('imageCount')), continuous_story:v('continuousStory'),
     story_template:v('storyTemplate'), story_coherence:v('storyCoherence'), identity_lock:'强锁定',
-    bubble_mode:v('bubbleMode'), text_mode:v('textMode'), text_position:v('textPosition'),
-    copywriting_mode:v('copywritingMode'), interaction_mode:v('interactionMode')
+    bubble_mode:v('bubbleMode'), text_mode:v('textMode'), text_render_mode:v('textRenderMode'), text_position:v('textPosition'),
+    copywriting_mode:v('copywritingMode'), interaction_mode:v('interactionMode'),
+    outfit_style_lock:v('outfitStyleLock'), outfit_reference:v('outfitReference'),
+    in_image_storyboard:v('inImageStoryboard'), storyboard_view:v('storyboardView'), storyboard_layout:v('storyboardLayout')
   };
   const hint=`
 
@@ -53,7 +86,8 @@ function generate(){
 1. 先上传 3 张原始身份参考图。
 2. 第 1 张按生成器给出的 Prompt 生成锚点。
 3. 第 2 张开始，继续上传“第 1 张锚点 + 上一张成图 + 本张母版图”。
-4. 不要并行一次生成全部图片，否则容易退化成散图。`;
+4. 文字落地建议用“空白气泡 + 后期叠字图层”。
+5. 当前图内分镜默认关闭，开启后只允许 2-3 个分镜。`;
   document.getElementById('out').textContent=JSON.stringify(data,null,2)+hint;
 }
 function copyOut(){navigator.clipboard.writeText(document.getElementById('out').textContent||'')}
