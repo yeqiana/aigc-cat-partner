@@ -1,62 +1,38 @@
 {
-  "沙发绿植正面": {
-    "scene_description": "温馨室内沙发，沙发和人物背后有大量绿色植物，整体像真实家居生活照。",
-    "action_description": "女生和猫一起坐在沙发上，猫和人一样肚皮朝前坐着，女生轻轻搂着猫的肩膀，人和猫都看向镜头。",
-    "clothing_suggestion": "白T互印头像",
-    "angle": "正面半身"
+  "异常开场": {
+    "scene_description": "用于建立故事开场、角色身份、基础环境和第一个异常细节。",
+    "action_description": "主角在日常环境中注意到一个不合理细节。",
+    "visual_evidence": ["主角清晰可见", "日常环境", "异常细节", "留白构图"],
+    "angle": "第三人称中景"
   },
-  "沙发绿植45度": {
-    "scene_description": "温馨室内沙发和大量绿植，镜头从 45 度角拍摄，背景柔和。",
-    "action_description": "女生抱着猫坐在沙发上，猫靠在怀里，二者自然看向镜头或微微偏向镜头。",
-    "clothing_suggestion": "居家休闲服",
-    "angle": "45度半身"
-  },
-  "送外卖正面": {
-    "scene_description": "城市街道，电动车停在路边，后方有外卖箱，街道背景真实但轻微虚化。",
-    "action_description": "女生坐在电动车上或站在车旁，猫坐在前车篮里，人和猫都看向镜头。",
-    "clothing_suggestion": "外卖职业服",
-    "angle": "正面中景"
-  },
-  "取外卖侧面": {
-    "scene_description": "小店取餐窗口，木质店铺、外卖纸袋、取餐台、街边细节。",
-    "action_description": "女生一只手扶车，一只手接过店员递来的外卖袋，猫坐在车篮里看镜头。",
-    "clothing_suggestion": "外卖职业服",
-    "angle": "侧面中景"
-  },
-  "骑车45度": {
-    "scene_description": "城市街道，电动车、电动车后箱、路边绿植、真实街拍氛围。",
-    "action_description": "女生慢速骑行或停在路边，猫坐在车篮里，人和猫都清楚可见。",
-    "clothing_suggestion": "外卖职业服",
-    "angle": "前方45度中景"
-  },
-  "爬楼疲惫": {
-    "scene_description": "老小区楼道，水泥楼梯、扶手、墙面生活痕迹，自然楼道光。",
-    "action_description": "女生背着外卖箱在楼梯平台回头，略微疲惫，猫在宠物背包或外卖箱旁边看镜头。",
-    "clothing_suggestion": "外卖职业服",
-    "angle": "背面45度 / 回头视角"
-  },
-  "剧情拼图": {
-    "scene_description": "多格剧情拼图，包含出发、取餐、骑车、爬楼、疲惫休息几个生活片段。",
-    "action_description": "每一格都保持同一个女生和同一只猫，像一天送外卖故事总结。",
-    "clothing_suggestion": "外卖职业服",
-    "angle": "多镜头拼图"
-  },
-  "楼下抬头": {
-    "scene_description": "老小区楼下，女生停好电动车，抬头看单元楼和楼层，旁边有楼号、墙面生活痕迹和停放车辆。",
-    "action_description": "女生提着外卖袋站在楼下抬头看楼，猫在前篮或宠物背包里探头，像准备上楼前确认楼层。",
-    "clothing_suggestion": "外卖职业服",
-    "angle": "仰拍中景"
-  },
-  "送达门口": {
-    "scene_description": "居民楼门口或楼层过道，真实生活环境，门牌、走廊、墙面自然。",
-    "action_description": "女生把外卖送到门口，刚刚送达或准备放下外卖袋，猫在旁边探头。",
-    "clothing_suggestion": "外卖职业服",
+  "线索出现": {
+    "scene_description": "用于让第一个线索变得更明确，并承接上一张的异常状态。",
+    "action_description": "主角靠近线索并做出第一次判断。",
+    "visual_evidence": ["上一幕线索延续", "主角动作", "关键道具", "环境连续"],
     "angle": "侧前方中景"
   },
-  "收工回家": {
-    "scene_description": "回到家中的沙发和绿植环境，氛围放松，像一天结束后的收工时刻。",
-    "action_description": "女生和猫回到沙发上休息，女生轻轻搂着猫，一起看向镜头或彼此。",
-    "clothing_suggestion": "居家休闲服",
-    "angle": "正面半身"
+  "第一次接触": {
+    "scene_description": "用于让角色与关键对象或事件发生直接接触。",
+    "action_description": "主角从观察转为行动。",
+    "visual_evidence": ["接触动作", "关键对象", "表情变化", "场景连续"],
+    "angle": "近景或半身"
+  },
+  "危机升级": {
+    "scene_description": "用于强化冲突或异常结果，推进剧情张力。",
+    "action_description": "事件结果超出预期，画面出现更强紧张感。",
+    "visual_evidence": ["危机迹象", "主角反应", "关键道具状态推进", "空间关系清楚"],
+    "angle": "低角度或动态中景"
+  },
+  "反转揭示": {
+    "scene_description": "用于揭示前面异常细节的真正含义。",
+    "action_description": "主角发现或确认反转证据。",
+    "visual_evidence": ["反转证据", "主角表情", "前文线索回收", "主体不被遮挡"],
+    "angle": "正面中景"
+  },
+  "余味收束": {
+    "scene_description": "用于收束当前故事，并留下继续连载的空间。",
+    "action_description": "主角停在结果之后的状态，画面保留下一集暗示。",
+    "visual_evidence": ["结果状态", "主角清晰", "环境回落", "下一集暗示"],
+    "angle": "稳定中景"
   }
 }

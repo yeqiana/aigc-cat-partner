@@ -1,0 +1,235 @@
+{
+  "version": "2.0",
+  "description": "通用剧情连载系统最小入参 Schema。目标是先生成可检查、可返工的 story/frame/copy/prompt/qa 文本流水线，再进入真实图片生成。",
+  "required": [
+    "scene",
+    "image_count",
+    "continuous_story",
+    "story_template"
+  ],
+  "defaults": {
+    "ratio": "9:16",
+    "platform": "抖音竖屏",
+    "output_mode": "单张大图",
+    "text_render_mode": "生成空白气泡 + 后期叠字图层",
+    "in_image_storyboard": "关闭",
+    "anchor_frame_index": 1
+  },
+  "fields": {
+    "preset_name": {
+      "type": "string",
+      "description": "入口页常用配置模板名称。只用于记录本次使用的模板，不参与图片模型生成。"
+    },
+    "project_name": {
+      "type": "string",
+      "default": "通用剧情连载"
+    },
+    "story_id": {
+      "type": "string"
+    },
+    "story_title": {
+      "type": "string"
+    },
+    "story_template": {
+      "type": "string",
+      "required": true,
+      "description": "用于选择剧情节奏模板。模板内容来自 config/story_templates.json，也可以在输入中传入 custom_frames 覆盖。"
+    },
+    "story_outline": {
+      "type": "string",
+      "description": "本次故事情节。用于描述故事从哪里开始、怎样推进、到哪里结束。"
+    },
+    "emotional_progression": {
+      "type": "string",
+      "description": "本组图的情绪推进逻辑。"
+    },
+    "scene": {
+      "type": "string",
+      "required": true
+    },
+    "angle": {
+      "type": "string"
+    },
+    "action": {
+      "type": "string"
+    },
+    "style_prompt": {
+      "type": "string",
+      "description": "本项目目标画风。"
+    },
+    "visual_gene_summary": {
+      "type": "string",
+      "description": "主角色、配角、关键身份特征和不可变化项。"
+    },
+    "worldview_summary": {
+      "type": "string",
+      "description": "世界观、场景系统、道具系统和风格边界。"
+    },
+    "key_props": {
+      "type": "array",
+      "items": "string",
+      "description": "需要连续锁定的核心道具。"
+    },
+    "subject_state": {
+      "type": "string",
+      "description": "主体状态，可按项目填写角色、载具、道具、环境状态。"
+    },
+    "extra": {
+      "type": "string",
+      "description": "补充约束。用于填写额外要求、禁忌项和返工注意事项。"
+    },
+    "output_mode": {
+      "type": "string",
+      "enum": [
+        "单张大图",
+        "多镜头拼图"
+      ],
+      "default": "单张大图"
+    },
+    "ratio": {
+      "type": "string",
+      "enum": [
+        "4:3",
+        "9:16"
+      ],
+      "default": "9:16"
+    },
+    "platform": {
+      "type": "string",
+      "enum": [
+        "通用",
+        "抖音竖屏",
+        "小红书图文"
+      ],
+      "default": "抖音竖屏"
+    },
+    "image_count": {
+      "type": "integer",
+      "minimum": 1,
+      "maximum": 12,
+      "required": true
+    },
+    "continuous_story": {
+      "type": "string",
+      "enum": [
+        "否",
+        "是"
+      ],
+      "required": true
+    },
+    "mood_curve": {
+      "type": "array",
+      "items": "string"
+    },
+    "identity_lock": {
+      "type": "string",
+      "enum": [
+        "强锁定",
+        "普通锁定"
+      ],
+      "default": "强锁定"
+    },
+    "outfit_style_lock": {
+      "type": "string",
+      "enum": [
+        "不锁定",
+        "弱锁定",
+        "强锁定"
+      ],
+      "default": "强锁定"
+    },
+    "outfit_reference": {
+      "type": "string",
+      "enum": [
+        "文字描述",
+        "身份参考图",
+        "第一张锚点图",
+        "当前故事模板默认造型",
+        "第一张锚点图 + 身份参考图"
+      ],
+      "default": "第一张锚点图 + 身份参考图"
+    },
+    "bubble_mode": {
+      "type": "string",
+      "enum": [
+        "无",
+        "单角色气泡",
+        "多角色气泡",
+        "旁白标题"
+      ],
+      "default": "多角色气泡"
+    },
+    "text_mode": {
+      "type": "string",
+      "enum": [
+        "无文字",
+        "直接生成文字",
+        "空白气泡后期加字"
+      ],
+      "default": "空白气泡后期加字"
+    },
+    "text_render_mode": {
+      "type": "string",
+      "enum": [
+        "仅生成文案清单",
+        "生成空白气泡 + 文案清单",
+        "生成空白气泡 + 后期叠字图层",
+        "直接在图中生成文字"
+      ],
+      "default": "生成空白气泡 + 后期叠字图层"
+    },
+    "text_position": {
+      "type": "string",
+      "enum": [
+        "自动",
+        "顶部标题区",
+        "主体旁边",
+        "底部字幕区"
+      ],
+      "default": "自动"
+    },
+    "copywriting_mode": {
+      "type": "string",
+      "enum": [
+        "手动填写",
+        "自动根据情节生成"
+      ],
+      "default": "自动根据情节生成"
+    },
+    "interaction_mode": {
+      "type": "string",
+      "enum": [
+        "不互动",
+        "看向观众",
+        "提问互动",
+        "评论引导",
+        "点赞关注",
+        "选择投票"
+      ],
+      "default": "评论引导"
+    },
+    "character_lines": {
+      "type": "array",
+      "items": {
+        "name": "string",
+        "text": "string"
+      }
+    },
+    "custom_frames": {
+      "type": "array",
+      "description": "可选。直接指定每张图的 scene/action/state/visual_evidence/camera。"
+    },
+    "project_negative_prompt": {
+      "type": "string",
+      "description": "项目专属负面词，会与通用负面词合并。"
+    },
+    "qa_failures": {
+      "type": "array",
+      "items": {
+        "frame_index": "integer",
+        "failed_items": "array<string>",
+        "reason": "string"
+      }
+    }
+  }
+}

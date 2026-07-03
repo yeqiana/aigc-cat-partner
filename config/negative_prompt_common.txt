@@ -1,7 +1,1 @@
-本文件仅保留兼容入口。新链路请优先使用：
-
-- config/negative_prompt_common.txt
-- config/negative_prompt_project.txt
-
-通用负面词：
 different person, inconsistent identity, inconsistent style, cartoon, anime, painting, 3d render, plastic skin, over beautified face, exaggerated expression, distorted face, wrong hair, deformed body, extra fingers, missing fingers, extra arms, extra legs, broken hands, twisted limbs, blurry face, low resolution, watermark, messy text, gibberish text, logo distortion, bad anatomy, unrealistic lighting, overexposed, underexposed

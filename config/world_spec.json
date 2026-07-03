@@ -1,0 +1,31 @@
+{
+  "project_name": "通用剧情连载",
+  "version": "2.0",
+  "positioning": {
+    "series_type": "剧情向图文连载",
+    "target_platform": "抖音竖屏 / 小红书图文 / 通用",
+    "default_ratio": "9:16",
+    "purpose": "先生成可检查、可返工的文本流水线，再进入真实图片生成。"
+  },
+  "visual_gene_template": {
+    "primary_subject": {
+      "fixed": "待填写：主角色固定视觉特征",
+      "variable": "待填写：可随剧情变化的表情、动作、轻微造型",
+      "forbidden": "待填写：主角色禁止变化项"
+    },
+    "supporting_subjects": {
+      "fixed": "待填写：重要配角或搭档固定特征",
+      "variable": "待填写：可变化内容",
+      "forbidden": "待填写：禁止变化项"
+    },
+    "world": {
+      "fixed": "待填写：时间、地点、世界观、道具系统、色彩体系",
+      "variable": "待填写：可变化场景与镜头",
+      "forbidden": "待填写：世界观禁忌"
+    }
+  },
+  "style": {
+    "default": "请在输入 JSON 的 style_prompt 中填写目标画风。",
+    "quality": "主体清晰，动作明确，关键道具可识别，系列风格一致。"
+  }
+}

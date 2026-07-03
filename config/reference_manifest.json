@@ -1,26 +1,26 @@
 {
-  "version": "1.4",
-  "purpose": "cross_session_identity_lock",
+  "version": "2.0",
+  "purpose": "generic_cross_session_identity_and_style_lock",
   "required_each_new_session": [
-    "99_跨会话身份锁定包/01_原始参考图_每次新会话必传/R01_human_identity_ref.jpg",
-    "99_跨会话身份锁定包/01_原始参考图_每次新会话必传/R02_cat_identity_ref_front.jpg",
-    "99_跨会话身份锁定包/01_原始参考图_每次新会话必传/R03_cat_identity_ref_close.jpg"
+    "01_身份参考图/主角色身份参考图",
+    "01_身份参考图/重要配角或搭档参考图（如有）",
+    "02_风格母版图/目标画风参考图或世界观参考图"
   ],
   "optional_master_references": {
-    "沙发绿植正面": "99_跨会话身份锁定包/02_母版参考图_稳定风格可选/M01_sofa_green_front_4x3.png",
-    "沙发绿植45度": "99_跨会话身份锁定包/02_母版参考图_稳定风格可选/M02_sofa_green_45deg_4x3.png",
-    "送外卖正面": "99_跨会话身份锁定包/02_母版参考图_稳定风格可选/M03_delivery_front_4x3.png",
-    "取外卖侧面": "99_跨会话身份锁定包/02_母版参考图_稳定风格可选/M04_delivery_pickup_side_4x3.png",
-    "骑车45度": "99_跨会话身份锁定包/02_母版参考图_稳定风格可选/M05_delivery_riding_45deg_4x3.png",
-    "爬楼疲惫": "99_跨会话身份锁定包/02_母版参考图_稳定风格可选/M06_delivery_stairs_back_4x3.png",
-    "楼下抬头": "99_跨会话身份锁定包/02_母版参考图_稳定风格可选/M05_delivery_riding_45deg_4x3.png",
-    "送达门口": "99_跨会话身份锁定包/02_母版参考图_稳定风格可选/M06_delivery_stairs_back_4x3.png",
-    "收工回家": "99_跨会话身份锁定包/02_母版参考图_稳定风格可选/M01_sofa_green_front_4x3.png"
+    "异常开场": "02_风格母版图/异常开场母版图",
+    "线索出现": "02_风格母版图/线索出现母版图",
+    "第一次接触": "02_风格母版图/第一次接触母版图",
+    "危机升级": "02_风格母版图/危机升级母版图",
+    "反转揭示": "02_风格母版图/反转揭示母版图",
+    "余味收束": "02_风格母版图/余味收束母版图"
   },
   "priority_order": [
-    "raw_human_identity",
-    "raw_cat_identity",
-    "master_reference",
+    "identity_reference",
+    "style_reference",
+    "world_spec",
+    "first_anchor_frame",
+    "previous_generated_frame",
     "prompt_scene_details"
-  ]
+  ],
+  "instruction": "新项目必须重新提供身份参考、风格参考和世界观设定。不要复用旧 IP 的参考图或母版图。"
 }

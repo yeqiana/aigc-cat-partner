@@ -1,47 +1,55 @@
 {
-  "batch_name": "第一批人猫搭档标准资产",
+  "batch_name": "第一批通用剧情连载测试任务",
   "tasks": [
     {
-      "scene": "沙发绿植正面",
-      "angle": "正面",
-      "action": "抱猫",
-      "clothing": "白T互印头像",
-      "mood": "温馨"
+      "project_name": "新剧情连载样例",
+      "preset_name": "通用悬念连载·6张常用",
+      "story_id": "generic_suspense_001",
+      "story_title": "门缝里的光",
+      "story_template": "通用悬念连载",
+      "story_outline": "主角深夜回到工作室，发现门缝里有一条不属于室内灯光的冷光；她靠近查看，发现桌上的旧相机自己亮起；镜头里出现刚刚还不存在的房间角落；她回头确认，最后发现冷光来自一扇本不该存在的门。",
+      "scene": "异常开场",
+      "style_prompt": "电影感悬念摄影，低饱和冷暖对比，真实空间质感。",
+      "visual_gene_summary": "同一个年轻创作者，短外套、斜挎包、简单发型、冷静但敏感的表情。",
+      "worldview_summary": "近现实都市悬念世界观，夜晚工作室、走廊、旧相机、异常门缝光为核心。",
+      "key_props": ["旧相机", "斜挎包", "异常冷光"],
+      "ratio": "9:16",
+      "platform": "抖音竖屏",
+      "image_count": 6,
+      "continuous_story": "是",
+      "story_coherence": "强",
+      "bubble_mode": "多角色气泡",
+      "text_mode": "空白气泡后期加字",
+      "text_render_mode": "生成空白气泡 + 后期叠字图层",
+      "copywriting_mode": "自动根据情节生成",
+      "interaction_mode": "评论引导",
+      "mood_curve": ["平静", "疑惑", "试探", "紧张", "反转", "余味"],
+      "extra": "不要出现旧项目角色、猫、外卖、居家治愈内容。"
     },
     {
-      "scene": "沙发绿植45度",
-      "angle": "45度",
-      "action": "抱猫",
-      "clothing": "居家休闲服",
-      "mood": "温馨"
-    },
-    {
-      "scene": "送外卖正面",
-      "angle": "正面",
-      "action": "骑车",
-      "clothing": "外卖职业服",
-      "mood": "日常轻松"
-    },
-    {
-      "scene": "取外卖侧面",
-      "angle": "侧面",
-      "action": "取外卖",
-      "clothing": "外卖职业服",
-      "mood": "专注"
-    },
-    {
-      "scene": "骑车45度",
-      "angle": "45度",
-      "action": "骑车",
-      "clothing": "外卖职业服",
-      "mood": "日常轻松"
-    },
-    {
-      "scene": "爬楼疲惫",
-      "angle": "背面45度",
-      "action": "爬楼",
-      "clothing": "外卖职业服",
-      "mood": "疲惫搞笑"
+      "project_name": "新剧情连载样例",
+      "preset_name": "日常反转连载·6张常用",
+      "story_id": "daily_twist_001",
+      "story_title": "多出来的便签",
+      "story_template": "日常反转连载",
+      "story_outline": "主角早上发现桌上多了一张写着今天不要出门的便签；她以为是朋友恶作剧，开始查找来源；每一张便签都提前说中了下一件小事；最后她发现便签来自自己昨晚的录音转写。",
+      "scene": "日常开场",
+      "style_prompt": "轻悬疑日常摄影，明亮但带一点不安，真实室内质感，色彩自然。",
+      "visual_gene_summary": "同一个普通上班族，针织外套、手表、简洁发型，表情从轻松到疑惑。",
+      "worldview_summary": "近现实日常反转世界观，室内桌面、便签、手机录音、门口鞋柜为核心。",
+      "key_props": ["便签", "手机", "手表"],
+      "ratio": "9:16",
+      "platform": "抖音竖屏",
+      "image_count": 6,
+      "continuous_story": "是",
+      "story_coherence": "强",
+      "bubble_mode": "多角色气泡",
+      "text_mode": "空白气泡后期加字",
+      "text_render_mode": "生成空白气泡 + 后期叠字图层",
+      "copywriting_mode": "自动根据情节生成",
+      "interaction_mode": "提问互动",
+      "mood_curve": ["轻松", "好奇", "误会", "尴尬", "反转", "松弛"],
+      "extra": "不要出现旧项目角色、猫、外卖、居家治愈内容。"
     }
   ]
 }
