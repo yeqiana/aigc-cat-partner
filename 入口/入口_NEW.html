@@ -1,0 +1,944 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>人猫搭档 Prompt 生成入口 V1.7</title>
+  <style>
+    :root{
+      --bg:#f7ecd8;
+      --paper:#fff7e8;
+      --paper-2:#ffefcf;
+      --ink:#172033;
+      --muted:#667085;
+      --green:#0e7c67;
+      --green-2:#0b5d4e;
+      --teal:#087f83;
+      --blue:#17385f;
+      --border:#c49462;
+      --border-dark:#1b3655;
+      --line:#ead0ab;
+      --warning:#fff0c9;
+      --warning-border:#f0aa3f;
+      --code:#0f263c;
+      --code-2:#132d45;
+      --code-line:#25435d;
+      --yellow:#f6c34e;
+      --orange:#d97b27;
+      --red:#b04435;
+      --shadow:0 8px 0 rgba(20,45,70,.10), 0 18px 40px rgba(42,52,70,.12);
+      --pixel-font:"Microsoft YaHei", "PingFang SC", system-ui, -apple-system, Segoe UI, Arial, sans-serif;
+    }
+
+    *{box-sizing:border-box}
+    html,body{height:100%}
+    body{
+      margin:0;
+      font-family:var(--pixel-font);
+      color:var(--ink);
+      background:
+        linear-gradient(180deg, rgba(255,255,255,.38), rgba(255,255,255,0) 190px),
+        radial-gradient(circle at 14% 12%, rgba(255,218,132,.35), transparent 210px),
+        radial-gradient(circle at 92% 5%, rgba(88,157,135,.18), transparent 260px),
+        var(--bg);
+      overflow:hidden;
+    }
+
+    /* Pixel frame */
+    .app-shell{
+      height:100vh;
+      padding:10px 12px 12px;
+      position:relative;
+    }
+    .app-shell::before{
+      content:"";
+      position:absolute;
+      inset:6px;
+      border:6px solid var(--border-dark);
+      border-radius:18px;
+      box-shadow:inset 0 0 0 3px #d9b17d, inset 0 0 0 6px #fff6df;
+      pointer-events:none;
+      z-index:20;
+      image-rendering:pixelated;
+    }
+    .app-shell::after{
+      content:"";
+      position:absolute;
+      inset:13px;
+      border:2px dashed rgba(27,54,85,.18);
+      border-radius:10px;
+      pointer-events:none;
+      z-index:21;
+    }
+
+    .decor{position:absolute;z-index:22;pointer-events:none;user-select:none}
+    .hero-left{left:46px;top:24px;font-size:42px;filter:drop-shadow(2px 3px 0 rgba(0,0,0,.15))}
+    .hero-right{right:42px;top:24px;font-size:44px;filter:drop-shadow(2px 3px 0 rgba(0,0,0,.15))}
+    .castle{left:18px;bottom:12px;font-size:66px;line-height:1;filter:drop-shadow(2px 3px 0 rgba(0,0,0,.18))}
+    .sign{right:34px;bottom:28px;font-size:50px;line-height:1;filter:drop-shadow(2px 3px 0 rgba(0,0,0,.18))}
+    .tree{right:104px;top:36px;font-size:34px;line-height:1}
+    .sheep{right:31px;top:70px;font-size:25px;line-height:1}
+
+    .page{
+      position:relative;
+      z-index:1;
+      height:100%;
+      padding:14px 16px 12px;
+      display:grid;
+      grid-template-rows:82px minmax(0,1fr);
+      gap:10px;
+    }
+
+    header{
+      padding:4px 110px 0 86px;
+      display:grid;
+      grid-template-columns:minmax(0,1fr) auto;
+      align-items:start;
+      gap:18px;
+    }
+    .brand{min-width:0}
+    .title-row{display:flex;align-items:center;gap:12px;line-height:1}
+    h1{
+      margin:0;
+      font-size:30px;
+      letter-spacing:.5px;
+      text-shadow:2px 2px 0 rgba(255,255,255,.9);
+      white-space:nowrap;
+    }
+    .version{
+      display:inline-flex;align-items:center;justify-content:center;
+      padding:6px 11px 7px;
+      border:3px solid #075f4f;
+      background:#0f936f;
+      color:#fff;
+      border-radius:7px;
+      font-weight:900;
+      box-shadow:2px 3px 0 rgba(4,50,45,.25);
+      font-size:15px;
+    }
+    .sub{
+      margin:9px 0 0;
+      color:#667085;
+      font-size:14px;
+      line-height:1.35;
+    }
+    .top-actions{
+      display:flex;gap:10px;align-items:center;justify-content:flex-end;flex-wrap:wrap;
+      padding-top:6px;
+    }
+    .pixel-btn{
+      border:3px solid #b58b5d;
+      background:#fff3de;
+      color:#1d2939;
+      border-radius:2px;
+      padding:10px 14px;
+      font-weight:900;
+      font-size:14px;
+      display:inline-flex;
+      align-items:center;
+      gap:7px;
+      box-shadow:3px 4px 0 rgba(86,55,24,.15);
+      cursor:pointer;
+      transition:.15s ease;
+      white-space:nowrap;
+    }
+    .pixel-btn:hover{transform:translateY(-1px);box-shadow:4px 5px 0 rgba(86,55,24,.18)}
+    .pixel-btn.primary{
+      background:#0f7a67;
+      color:#fff;
+      border-color:#075a50;
+      box-shadow:3px 4px 0 rgba(3,65,59,.28);
+    }
+    .pixel-btn.ghost{background:#fff9ef}
+    .pixel-btn.small{padding:7px 10px;font-size:13px;border-width:2px;box-shadow:2px 3px 0 rgba(86,55,24,.12)}
+
+    .workspace{
+      min-height:0;
+      display:grid;
+      grid-template-columns:142px minmax(470px, 1fr) minmax(520px, 1.04fr);
+      gap:12px;
+      padding:0 10px 12px;
+    }
+
+    .rail{
+      position:relative;
+      min-height:0;
+      border:3px solid #d2ab7f;
+      background:rgba(255,247,232,.78);
+      box-shadow:var(--shadow);
+      overflow:hidden;
+      display:flex;
+      flex-direction:column;
+      align-items:center;
+      padding:0 10px 12px;
+    }
+    .rail::before{
+      content:"";
+      position:absolute;
+      top:22px;bottom:94px;left:50%;
+      width:2px;
+      background:repeating-linear-gradient(to bottom,#c49a69 0 14px,transparent 14px 24px);
+      opacity:.6;
+      transform:translateX(-50%);
+    }
+    .step{
+      position:relative;
+      z-index:1;
+      width:100%;
+      display:flex;
+      flex-direction:column;
+      align-items:center;
+      gap:5px;
+      padding:8px 4px;
+      margin-top:8px;
+      color:#24415b;
+      font-weight:900;
+      text-align:center;
+      font-size:13px;
+    }
+    .step.active{
+      color:#0a6f61;
+      background:#e8f5df;
+      border:2px solid #c2d8b6;
+      box-shadow:3px 4px 0 rgba(17,71,72,.12);
+    }
+    .step-num{
+      width:38px;height:38px;
+      display:grid;place-items:center;
+      border-radius:7px;
+      background:#16817a;
+      color:#fff;
+      font-size:22px;
+      border:3px solid #0b5c54;
+      box-shadow:2px 3px 0 rgba(0,0,0,.18);
+    }
+    .step-ico{font-size:28px;line-height:1;filter:drop-shadow(1px 2px 0 rgba(0,0,0,.10))}
+    .step span:last-child{line-height:1.25}
+
+    .panel{
+      min-height:0;
+      border:3px solid #d2ab7f;
+      background:rgba(255,248,235,.92);
+      box-shadow:var(--shadow);
+      overflow:auto;
+      scrollbar-gutter:stable;
+    }
+    .panel::-webkit-scrollbar,.code-wrap::-webkit-scrollbar,.prompt-body::-webkit-scrollbar{width:10px;height:10px}
+    .panel::-webkit-scrollbar-track,.code-wrap::-webkit-scrollbar-track,.prompt-body::-webkit-scrollbar-track{background:rgba(111,81,44,.08)}
+    .panel::-webkit-scrollbar-thumb,.code-wrap::-webkit-scrollbar-thumb,.prompt-body::-webkit-scrollbar-thumb{background:#ba8c55;border-radius:20px;border:2px solid rgba(255,247,232,.8)}
+
+    .form-panel{padding:12px 14px 24px;position:relative;overflow:auto}
+    .output-panel{display:grid;grid-template-rows:auto minmax(0,1fr) auto;overflow:hidden}
+    .section{
+      border:2px solid var(--line);
+      background:rgba(255,251,242,.84);
+      margin-bottom:10px;
+      padding:12px;
+      position:relative;
+    }
+    .section-header{
+      display:flex;
+      align-items:center;
+      gap:9px;
+      margin-bottom:10px;
+      color:#183047;
+      font-weight:900;
+      font-size:17px;
+    }
+    .section-header .ico{font-size:23px;line-height:1}
+    .hint{
+      border:2px solid var(--warning-border);
+      background:linear-gradient(135deg,#fff5d5,#fff0c8 70%,#ffe3b2);
+      color:#553313;
+      padding:11px 14px;
+      margin-bottom:12px;
+      display:grid;
+      grid-template-columns:34px 1fr;
+      gap:10px;
+      align-items:start;
+      line-height:1.55;
+      font-size:13px;
+      box-shadow:2px 3px 0 rgba(222,148,47,.12);
+    }
+    .hint .bulb{font-size:27px;line-height:1;margin-top:2px}
+    .quick-guide{
+      border:3px solid #0b6c5c;
+      background:linear-gradient(135deg,#e9fff5,#fff8df 72%);
+      box-shadow:3px 5px 0 rgba(12,94,79,.16);
+      padding:12px 14px;
+      margin-bottom:12px;
+    }
+    .quick-guide-title{
+      font-size:17px;
+      font-weight:900;
+      color:#064f46;
+      margin-bottom:10px;
+      display:flex;
+      align-items:center;
+      gap:8px;
+    }
+    .guide-steps{
+      display:grid;
+      grid-template-columns:repeat(4,minmax(0,1fr));
+      gap:8px;
+    }
+    .guide-step{
+      border:2px solid #bcd8bf;
+      background:rgba(255,255,255,.78);
+      padding:8px 10px;
+      font-size:12px;
+      line-height:1.45;
+      font-weight:800;
+      color:#25415c;
+      min-height:50px;
+    }
+
+    .grid-3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px}
+    .grid-2{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+    .grid-1{display:grid;grid-template-columns:1fr;gap:12px}
+    .field{min-width:0}
+    label{
+      display:block;
+      margin:0 0 6px;
+      font-weight:900;
+      font-size:13px;
+      color:#18283b;
+    }
+    select,input,textarea{
+      width:100%;
+      border:2px solid #d9b98e;
+      background:#fffdf8;
+      color:#222a35;
+      border-radius:3px;
+      min-height:34px;
+      padding:8px 10px;
+      font:600 13px/1.35 var(--pixel-font);
+      outline:none;
+      box-shadow:inset 0 2px 0 rgba(70,45,20,.05);
+    }
+    textarea{height:92px;resize:vertical;min-height:70px}
+    select:focus,input:focus,textarea:focus{border-color:#0c806c;box-shadow:0 0 0 3px rgba(15,122,103,.13), inset 0 2px 0 rgba(70,45,20,.05)}
+    .counter{font-size:12px;color:#6b7280;text-align:right;margin-top:-18px;padding-right:8px;pointer-events:none}
+    .helper{font-size:12px;color:#7a5a35;margin-top:6px;line-height:1.45}
+
+    .template-row{
+      display:grid;
+      grid-template-columns:minmax(0,1fr) auto auto;
+      gap:10px;
+      align-items:end;
+    }
+    .toolbar-bottom{
+      position:sticky;
+      bottom:0;
+      margin:16px -14px 0;
+      padding:12px 14px;
+      background:linear-gradient(180deg,rgba(255,248,235,.88),rgba(255,248,235,1));
+      border-top:2px solid rgba(210,171,127,.72);
+      display:flex;
+      gap:10px;
+      justify-content:flex-start;
+      align-items:center;
+      flex-wrap:wrap;
+      z-index:5;
+    }
+
+    .output-top{
+      padding:12px 14px 0;
+      display:flex;
+      justify-content:space-between;
+      align-items:flex-end;
+      gap:10px;
+    }
+    .tabs{
+      display:flex;align-items:flex-end;gap:0;
+      min-width:0;
+    }
+    .tab{
+      border:2px solid #d2ab7f;
+      border-bottom:none;
+      background:#fffbf2;
+      padding:12px 22px 10px;
+      font-weight:900;
+      font-size:16px;
+      cursor:pointer;
+      color:#1d2939;
+      min-width:150px;
+      text-align:center;
+    }
+    .tab.active{
+      color:#006c61;
+      background:#fff7e8;
+      box-shadow:inset 0 -4px 0 #0c806c;
+    }
+    .output-actions{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+    .pixel-toast{
+      position:fixed;
+      left:50%;
+      top:22px;
+      z-index:80;
+      min-width:260px;
+      max-width:min(520px, calc(100vw - 32px));
+      padding:16px 20px;
+      border:4px solid #1f2d3d;
+      background:#fff2a8;
+      color:#102033;
+      box-shadow:6px 7px 0 rgba(31,45,61,.34), inset 0 0 0 3px rgba(255,255,255,.7);
+      font-size:18px;
+      font-weight:900;
+      text-align:center;
+      line-height:1.45;
+      letter-spacing:0;
+      transform:translate(-50%, -18px) scale(.96);
+      opacity:0;
+      pointer-events:none;
+      transition:opacity .16s ease, transform .16s ease;
+    }
+    .pixel-toast.show{opacity:1;transform:translate(-50%, 0) scale(1)}
+    .pixel-toast.success{border-color:#006c61;background:#d8ff79;color:#064f46}
+    .pixel-toast.error{border-color:#b91c1c;background:#ffd0c2;color:#7a1f1f}
+
+    .code-card,.prompt-card{
+      margin:0 14px 10px;
+      min-height:0;
+      border:3px solid #c99b68;
+      background:#0a2035;
+      box-shadow:inset 0 0 0 2px rgba(255,255,255,.05), 3px 5px 0 rgba(60,38,21,.14);
+      display:none;
+      overflow:hidden;
+    }
+    .code-card.active,.prompt-card.active{display:grid;grid-template-rows:minmax(0,1fr)}
+    .code-wrap,.prompt-body{
+      overflow:auto;
+      padding:18px 0;
+      background:linear-gradient(135deg,#0e2439,#071c31 70%);
+      color:#d5e8f5;
+      font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,"Liberation Mono",monospace;
+      font-size:13px;
+      line-height:1.65;
+      min-height:0;
+    }
+    .code-table{counter-reset:line;width:100%;min-width:680px}
+    .code-line{
+      display:grid;
+      grid-template-columns:52px minmax(0,1fr);
+      min-height:22px;
+      white-space:pre-wrap;
+      word-break:break-word;
+    }
+    .code-line::before{
+      counter-increment:line;
+      content:counter(line);
+      color:#7490a8;
+      text-align:right;
+      padding-right:14px;
+      border-right:1px solid var(--code-line);
+      margin-right:14px;
+      user-select:none;
+    }
+    .str{color:#ffc35f}.key{color:#83e4a7}.num{color:#92c5ff}.bool{color:#ff8e72}.pun{color:#8fb1c8}.comment{color:#8198aa}
+    .prompt-body{background:#fffaf0;color:#263645;font-family:var(--pixel-font);font-size:14px;line-height:1.7;padding:20px 28px;white-space:pre-wrap}
+    .prompt-body h2{margin:0 0 8px;font-size:22px}
+    .prompt-body strong{color:#0f6d5e}
+
+    .validate{
+      margin:0 14px 12px;
+      border:2px solid #d2ab7f;
+      background:#fff7e8;
+      padding:12px 14px;
+      display:grid;
+      grid-template-columns:1fr 1fr;
+      gap:8px 24px;
+      font-weight:800;
+      color:#24415b;
+    }
+    .ok{display:flex;gap:8px;align-items:center}.ok::before{content:"✓";display:grid;place-items:center;width:20px;height:20px;border-radius:50%;background:#2e9b56;color:#fff;font-size:13px;font-weight:900}.info::before{content:"i";background:#4074b4}
+
+    .mobile-note{display:none}
+    @media(max-width:1180px){
+      body{overflow:auto}.app-shell{height:auto;min-height:100vh}.workspace{grid-template-columns:110px 1fr;grid-template-rows:auto auto}.output-panel{grid-column:2}.page{height:auto;min-height:100vh}.decor{display:none}header{padding:6px 10px}.top-actions{justify-content:flex-start}.mobile-note{display:block}.app-shell::before,.app-shell::after{display:none}body{overflow:auto}.panel{max-height:none}.output-panel{min-height:640px}.workspace{padding:0}.rail{display:none}.form-panel{min-height:auto;overflow:visible}.grid-3,.grid-2,.template-row,.guide-steps{grid-template-columns:1fr}.validate{grid-template-columns:1fr}}
+  </style>
+</head>
+<body>
+<div class="app-shell">
+  <div class="decor hero-left">🧑‍🎨</div>
+  <div class="decor hero-right">🧍‍♂️🌳🐑</div>
+  <div class="decor castle">🏰</div>
+  <div class="decor sign">🪧</div>
+  <div class="decor tree">🌳</div>
+  <div class="decor sheep">🐑</div>
+
+  <main class="page">
+    <header>
+      <div class="brand">
+        <div class="title-row">
+          <h1>人猫搭档 Prompt 生成入口</h1>
+          <span class="version">V1.7</span>
+        </div>
+        <p class="sub">支持常用配置模板、独立故事情节、连续故事、文字落地、服装风格锁定、当前图内可控分镜。</p>
+      </div>
+      <div class="top-actions">
+        <button class="pixel-btn ghost" type="button">⭐ 常用预设</button>
+        <button class="pixel-btn ghost" type="button">📖 故事模式</button>
+        <button class="pixel-btn ghost" type="button">☰ 生成规则</button>
+        <button class="pixel-btn ghost" type="button">🔒 身份锁定</button>
+      </div>
+    </header>
+
+    <section class="workspace">
+      <aside class="rail" aria-label="步骤导航">
+        <div class="step active"><span class="step-num">1</span><span>常用预设模板</span><span class="step-ico">📜</span></div>
+        <div class="step"><span class="step-num">2</span><span>基础</span><span class="step-ico">🏠</span></div>
+        <div class="step"><span class="step-num">3</span><span>故事模式</span><span class="step-ico">📖</span></div>
+        <div class="step"><span class="step-num">4</span><span>气泡 / 文字 / 互动</span><span class="step-ico">💬</span></div>
+        <div class="step"><span class="step-num">5</span><span>V1.7 锁定与分镜</span><span class="step-ico">💎</span></div>
+      </aside>
+
+      <form class="panel form-panel" onsubmit="event.preventDefault();generate();">
+        <div class="quick-guide">
+          <div class="quick-guide-title">🧭 简单操作指南</div>
+          <div class="guide-steps">
+            <div class="guide-step">1. 先选常用模板，外卖或居家会自动填好基础配置。</div>
+            <div class="guide-step">2. 填写故事情节和补充说明，再确认张数、比例和连续情节。</div>
+            <div class="guide-step">3. 点击“生成最小入参 JSON”或“生成完整 Prompt”。</div>
+            <div class="guide-step">4. 复制 JSON 跑脚本，或复制完整 Prompt 做人工确认。</div>
+          </div>
+        </div>
+
+        <div class="section">
+          <div class="section-header"><span class="ico">💡</span><span>常用预设模板</span></div>
+          <div class="hint"><span class="bulb">💡</span><div><b>选择故事类型与模板，快速填充基础字段。</b><br>仅有单独开启时才允许编辑。你可以保存当前配置，也可以管理已有模板。</div></div>
+          <div class="template-row">
+            <div class="field">
+              <label for="preset">选择预设模板</label>
+              <select id="preset" onchange="applySelectedPreset()"></select>
+            </div>
+            <button class="pixel-btn small" type="button" onclick="savePreset()">🔖 保存为模板</button>
+            <button class="pixel-btn small" type="button" onclick="newPreset()">＋ 新建模板</button>
+          </div>
+          <div class="template-row" style="margin-top:10px">
+            <div class="field">
+              <label for="presetName">模板名称</label>
+              <input id="presetName" value="外卖跑单·连续故事常用" />
+            </div>
+            <button class="pixel-btn small" type="button" onclick="deletePreset()">🗑 删除自定义</button>
+            <button class="pixel-btn small" type="button" onclick="resetBuiltIn()">↺ 恢复内置</button>
+          </div>
+          <div id="templateStatus" class="helper"></div>
+        </div>
+
+        <div class="section">
+          <div class="section-header"><span class="ico">🏘️</span><span>基础</span></div>
+          <div class="grid-3">
+            <div class="field"><label for="scene">起始场景</label><select id="scene"><option>送外卖正面</option><option>取外卖侧面</option><option>骑车45度</option><option>楼下抬头</option><option>爬楼疲惫</option><option>送达门口</option><option>收工回家</option><option>沙发绿植正面</option><option>沙发绿植45度</option></select></div>
+            <div class="field"><label for="clothing">服装</label><select id="clothing"><option>自动使用场景预设</option><option>外卖职业服</option><option>居家休闲服</option><option>白T互印头像</option></select></div>
+            <div class="field"><label for="mood">氛围</label><select id="mood"><option>真实、生活感、注意故事</option><option>温暖治愈</option><option>轻松幽默</option><option>雨夜电影感</option></select></div>
+          </div>
+          <div class="grid-2" style="margin-top:12px">
+            <div class="field"><label for="story">故事情节</label><textarea id="story">城市的夜，大雨停，巷里小巷，送完晚单，我们来到一单外卖，独居女孩打开房门，雨还在下，她接过餐微微道谢，陌生中有暖意，雨后有霓虹，窗后是她在他们口中并肩的那一单。</textarea><div class="counter">78/200</div></div>
+            <div class="field"><label for="extra">补充说明</label><textarea id="extra">真实的都市氛围感片段，不卖弄一角色伦理，不刻意煽情，一切以自然节奏呈现。</textarea><div class="counter">42/200</div></div>
+          </div>
+        </div>
+
+        <div class="section">
+          <div class="section-header"><span class="ico">📖</span><span>故事模式</span></div>
+          <div class="grid-3">
+            <div class="field"><label for="ratio">比例</label><select id="ratio"><option>9:16</option><option>4:3</option></select></div>
+            <div class="field"><label for="platform">平台</label><select id="platform"><option>抖音竖屏</option><option>通用</option></select></div>
+            <div class="field"><label for="count">生成张数</label><select id="count"><option>6 张</option><option>3 张</option><option>8 张</option><option>12 张</option></select></div>
+            <div class="field"><label for="continuous">连续情节</label><select id="continuous"><option>是</option><option>否</option></select></div>
+            <div class="field"><label for="template">故事模板</label><select id="template"><option>外卖跑单故事</option><option>居家治愈故事</option><option>自动判断</option></select></div>
+            <div class="field"><label for="strength">连续性强度</label><select id="strength"><option>强</option><option>普通</option></select></div>
+          </div>
+        </div>
+
+        <div class="section">
+          <div class="section-header"><span class="ico">💬</span><span>气泡 / 文字 / 互动</span></div>
+          <div class="grid-3">
+            <div class="field"><label for="bubble">气泡模式</label><select id="bubble"><option>双气泡</option><option>无</option><option>人物气泡</option><option>猫咪气泡</option><option>旁白标题</option></select></div>
+            <div class="field"><label for="textMode">文字模式</label><select id="textMode"><option>空白气泡后期加字</option><option>无文字</option><option>直接生成文字</option></select></div>
+            <div class="field"><label for="textRender">文字落地模式</label><select id="textRender"><option>生成空白气泡 + 后期叠字图层</option><option>生成空白气泡 + 文案清单</option><option>仅生成文案清单</option><option>直接在图中生成文字</option></select></div>
+            <div class="field"><label for="textPosition">文字位置</label><select id="textPosition"><option>自动</option><option>顶部标题区</option><option>猫咪旁边</option><option>底部字幕区</option></select></div>
+            <div class="field"><label for="copyMode">文字生成</label><select id="copyMode"><option>自动根据情节生成</option><option>手动填写</option></select></div>
+            <div class="field"><label for="interaction">观众互动</label><select id="interaction"><option>评论引导</option><option>不互动</option><option>选择投票</option><option>点赞关注</option></select></div>
+          </div>
+        </div>
+
+        <div class="section">
+          <div class="section-header"><span class="ico">💎</span><span>V1.7 锁定与分镜</span></div>
+          <div class="grid-3">
+            <div class="field"><label for="lock">服装风格锁定</label><select id="lock"><option>强锁定</option><option>弱锁定</option><option>不锁定</option></select></div>
+            <div class="field"><label for="reference">服装参考来源</label><select id="reference"><option>第一张锚点图 + 人物参考图</option><option>第一张锚点图</option><option>人物参考图</option><option>当前故事模板默认服装</option><option>文字描述</option></select></div>
+            <div class="field"><label for="storyboard">当前图内分镜</label><select id="storyboard"><option>关闭</option><option>开启</option></select></div>
+            <div class="field"><label for="view">分镜视角</label><select id="view"><option>第三人称</option><option>第一人称</option><option>第一人称 + 第三人称</option></select></div>
+            <div class="field"><label for="layout">分镜布局</label><select id="layout"><option>主画面 + 小视角窗口</option><option>上下分镜</option><option>左右分镜</option></select></div>
+          </div>
+        </div>
+
+        <div class="toolbar-bottom">
+          <button class="pixel-btn primary" type="submit">🗡️ 生成最小入参 JSON</button>
+          <button class="pixel-btn" type="button" onclick="generatePromptFromJson()">📜 生成完整 Prompt</button>
+          <button class="pixel-btn" type="button" onclick="copyActive()">📋 复制</button>
+        </div>
+      </form>
+
+      <section class="panel output-panel">
+        <div class="output-top">
+          <div class="tabs" role="tablist">
+            <button class="tab active" type="button" onclick="switchTab('json')">最小入参 JSON</button>
+            <button class="tab" type="button" onclick="switchTab('prompt')">完整 Prompt</button>
+          </div>
+          <div class="output-actions">
+            <button class="pixel-btn small" type="button" onclick="formatJson()">{} 格式化</button>
+            <button class="pixel-btn small" type="button" onclick="generatePromptFromJson()">📜 生成完整 Prompt</button>
+            <button class="pixel-btn small" type="button" onclick="copyActive()">📋 复制</button>
+            <button class="pixel-btn small" type="button" onclick="toggleFullscreen()">⛶ 全屏</button>
+          </div>
+        </div>
+
+        <div id="jsonCard" class="code-card active">
+          <div class="code-wrap"><div id="jsonCode" class="code-table"></div></div>
+        </div>
+
+        <div id="promptCard" class="prompt-card">
+          <div id="promptText" class="prompt-body"></div>
+        </div>
+
+        <div id="validationList" class="validate">
+          <div class="ok">必填字段已完整</div>
+          <div class="ok">连续情节 与 故事模板 兼容</div>
+          <div class="ok">image_count 范围 1-12</div>
+          <div class="ok">身份锁定 与 服装风格锁定 一致</div>
+          <div class="ok">ratio 格式正确</div>
+          <div class="ok info">qa_failures 为空，将在生成后填充</div>
+          <div class="ok">platform 值有效</div>
+        </div>
+      </section>
+    </section>
+  </main>
+</div>
+<div id="pixelToast" class="pixel-toast" role="status" aria-live="polite"></div>
+
+<script>
+  const $ = id => document.getElementById(id);
+  const STORAGE_KEY = 'aigcCatPartnerNewPresetsV17';
+  let activeTab = 'json';
+
+  const ENUMS = {
+    ratio: ['4:3', '9:16'],
+    platform: ['通用', '抖音竖屏'],
+    continuous_story: ['否', '是'],
+    story_template: ['自动判断', '外卖跑单故事', '居家治愈故事'],
+    story_coherence: ['普通', '强'],
+    bubble_mode: ['无', '人物气泡', '猫咪气泡', '双气泡', '旁白标题'],
+    text_mode: ['无文字', '直接生成文字', '空白气泡后期加字'],
+    text_render_mode: ['仅生成文案清单', '生成空白气泡 + 文案清单', '生成空白气泡 + 后期叠字图层', '直接在图中生成文字'],
+    text_position: ['自动', '顶部标题区', '人物旁边', '猫咪旁边', '底部字幕区'],
+    copywriting_mode: ['手动填写', '自动根据情节生成'],
+    interaction_mode: ['不互动', '看向观众', '提问互动', '评论引导', '点赞关注', '选择投票'],
+    outfit_style_lock: ['不锁定', '弱锁定', '强锁定'],
+    outfit_reference: ['文字描述', '人物参考图', '第一张锚点图', '当前故事模板默认服装', '第一张锚点图 + 人物参考图'],
+    in_image_storyboard: ['关闭', '开启'],
+    storyboard_view: ['第一人称', '第三人称', '第一人称 + 第三人称'],
+    storyboard_layout: ['上下分镜', '左右分镜', '主画面 + 小视角窗口']
+  };
+
+  const PRESET_FIELDS = [
+    'scene','clothing','mood','ratio','platform','count','continuous','template','strength',
+    'bubble','textMode','textRender','textPosition','copyMode','interaction',
+    'lock','reference','storyboard','view','layout','extra'
+  ];
+
+  const BUILT_IN_PRESETS = [
+    {
+      name: '外卖跑单·连续故事常用',
+      values: {
+        scene: '送外卖正面', clothing: '外卖职业服', mood: '真实、生活感、注意故事',
+        ratio: '9:16', platform: '抖音竖屏', count: '6 张', continuous: '是',
+        template: '外卖跑单故事', strength: '强',
+        bubble: '双气泡', textMode: '空白气泡后期加字', textRender: '生成空白气泡 + 后期叠字图层',
+        textPosition: '自动', copyMode: '自动根据情节生成', interaction: '评论引导',
+        lock: '强锁定', reference: '第一张锚点图 + 人物参考图',
+        storyboard: '关闭', view: '第三人称', layout: '主画面 + 小视角窗口',
+        extra: '我要的是前后连贯的故事，不是同一角色在不同场景的散图。每一张都要承接上一张，并推动剧情。'
+      }
+    },
+    {
+      name: '居家治愈·连续故事常用',
+      values: {
+        scene: '沙发绿植正面', clothing: '居家休闲服', mood: '温暖治愈',
+        ratio: '9:16', platform: '抖音竖屏', count: '5 张', continuous: '是',
+        template: '居家治愈故事', strength: '强',
+        bubble: '双气泡', textMode: '空白气泡后期加字', textRender: '生成空白气泡 + 后期叠字图层',
+        textPosition: '自动', copyMode: '自动根据情节生成', interaction: '不互动',
+        lock: '强锁定', reference: '第一张锚点图 + 人物参考图',
+        storyboard: '关闭', view: '第三人称', layout: '主画面 + 小视角窗口',
+        extra: '生成一组温馨居家连续故事图，每张都是单独竖屏大图，前后情绪和动作要连贯。'
+      }
+    }
+  ];
+
+  const DELIVERY_FRAMES = [
+    ['送外卖正面', '接到第一单，准备出发', '手机订单页、浅色电动车、前车篮里的猫、后外卖箱', '第1单出发'],
+    ['取外卖侧面', '到店取餐，接过外卖袋', '取餐窗口、外卖袋、店门、前车篮里的猫', '取餐完成'],
+    ['骑车45度', '路上配送，保持速度和安全', '行驶中的电动车、外卖箱、路面动感、前篮里的猫', '路上赶单'],
+    ['楼下抬头', '到楼下确认楼层', '楼栋入口、门牌或楼号、停好的电动车、外卖袋', '先确认楼层'],
+    ['爬楼疲惫', '提着外卖上楼', '楼梯扶手、外卖袋、外卖箱、猫背带', '还剩几层'],
+    ['送达门口', '在门口完成送达', '住户门口、外卖袋、门牌区域、猫探头', '这一单送达']
+  ];
+
+  const HOME_FRAMES = [
+    ['沙发绿植正面', '女生和猫坐在沙发上看镜头', '沙发、绿植背景、女生正面坐姿、猫在身边', '今日搭子营业'],
+    ['沙发绿植45度', '女生侧身抱猫，猫靠在怀里', '沙发、绿植背景、侧身抱猫、猫咪表情', '抱住小搭子'],
+    ['沙发绿植正面', '展示衣服和人猫互动细节', '沙发、衣服图案、猫咪位置、绿植背景', '认真营业'],
+    ['沙发绿植45度', '猫咪抢镜，女生轻轻扶着', '猫咪近景、女生手部、沙发、绿植背景', '抢镜成功'],
+    ['收工回家', '女生和猫一起放松收束', '沙发、放松姿态、猫靠在身边、室内暖光', '今日收工']
+  ];
+
+  function v(id){ return $(id).value; }
+  function setValue(id, value){
+    const el = $(id);
+    if(!el || value === undefined) return;
+    el.value = value;
+  }
+  function readCustomPresets(){
+    try { return JSON.parse(localStorage.getItem(STORAGE_KEY) || '[]'); }
+    catch(e){ return []; }
+  }
+  function writeCustomPresets(presets){
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(presets));
+  }
+  function allPresets(){
+    return BUILT_IN_PRESETS.map(p => ({...p, builtIn:true})).concat(readCustomPresets().map(p => ({...p, builtIn:false})));
+  }
+  function renderPresetSelect(selectedName){
+    $('preset').innerHTML = '';
+    allPresets().forEach(p => {
+      const option = document.createElement('option');
+      option.value = p.name;
+      option.textContent = p.builtIn ? `${p.name}（内置）` : p.name;
+      $('preset').appendChild(option);
+    });
+    if(selectedName) $('preset').value = selectedName;
+  }
+  function applyPreset(preset){
+    if(!preset) return;
+    $('presetName').value = preset.name;
+    Object.entries(preset.values || {}).forEach(([id, value]) => setValue(id, value));
+    setStatus(`已应用模板：${preset.name}`);
+    generate();
+  }
+  function applySelectedPreset(){
+    const preset = allPresets().find(p => p.name === v('preset'));
+    applyPreset(preset);
+  }
+  function currentPresetValues(){
+    const values = {};
+    PRESET_FIELDS.forEach(id => values[id] = v(id));
+    return values;
+  }
+  function savePreset(){
+    const name = v('presetName').trim();
+    if(!name){ setStatus('请先填写模板名称。'); return; }
+    if(BUILT_IN_PRESETS.some(p => p.name === name)){ setStatus('内置模板不能覆盖，请换一个名称。'); return; }
+    const presets = readCustomPresets();
+    const next = {name, values: currentPresetValues()};
+    const index = presets.findIndex(p => p.name === name);
+    if(index >= 0) presets[index] = next; else presets.push(next);
+    writeCustomPresets(presets);
+    renderPresetSelect(name);
+    setStatus(`已保存模板：${name}`);
+    generate();
+  }
+  function newPreset(){
+    $('presetName').value = '我的新模板';
+    setStatus('已进入新建模板状态，调整配置后点击“保存为模板”。');
+  }
+  function deletePreset(){
+    const name = v('preset');
+    if(BUILT_IN_PRESETS.some(p => p.name === name)){ setStatus('内置模板不能删除。'); return; }
+    writeCustomPresets(readCustomPresets().filter(p => p.name !== name));
+    renderPresetSelect(BUILT_IN_PRESETS[0].name);
+    applyPreset(BUILT_IN_PRESETS[0]);
+    setStatus(`已删除自定义模板：${name}`);
+  }
+  function resetBuiltIn(){
+    renderPresetSelect(BUILT_IN_PRESETS[0].name);
+    applyPreset(BUILT_IN_PRESETS[0]);
+  }
+  function setStatus(text){ $('templateStatus').textContent = text; }
+
+  function buildData(){
+    return {
+      preset_name: v('presetName'),
+      scene: v('scene'),
+      clothing: v('clothing'),
+      mood: v('mood'),
+      story_outline: v('story'),
+      extra: v('extra'),
+      output_mode: '单张大图',
+      ratio: v('ratio'),
+      platform: v('platform'),
+      image_count: Number((v('count').match(/\d+/) || ['6'])[0]),
+      continuous_story: v('continuous'),
+      story_template: v('template'),
+      story_coherence: v('strength'),
+      identity_lock: '强锁定',
+      bubble_mode: v('bubble'),
+      text_mode: v('textMode'),
+      text_render_mode: v('textRender'),
+      text_position: v('textPosition'),
+      copywriting_mode: v('copyMode'),
+      interaction_mode: v('interaction'),
+      outfit_style_lock: v('lock'),
+      outfit_reference: v('reference'),
+      in_image_storyboard: v('storyboard'),
+      storyboard_view: v('view'),
+      storyboard_layout: v('layout'),
+      qa_failures: []
+    };
+  }
+
+  function validateData(data){
+    const errors = [];
+    ['scene','image_count','continuous_story','story_template'].forEach(key => {
+      if(data[key] === undefined || data[key] === null || data[key] === '') errors.push(`缺少必填字段：${key}`);
+    });
+    if(!Number.isInteger(data.image_count) || data.image_count < 1 || data.image_count > 12) errors.push('image_count 必须是 1-12 的整数');
+    Object.entries({
+      ratio: data.ratio,
+      platform: data.platform,
+      continuous_story: data.continuous_story,
+      story_template: data.story_template,
+      story_coherence: data.story_coherence,
+      bubble_mode: data.bubble_mode,
+      text_mode: data.text_mode,
+      text_render_mode: data.text_render_mode,
+      text_position: data.text_position,
+      copywriting_mode: data.copywriting_mode,
+      interaction_mode: data.interaction_mode,
+      outfit_style_lock: data.outfit_style_lock,
+      outfit_reference: data.outfit_reference,
+      in_image_storyboard: data.in_image_storyboard,
+      storyboard_view: data.storyboard_view,
+      storyboard_layout: data.storyboard_layout
+    }).forEach(([key, value]) => {
+      if(!ENUMS[key].includes(value)) errors.push(`${key} 值无效：${value}`);
+    });
+    return errors;
+  }
+
+  function renderValidation(errors){
+    if(errors.length){
+      $('validationList').innerHTML = errors.map(err => `<div class="ok info">${escapeHtml(err)}</div>`).join('');
+      return;
+    }
+    $('validationList').innerHTML = [
+      '必填字段已完整',
+      '字段值已对齐 V1.7 脚本枚举',
+      'image_count 范围 1-12',
+      '连续情节与故事模板兼容',
+      '文字落地模式可被脚本识别',
+      'qa_failures 为空，将在生成后填充'
+    ].map(text => `<div class="ok">${text}</div>`).join('');
+  }
+
+  function escapeHtml(str){
+    return String(str).replace(/[&<>"]/g, s => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[s]));
+  }
+  function highlightJson(json){
+    return json.split('\n').map(line => {
+      const safe = escapeHtml(line)
+        .replace(/(&quot;[^&]*?&quot;)(\s*:)/g, '<span class="key">$1</span><span class="pun">$2</span>')
+        .replace(/:\s*(&quot;.*?&quot;)/g, ': <span class="str">$1</span>')
+        .replace(/:\s*(\d+)/g, ': <span class="num">$1</span>')
+        .replace(/:\s*(true|false|null)/g, ': <span class="bool">$1</span>');
+      return `<div class="code-line"><span>${safe}</span></div>`;
+    }).join('');
+  }
+
+  function framesFor(data){
+    const base = data.story_template === '居家治愈故事' ? HOME_FRAMES : DELIVERY_FRAMES;
+    const count = Math.max(1, Math.min(12, data.image_count));
+    return Array.from({length: count}, (_, i) => {
+      const src = base[i % base.length];
+      return {index:i + 1, scene:src[0], action:src[1], evidence:src[2], title:src[3]};
+    });
+  }
+  function referencesFor(index, continuous){
+    if(continuous !== '是') return '原始人物身份参考图 + 原始猫咪身份参考图 + 当前场景母版图';
+    if(index === 1) return '原始人物身份参考图 + 原始猫咪身份参考图 + 当前场景母版图';
+    if(index === 2) return '原始人物身份参考图 + 原始猫咪身份参考图 + 第1张锚点图';
+    return `原始人物身份参考图 + 原始猫咪身份参考图 + 第1张锚点图 + 第${index - 1}张成图`;
+  }
+  function buildPrompt(data){
+    const frames = framesFor(data);
+    const rows = frames.map(frame => `| ${frame.index} | ${frame.index === 1 ? '封面图/锚点图' : frame.index === frames.length ? '结尾图' : '过程图'} | ${frame.scene} | ${frame.action} | ${frame.title} |`).join('\n');
+    const framePrompts = frames.map(frame => `## 第 ${frame.index}/${frames.length} 张 Prompt\n\n引用：${referencesFor(frame.index, data.continuous_story)}\n\n本张只表达一个动作：${frame.action}\n\n必须出现的视觉证据：${frame.evidence}\n\n生成要求：保持同一个年轻女生、同一只白色银渐层猫、同一套服装与道具连续；${data.text_render_mode}；当前图内分镜：${data.in_image_storyboard}；镜头与构图服务当前动作。\n\nnegative prompt：不要换脸，不要换猫品种，不要换衣服，不要拼图，不要九宫格，不要直接生成中文乱码文字。`).join('\n\n---\n\n');
+    return `# 人猫搭档连续故事生成任务 V1.7（前端预览版）\n\n> 说明：这里保留完整 Prompt 预览，便于复制沟通；最终可追踪流水线产物以 \`tools/generate_prompt.py --input\` 输出的 \`prompt_task.md\` 和 JSON 文件为准。\n\n本任务共 ${data.image_count} 张图。\n\n## 关键生成顺序\n1. 第 1 张：先单独生成故事锚点。\n2. 第 2 张：上传身份参考图 + 第 1 张锚点图，再生成第 2 张。\n3. 第 3 张及以后：上传身份参考图 + 第 1 张锚点图 + 上一张成图，再生成当前张。\n4. 不要一次性并行生成所有图片。\n\n## 最小入参\n\`\`\`json\n${JSON.stringify(data, null, 2)}\n\`\`\`\n\n## 本次故事设定\n- 起始场景：${data.scene}\n- 服装：${data.clothing}\n- 氛围：${data.mood}\n- 故事模板：${data.story_template}\n- 连续性强度：${data.story_coherence}\n- 平台比例：${data.platform} / ${data.ratio}\n\n## 故事情节\n${data.story_outline || '未填写'}\n\n## 补充说明\n${data.extra || '无'}\n\n## 发布顺序清单\n| 顺序 | 类型 | 场景 | 本张动作 | 标题 |\n|---:|---|---|---|---|\n${rows}\n\n---\n\n${framePrompts}\n\n## 返工规则\n如果人物变脸、猫咪换品种、服装道具不连续、动作看不清、气泡遮挡主体或出现中文乱码，当前张必须先返工，不进入下一张。返工时基于第 1 张锚点图和上一张成图，重新生成当前张，只修复当前失败项。`;
+  }
+
+  function generate(){
+    const data = buildData();
+    const errors = validateData(data);
+    $('jsonCode').innerHTML = highlightJson(JSON.stringify(data, null, 2));
+    $('promptText').textContent = buildPrompt(data);
+    renderValidation(errors);
+  }
+  function switchTab(tab){
+    activeTab = tab;
+    document.querySelectorAll('.tab').forEach((el,i)=>el.classList.toggle('active', (tab==='json'&&i===0)||(tab==='prompt'&&i===1)));
+    $('jsonCard').classList.toggle('active', tab==='json');
+    $('promptCard').classList.toggle('active', tab==='prompt');
+  }
+  function formatJson(){ generate(); switchTab('json'); }
+  function generatePromptFromJson(){ generate(); switchTab('prompt'); }
+  let toastTimer = null;
+  function showToast(message, type = 'success'){
+    const toast = $('pixelToast');
+    toast.textContent = message;
+    toast.className = `pixel-toast ${type} show`;
+    clearTimeout(toastTimer);
+    toastTimer = setTimeout(() => {
+      toast.classList.remove('show');
+    }, 1800);
+  }
+  async function copyActive(){
+    const data = activeTab === 'json' ? JSON.stringify(buildData(), null, 2) : $('promptText').textContent;
+    const fallbackCopy = () => {
+      const textarea = document.createElement('textarea');
+      textarea.value = data;
+      textarea.setAttribute('readonly', '');
+      textarea.style.position = 'fixed';
+      textarea.style.left = '-9999px';
+      textarea.style.top = '0';
+      document.body.appendChild(textarea);
+      textarea.focus();
+      textarea.select();
+      const copied = document.execCommand('copy');
+      document.body.removeChild(textarea);
+      if(!copied) throw new Error('copy command failed');
+    };
+    try{
+      if(navigator.clipboard && window.isSecureContext) await navigator.clipboard.writeText(data);
+      else fallbackCopy();
+      showToast('已复制到剪贴板', 'success');
+    }catch(e){
+      try{
+        fallbackCopy();
+        showToast('已复制到剪贴板', 'success');
+      }catch(err){
+        showToast('复制失败，请手动选择输出内容复制', 'error');
+      }
+    }
+  }
+  function toggleFullscreen(){
+    const el = document.querySelector('.output-panel');
+    if(!document.fullscreenElement) el.requestFullscreen?.(); else document.exitFullscreen?.();
+  }
+
+  document.querySelectorAll('select,input,textarea').forEach(el => el.addEventListener('input', generate));
+  renderPresetSelect(BUILT_IN_PRESETS[0].name);
+  applyPreset(BUILT_IN_PRESETS[0]);
+</script>
+</body>
+</html>

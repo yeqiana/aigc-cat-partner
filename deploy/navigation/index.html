@@ -1,0 +1,155 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>YeQian 项目导航</title>
+  <style>
+    :root {
+      --bg: #f5f7f8;
+      --panel: #ffffff;
+      --text: #172026;
+      --muted: #66737c;
+      --line: #dce3e8;
+      --primary: #246b61;
+      --secondary: #7a4b32;
+      --shadow: 0 16px 40px rgba(23, 32, 38, .08);
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      min-height: 100vh;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Microsoft YaHei", Arial, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+    }
+
+    main {
+      width: min(1040px, calc(100% - 32px));
+      margin: 0 auto;
+      padding: 48px 0;
+    }
+
+    header {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-end;
+      gap: 24px;
+      margin-bottom: 24px;
+      border-bottom: 1px solid var(--line);
+      padding-bottom: 20px;
+    }
+
+    h1 {
+      margin: 0;
+      font-size: 32px;
+      line-height: 1.2;
+      font-weight: 800;
+      letter-spacing: 0;
+    }
+
+    .host {
+      color: var(--muted);
+      font-size: 14px;
+      white-space: nowrap;
+    }
+
+    .projects {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 16px;
+    }
+
+    .project {
+      display: grid;
+      gap: 14px;
+      min-height: 190px;
+      padding: 22px;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: var(--panel);
+      box-shadow: var(--shadow);
+      text-decoration: none;
+      color: inherit;
+    }
+
+    .project:focus,
+    .project:hover {
+      border-color: var(--primary);
+      outline: none;
+    }
+
+    .project small {
+      color: var(--muted);
+      font-weight: 700;
+      letter-spacing: 0;
+    }
+
+    .project h2 {
+      margin: 0;
+      font-size: 22px;
+      line-height: 1.25;
+      letter-spacing: 0;
+    }
+
+    .project p {
+      margin: 0;
+      color: var(--muted);
+      line-height: 1.7;
+      font-size: 15px;
+    }
+
+    .open {
+      align-self: end;
+      display: inline-flex;
+      width: fit-content;
+      align-items: center;
+      gap: 8px;
+      color: var(--primary);
+      font-weight: 800;
+      font-size: 14px;
+    }
+
+    .open::after {
+      content: "->";
+      color: var(--secondary);
+    }
+
+    @media (max-width: 720px) {
+      main { padding: 28px 0; }
+      header { display: block; }
+      h1 { font-size: 28px; }
+      .host { margin-top: 8px; white-space: normal; }
+      .projects { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+  <main>
+    <header>
+      <div>
+        <h1>YeQian 项目导航</h1>
+      </div>
+      <div class="host">121.89.82.216:29000</div>
+    </header>
+
+    <section class="projects" aria-label="项目列表">
+      <a class="project" href="http://121.89.82.216:29001/">
+        <small>29001</small>
+        <h2>Daily Event Draw</h2>
+        <p>之前部署的 Daily Event Draw 项目主页。</p>
+        <span class="open">打开项目</span>
+      </a>
+
+      <a class="project" href="http://121.89.82.216:29002/">
+        <small>29002</small>
+        <h2>AIGC Cat Partner</h2>
+        <p>当前代码中的提示词生成静态页面。</p>
+        <span class="open">打开项目</span>
+      </a>
+    </section>
+  </main>
+</body>
+</html>
