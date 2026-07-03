@@ -18,7 +18,7 @@ from typing import Any
 
 ROOT = Path(__file__).resolve().parents[1]
 CONFIG_DIR = ROOT / "config"
-OUTPUT_DIR = ROOT / "06_最终可用图" / "生成任务"
+OUTPUT_DIR = ROOT / "outputs" / "batch_plans"
 
 BUBBLE_MODES = ["无", "单角色气泡", "多角色气泡", "旁白标题"]
 TEXT_MODES = ["无文字", "直接生成文字", "空白气泡后期加字"]

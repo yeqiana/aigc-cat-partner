@@ -1,0 +1,15 @@
+{
+  "project_name": "通用角色立绘测试",
+  "image_count": 1,
+  "continuous_story": "否",
+  "story_template": "通用悬念连载",
+  "scene": "角色立绘",
+  "action": "角色正面站立，展示全身造型",
+  "angle": "正面全身",
+  "style_prompt": "日系二次元插画风格，干净线条，柔和配色",
+  "visual_gene_summary": "主角色：青年男性，黑色短发，深蓝色瞳孔，身高约175cm，身材匀称。穿着深蓝色长风衣，内搭白色衬衫和黑色长裤，黑色短靴。整体气质冷静沉稳。",
+  "worldview_summary": "现代都市背景，阴天环境，远处有模糊的建筑轮廓。",
+  "bubble_mode": "无",
+  "text_render_mode": "仅生成文案清单",
+  "outfit_style_lock": "强锁定"
+}

@@ -1,0 +1,15 @@
+{
+  "project_name": "通用场景测试",
+  "image_count": 1,
+  "continuous_story": "否",
+  "story_template": "通用悬念连载",
+  "scene": "废弃车站候车室",
+  "action": "空无一人的候车室，长椅歪斜，墙上的钟停了",
+  "angle": "广角全景",
+  "style_prompt": "写实渲染风格，冷色调，暗部细节丰富，氛围感强",
+  "visual_gene_summary": "无角色，纯场景",
+  "worldview_summary": "废弃多年的老火车站候车室。木质长椅歪斜放置，墙面漆脱落，露出红砖。天花板日光灯部分损坏，闪烁。地面有碎报纸和灰尘。墙上挂钟指针停在某个时刻。窗外是阴天黄昏。",
+  "bubble_mode": "无",
+  "text_render_mode": "仅生成文案清单",
+  "outfit_style_lock": "不锁定"
+}

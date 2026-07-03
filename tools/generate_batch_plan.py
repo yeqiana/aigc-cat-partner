@@ -21,7 +21,7 @@ def main():
     if not tasks:
         print("没有 tasks")
         return
-    tmp_dir = ROOT / "06_最终可用图" / "生成任务" / "_tmp_batch_inputs"
+    tmp_dir = ROOT / "outputs" / "batch_plans" / "_tmp_batch_inputs"
     tmp_dir.mkdir(parents=True, exist_ok=True)
     for idx, task in enumerate(tasks, 1):
         p = tmp_dir / f"task_{idx:02d}.json"

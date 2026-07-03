@@ -11,7 +11,7 @@
 python tools/generate_prompt.py --input examples/generic_suspense_series.sample.json
 ```
 
-5. 打开输出目录 `06_最终可用图/生成任务/*_V2_pipeline/`。
+5. 打开输出目录 `outputs/batch_plans/*_V2_pipeline/`。
 6. 先检查：
    - `story_plan.json`
    - `frame_plan.json`
