@@ -1,0 +1,515 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>陈年烈狗｜像素风入口</title>
+  <style>
+    :root {
+      color-scheme: dark;
+      --bg: #111827;
+      --panel: #182236;
+      --panel-soft: #22304a;
+      --ink: #f6ead0;
+      --muted: #b8aa92;
+      --line: #5f6d86;
+      --cyan: #33a7b4;
+      --gold: #e0b655;
+      --red: #c96355;
+      --green: #5d9a73;
+      --shadow: 6px 6px 0 #080c14;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    html {
+      scroll-behavior: smooth;
+    }
+
+    body {
+      margin: 0;
+      min-height: 100vh;
+      color: var(--ink);
+      background:
+        linear-gradient(90deg, rgba(255,255,255,.035) 1px, transparent 1px) 0 0 / 18px 18px,
+        linear-gradient(rgba(255,255,255,.035) 1px, transparent 1px) 0 0 / 18px 18px,
+        var(--bg);
+      font-family: "Microsoft YaHei", "PingFang SC", "Segoe UI", Arial, sans-serif;
+      letter-spacing: 0;
+    }
+
+    a {
+      color: inherit;
+      text-decoration: none;
+    }
+
+    img {
+      display: block;
+      max-width: 100%;
+    }
+
+    .page {
+      width: min(1160px, calc(100% - 32px));
+      margin: 0 auto;
+      padding: 24px 0 34px;
+    }
+
+    .topbar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 18px;
+      min-height: 64px;
+      padding: 12px 16px;
+      border: 2px solid var(--line);
+      background: #10192a;
+      box-shadow: var(--shadow);
+    }
+
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      min-width: 0;
+    }
+
+    .avatar {
+      width: 42px;
+      height: 42px;
+      border: 2px solid var(--gold);
+      background: var(--panel-soft);
+      object-fit: cover;
+      image-rendering: auto;
+    }
+
+    .brand-text {
+      display: grid;
+      gap: 3px;
+      min-width: 0;
+    }
+
+    .brand-text b {
+      overflow: hidden;
+      font-size: 21px;
+      line-height: 1.15;
+      white-space: nowrap;
+      text-overflow: ellipsis;
+    }
+
+    .brand-text span {
+      color: var(--muted);
+      font-size: 13px;
+    }
+
+    .top-actions {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: flex-end;
+      gap: 10px;
+    }
+
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 40px;
+      padding: 0 16px;
+      border: 2px solid rgba(255,255,255,.28);
+      background: var(--panel-soft);
+      color: var(--ink);
+      font-weight: 800;
+      cursor: pointer;
+      box-shadow: 3px 3px 0 #070b12;
+    }
+
+    .btn.primary {
+      background: var(--gold);
+      color: #1b160c;
+      border-color: #ffe29a;
+    }
+
+    .btn:hover,
+    .btn:focus-visible {
+      transform: translate(-1px, -1px);
+      outline: 0;
+      box-shadow: 5px 5px 0 #070b12;
+    }
+
+    .hero {
+      display: grid;
+      grid-template-columns: minmax(0, 1.05fr) minmax(300px, .95fr);
+      gap: 22px;
+      align-items: stretch;
+      margin-top: 28px;
+    }
+
+    .hero-copy {
+      min-height: 520px;
+      padding: 32px;
+      border: 2px solid var(--line);
+      background: var(--panel);
+      box-shadow: var(--shadow);
+    }
+
+    .eyebrow {
+      display: inline-flex;
+      width: fit-content;
+      margin-bottom: 20px;
+      padding: 6px 10px;
+      border: 2px solid var(--cyan);
+      background: rgba(51,167,180,.12);
+      color: #a7f2f7;
+      font-size: 13px;
+      font-weight: 800;
+    }
+
+    h1 {
+      max-width: 9em;
+      margin: 0;
+      font-size: 68px;
+      line-height: .98;
+      letter-spacing: 0;
+    }
+
+    .intro {
+      max-width: 620px;
+      margin: 20px 0 0;
+      color: #d8cbb2;
+      font-size: 17px;
+      line-height: 1.85;
+    }
+
+    .hero-buttons {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 12px;
+      margin-top: 28px;
+    }
+
+    .meta {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 10px;
+      margin-top: 30px;
+    }
+
+    .meta-item {
+      padding: 14px 12px;
+      border: 2px solid #3c4961;
+      background: #111a2b;
+    }
+
+    .meta-item b {
+      display: block;
+      margin-bottom: 4px;
+      color: var(--gold);
+      font-size: 20px;
+    }
+
+    .meta-item span {
+      color: var(--muted);
+      font-size: 13px;
+      line-height: 1.45;
+    }
+
+    .visual {
+      overflow: hidden;
+      min-height: 520px;
+      border: 2px solid var(--gold);
+      background: #0d1422;
+      box-shadow: var(--shadow);
+    }
+
+    .visual-head {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      padding: 12px 14px;
+      border-bottom: 2px solid #3d4760;
+      color: var(--muted);
+      font-size: 13px;
+      font-weight: 800;
+    }
+
+    .lights {
+      display: flex;
+      gap: 6px;
+    }
+
+    .lights span {
+      width: 10px;
+      height: 10px;
+      border: 1px solid rgba(0,0,0,.65);
+      background: var(--red);
+    }
+
+    .lights span:nth-child(2) {
+      background: var(--gold);
+    }
+
+    .lights span:nth-child(3) {
+      background: var(--green);
+    }
+
+    .visual-body {
+      display: grid;
+      place-items: center;
+      min-height: 466px;
+      padding: 22px;
+    }
+
+    .hero-img {
+      width: min(360px, 100%);
+      aspect-ratio: 3 / 4;
+      border: 2px solid #f1d98b;
+      background: #131d2f;
+      object-fit: cover;
+      box-shadow: 0 0 0 8px rgba(255,255,255,.04);
+    }
+
+    .section {
+      margin-top: 24px;
+      padding: 24px;
+      border: 2px solid var(--line);
+      background: rgba(24,34,54,.9);
+      box-shadow: var(--shadow);
+    }
+
+    .section-head {
+      display: flex;
+      align-items: end;
+      justify-content: space-between;
+      gap: 16px;
+      margin-bottom: 18px;
+    }
+
+    .section h2 {
+      margin: 0;
+      font-size: 24px;
+      line-height: 1.2;
+    }
+
+    .section-head p {
+      max-width: 520px;
+      margin: 0;
+      color: var(--muted);
+      font-size: 14px;
+      line-height: 1.65;
+    }
+
+    .quick-grid {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 14px;
+    }
+
+    .quick-card {
+      min-height: 150px;
+      padding: 18px;
+      border: 2px solid #42516b;
+      background: #111a2c;
+    }
+
+    .quick-card b {
+      display: block;
+      margin-bottom: 10px;
+      color: #fff4cc;
+      font-size: 18px;
+    }
+
+    .quick-card p {
+      margin: 0;
+      color: var(--muted);
+      font-size: 14px;
+      line-height: 1.7;
+    }
+
+    .prompt-panel {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) auto;
+      gap: 16px;
+      align-items: start;
+      padding: 18px;
+      border: 2px solid #42516b;
+      background: #0e1626;
+    }
+
+    pre {
+      overflow: auto;
+      min-height: 142px;
+      max-height: 260px;
+      margin: 0;
+      color: #e9f7ff;
+      font-size: 13px;
+      line-height: 1.75;
+      white-space: pre-wrap;
+      word-break: break-word;
+    }
+
+    .footer-note {
+      margin: 22px 0 0;
+      color: var(--muted);
+      font-size: 13px;
+      line-height: 1.7;
+      text-align: center;
+    }
+
+    @media (max-width: 860px) {
+      .page {
+        width: min(100% - 20px, 720px);
+        padding-top: 12px;
+      }
+
+      .topbar,
+      .hero,
+      .section,
+      .visual,
+      .hero-copy {
+        box-shadow: 4px 4px 0 #080c14;
+      }
+
+      .topbar {
+        align-items: flex-start;
+        flex-direction: column;
+      }
+
+      .top-actions {
+        justify-content: flex-start;
+        width: 100%;
+      }
+
+      .btn {
+        flex: 1 1 150px;
+      }
+
+      .hero {
+        grid-template-columns: 1fr;
+      }
+
+      h1 {
+        font-size: 42px;
+      }
+
+      .hero-copy,
+      .visual {
+        min-height: auto;
+      }
+
+      .visual-body {
+        min-height: auto;
+      }
+
+      .meta,
+      .quick-grid,
+      .prompt-panel {
+        grid-template-columns: 1fr;
+      }
+
+      .section-head {
+        align-items: start;
+        flex-direction: column;
+      }
+    }
+  </style>
+</head>
+<body>
+  <main class="page">
+    <header class="topbar">
+      <a class="brand" href="#">
+        <img class="avatar" src="../02_风格母版图/v1/陶淮南小.png" alt="陈年烈狗角色头像">
+        <span class="brand-text">
+          <b>陈年烈狗</b>
+          <span>像素风图片生成入口</span>
+        </span>
+      </a>
+      <nav class="top-actions" aria-label="入口操作">
+        <a class="btn" href="../入口/START_HERE.md">查看流程</a>
+        <a class="btn primary" href="#prompt">复制 Prompt</a>
+      </nav>
+    </header>
+
+    <section class="hero">
+      <div class="hero-copy">
+        <span class="eyebrow">IP ENTRY / PIXEL STYLE</span>
+        <h1>把章节先变成一组像素图。</h1>
+        <p class="intro">
+          入口只保留最常用的动作：确认角色、查看章节方向、复制生成提示词。适合先跑第 1 章到第 10 章测试图，再决定是否扩展到全书批量生成。
+        </p>
+        <div class="hero-buttons">
+          <a class="btn primary" href="#quick">开始测试</a>
+          <a class="btn" href="#prompt">单图 Prompt</a>
+        </div>
+        <div class="meta" aria-label="当前生成配置">
+          <div class="meta-item"><b>9:16</b><span>竖屏连载图比例</span></div>
+          <div class="meta-item"><b>10章</b><span>优先小批量测试</span></div>
+          <div class="meta-item"><b>低复杂</b><span>不做完整工具台</span></div>
+        </div>
+      </div>
+
+      <aside class="visual" aria-label="角色主视觉">
+        <div class="visual-head">
+          <span>master_reference.png</span>
+          <span class="lights"><span></span><span></span><span></span></span>
+        </div>
+        <div class="visual-body">
+          <img class="hero-img" src="../02_风格母版图/v1/陶淮南小.png" alt="陶淮南风格母版图">
+        </div>
+      </aside>
+    </section>
+
+    <section class="section" id="quick">
+      <div class="section-head">
+        <h2>入口只做三件事</h2>
+        <p>相比参考图里的复杂工作台，这里只保留进入生成流程前必须看的信息。</p>
+      </div>
+      <div class="quick-grid">
+        <article class="quick-card">
+          <b>1. 锁角色</b>
+          <p>童年陶淮南、迟苦、陶晓东、石爷爷按设定和母版图保持一致，不在每章随意变脸。</p>
+        </article>
+        <article class="quick-card">
+          <b>2. 选章节</b>
+          <p>先从第 1 章到第 10 章跑测试图，观察风格、人物稳定性和情绪表达。</p>
+        </article>
+        <article class="quick-card">
+          <b>3. 复制提示词</b>
+          <p>页面给出简短 prompt 骨架，具体章节内容继续由现有 prompt 文件承接。</p>
+        </article>
+      </div>
+    </section>
+
+    <section class="section" id="prompt">
+      <div class="section-head">
+        <h2>简版 Prompt</h2>
+        <p>入口页只放可复制的方向提示，避免把所有参数都塞进页面。</p>
+      </div>
+      <div class="prompt-panel">
+        <pre id="promptText">Pixel art vertical illustration, Chen Nian Lie Gou IP, childhood Tao Huainan and Chi Ku, warm rural daily life, emotional restraint, clean silhouettes, consistent character design, 16-bit game screen feeling, soft dusk light, cinematic composition, no text, no speech bubbles, 9:16.</pre>
+        <button class="btn primary" type="button" data-copy="#promptText">复制</button>
+      </div>
+    </section>
+
+    <p class="footer-note">本页是静态入口 HTML。真正批量生成仍以 config、prompts 和 tools 中的现有流程为准。</p>
+  </main>
+
+  <script>
+    document.querySelectorAll('[data-copy]').forEach((button) => {
+      button.addEventListener('click', async () => {
+        const target = document.querySelector(button.dataset.copy);
+        if (!target) return;
+        try {
+          await navigator.clipboard.writeText(target.textContent.trim());
+          button.textContent = '已复制';
+          setTimeout(() => { button.textContent = '复制'; }, 1200);
+        } catch (error) {
+          button.textContent = '复制失败';
+          setTimeout(() => { button.textContent = '复制'; }, 1200);
+        }
+      });
+    });
+  </script>
+</body>
+</html>

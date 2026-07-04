@@ -1,0 +1,848 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>陈年烈狗｜AIGC 图文连载入口</title>
+  <style>
+    :root {
+      color-scheme: light;
+      --bg: #f6f4ef;
+      --panel: #ffffff;
+      --ink: #25201c;
+      --muted: #6d6660;
+      --line: #ded8cf;
+      --warm: #a4573f;
+      --warm-deep: #7d382b;
+      --green: #3c6b5d;
+      --blue: #47657b;
+      --gold: #b68138;
+      --shadow: 0 18px 45px rgba(42, 35, 28, .12);
+      --radius: 8px;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      min-height: 100vh;
+      font-family: "Microsoft YaHei", "PingFang SC", "Segoe UI", Arial, sans-serif;
+      background: var(--bg);
+      color: var(--ink);
+      letter-spacing: 0;
+    }
+
+    a {
+      color: inherit;
+      text-decoration: none;
+    }
+
+    img {
+      display: block;
+      max-width: 100%;
+    }
+
+    .shell {
+      min-height: 100vh;
+      display: grid;
+      grid-template-columns: 260px minmax(0, 1fr);
+    }
+
+    .side {
+      position: sticky;
+      top: 0;
+      height: 100vh;
+      padding: 24px 18px;
+      background: #211d19;
+      color: #f7f1e8;
+      border-right: 1px solid rgba(255, 255, 255, .08);
+    }
+
+    .brand {
+      display: grid;
+      gap: 8px;
+      margin-bottom: 28px;
+    }
+
+    .brand b {
+      font-size: 22px;
+      line-height: 1.1;
+      font-weight: 800;
+    }
+
+    .brand span {
+      color: rgba(247, 241, 232, .72);
+      font-size: 13px;
+      line-height: 1.6;
+    }
+
+    .nav {
+      display: grid;
+      gap: 8px;
+    }
+
+    .nav a {
+      min-height: 40px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 12px;
+      border: 1px solid rgba(255, 255, 255, .12);
+      border-radius: var(--radius);
+      color: rgba(247, 241, 232, .86);
+      font-size: 14px;
+    }
+
+    .nav a:hover,
+    .nav a:focus-visible {
+      outline: none;
+      background: rgba(255, 255, 255, .08);
+      color: #fff;
+    }
+
+    .side-note {
+      position: absolute;
+      left: 18px;
+      right: 18px;
+      bottom: 20px;
+      padding-top: 16px;
+      border-top: 1px solid rgba(255, 255, 255, .12);
+      color: rgba(247, 241, 232, .72);
+      font-size: 12px;
+      line-height: 1.6;
+    }
+
+    main {
+      min-width: 0;
+    }
+
+    .hero {
+      min-height: 520px;
+      display: grid;
+      grid-template-columns: minmax(0, 1.1fr) minmax(320px, .9fr);
+      gap: 34px;
+      align-items: stretch;
+      padding: 42px clamp(24px, 5vw, 64px) 28px;
+      background:
+        linear-gradient(120deg, rgba(246, 244, 239, .98) 0%, rgba(246, 244, 239, .78) 52%, rgba(246, 244, 239, .2) 100%),
+        url("../02_风格母版图/v1/陶淮南小.png") right center / contain no-repeat;
+      border-bottom: 1px solid var(--line);
+    }
+
+    .hero-copy {
+      align-self: center;
+      max-width: 720px;
+    }
+
+    .kicker {
+      display: inline-flex;
+      align-items: center;
+      min-height: 28px;
+      padding: 0 10px;
+      border: 1px solid rgba(164, 87, 63, .3);
+      border-radius: 999px;
+      color: var(--warm-deep);
+      background: rgba(255, 255, 255, .64);
+      font-size: 13px;
+      font-weight: 700;
+    }
+
+    h1 {
+      margin: 18px 0 14px;
+      font-size: clamp(42px, 7vw, 86px);
+      line-height: .96;
+      font-weight: 900;
+      letter-spacing: 0;
+    }
+
+    .lead {
+      max-width: 620px;
+      margin: 0;
+      color: var(--muted);
+      font-size: 17px;
+      line-height: 1.8;
+    }
+
+    .hero-actions {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 12px;
+      margin-top: 28px;
+    }
+
+    .btn {
+      min-height: 42px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      padding: 0 16px;
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      background: var(--panel);
+      color: var(--ink);
+      font: inherit;
+      font-size: 14px;
+      font-weight: 800;
+      cursor: pointer;
+      box-shadow: 0 8px 20px rgba(42, 35, 28, .08);
+    }
+
+    .btn.primary {
+      background: var(--warm);
+      border-color: var(--warm);
+      color: #fff;
+    }
+
+    .btn:hover,
+    .btn:focus-visible {
+      outline: 2px solid rgba(164, 87, 63, .3);
+      outline-offset: 2px;
+    }
+
+    .hero-board {
+      align-self: end;
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 10px;
+      min-height: 260px;
+    }
+
+    .hero-board figure {
+      margin: 0;
+      overflow: hidden;
+      border-radius: var(--radius);
+      background: #eee5db;
+      box-shadow: var(--shadow);
+    }
+
+    .hero-board img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      object-position: top center;
+    }
+
+    .hero-board figure:nth-child(2) {
+      transform: translateY(28px);
+    }
+
+    .hero-board figure:nth-child(3) {
+      transform: translateY(56px);
+    }
+
+    .band {
+      padding: 36px clamp(24px, 5vw, 64px);
+    }
+
+    .band.alt {
+      background: #fffdf8;
+      border-block: 1px solid var(--line);
+    }
+
+    .section-head {
+      display: flex;
+      align-items: end;
+      justify-content: space-between;
+      gap: 18px;
+      margin-bottom: 18px;
+    }
+
+    h2 {
+      margin: 0;
+      font-size: clamp(24px, 3vw, 36px);
+      line-height: 1.1;
+      font-weight: 900;
+    }
+
+    .section-head p {
+      max-width: 560px;
+      margin: 0;
+      color: var(--muted);
+      line-height: 1.7;
+    }
+
+    .metrics {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 14px;
+    }
+
+    .metric {
+      padding: 18px;
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      background: var(--panel);
+      box-shadow: 0 12px 30px rgba(42, 35, 28, .07);
+    }
+
+    .metric strong {
+      display: block;
+      margin-bottom: 8px;
+      color: var(--warm-deep);
+      font-size: 26px;
+      line-height: 1;
+    }
+
+    .metric span {
+      color: var(--muted);
+      font-size: 14px;
+      line-height: 1.5;
+    }
+
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 14px;
+    }
+
+    .tile {
+      padding: 18px;
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      background: var(--panel);
+      min-height: 170px;
+    }
+
+    .tile h3 {
+      margin: 0 0 10px;
+      font-size: 18px;
+      line-height: 1.25;
+    }
+
+    .tile p,
+    .tile li {
+      color: var(--muted);
+      font-size: 14px;
+      line-height: 1.7;
+    }
+
+    .tile ul {
+      margin: 0;
+      padding-left: 18px;
+    }
+
+    .tagrow {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-top: 14px;
+    }
+
+    .tag {
+      display: inline-flex;
+      min-height: 26px;
+      align-items: center;
+      padding: 0 9px;
+      border-radius: 999px;
+      background: #f1ebe1;
+      color: #5b5047;
+      font-size: 12px;
+      font-weight: 700;
+    }
+
+    .tag.green {
+      background: rgba(60, 107, 93, .12);
+      color: var(--green);
+    }
+
+    .tag.blue {
+      background: rgba(71, 101, 123, .13);
+      color: var(--blue);
+    }
+
+    .tag.gold {
+      background: rgba(182, 129, 56, .15);
+      color: #7a5420;
+    }
+
+    .workflow {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 12px;
+      counter-reset: step;
+    }
+
+    .step {
+      position: relative;
+      min-height: 154px;
+      padding: 48px 16px 16px;
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      background: var(--panel);
+    }
+
+    .step::before {
+      counter-increment: step;
+      content: counter(step, decimal-leading-zero);
+      position: absolute;
+      top: 14px;
+      left: 16px;
+      color: var(--warm);
+      font-weight: 900;
+      font-size: 18px;
+    }
+
+    .step b {
+      display: block;
+      margin-bottom: 8px;
+      font-size: 16px;
+    }
+
+    .step span {
+      color: var(--muted);
+      font-size: 14px;
+      line-height: 1.7;
+    }
+
+    .chapter-tools {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      margin-bottom: 14px;
+    }
+
+    .seg {
+      min-height: 34px;
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      background: var(--panel);
+      padding: 0 12px;
+      font: inherit;
+      font-size: 13px;
+      font-weight: 800;
+      cursor: pointer;
+    }
+
+    .seg.active {
+      background: #25201c;
+      color: #fff;
+      border-color: #25201c;
+    }
+
+    .chapters {
+      display: grid;
+      grid-template-columns: repeat(5, minmax(0, 1fr));
+      gap: 10px;
+    }
+
+    .chapter {
+      min-height: 126px;
+      padding: 14px;
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      background: var(--panel);
+    }
+
+    .chapter small {
+      display: block;
+      color: var(--warm-deep);
+      font-weight: 900;
+      margin-bottom: 8px;
+    }
+
+    .chapter b {
+      display: block;
+      margin-bottom: 8px;
+      line-height: 1.35;
+    }
+
+    .chapter span {
+      color: var(--muted);
+      font-size: 13px;
+      line-height: 1.55;
+    }
+
+    .command-list {
+      display: grid;
+      gap: 10px;
+    }
+
+    .command {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) auto;
+      gap: 12px;
+      align-items: center;
+      padding: 12px;
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      background: #25201c;
+      color: #f7f1e8;
+    }
+
+    code {
+      white-space: pre-wrap;
+      overflow-wrap: anywhere;
+      font-family: Consolas, "Cascadia Mono", monospace;
+      font-size: 13px;
+      line-height: 1.55;
+    }
+
+    .copy {
+      min-height: 34px;
+      padding: 0 12px;
+      border: 1px solid rgba(255, 255, 255, .22);
+      border-radius: var(--radius);
+      background: rgba(255, 255, 255, .08);
+      color: #fff;
+      font: inherit;
+      font-size: 13px;
+      font-weight: 800;
+      cursor: pointer;
+    }
+
+    .links {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 12px;
+    }
+
+    .link-tile {
+      min-height: 96px;
+      display: grid;
+      align-content: center;
+      gap: 8px;
+      padding: 16px;
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      background: var(--panel);
+    }
+
+    .link-tile b {
+      font-size: 15px;
+    }
+
+    .link-tile span {
+      color: var(--muted);
+      font-size: 13px;
+      line-height: 1.5;
+    }
+
+    .footer {
+      padding: 22px clamp(24px, 5vw, 64px) 34px;
+      color: var(--muted);
+      font-size: 13px;
+      line-height: 1.7;
+    }
+
+    @media (max-width: 1040px) {
+      .shell {
+        grid-template-columns: 1fr;
+      }
+
+      .side {
+        position: static;
+        height: auto;
+      }
+
+      .side-note {
+        position: static;
+        margin-top: 18px;
+      }
+
+      .hero {
+        grid-template-columns: 1fr;
+        background:
+          linear-gradient(120deg, rgba(246, 244, 239, .98), rgba(246, 244, 239, .78)),
+          url("../02_风格母版图/v1/陶淮南小.png") right center / contain no-repeat;
+      }
+
+      .metrics,
+      .grid,
+      .workflow,
+      .links {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+      }
+
+      .chapters {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+      }
+    }
+
+    @media (max-width: 640px) {
+      .hero {
+        min-height: auto;
+        padding-top: 28px;
+      }
+
+      .hero-board,
+      .metrics,
+      .grid,
+      .workflow,
+      .chapters,
+      .links {
+        grid-template-columns: 1fr;
+      }
+
+      .hero-board figure,
+      .hero-board figure:nth-child(2),
+      .hero-board figure:nth-child(3) {
+        transform: none;
+        height: 220px;
+      }
+
+      .section-head {
+        display: grid;
+      }
+
+      .command {
+        grid-template-columns: 1fr;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="shell">
+    <aside class="side">
+      <div class="brand">
+        <b>陈年烈狗</b>
+        <span>AIGC 图文连载生产入口。先锁定身份与画风，再按章节生成、验收、返工。</span>
+      </div>
+      <nav class="nav" aria-label="页面导航">
+        <a href="#overview">项目概览 <span>→</span></a>
+        <a href="#lock">锁定包 <span>→</span></a>
+        <a href="#workflow">生成流程 <span>→</span></a>
+        <a href="#chapters">前10章测试 <span>→</span></a>
+        <a href="#commands">常用命令 <span>→</span></a>
+        <a href="#files">关键目录 <span>→</span></a>
+      </nav>
+      <div class="side-note">
+        当前入口为静态 HTML，可直接双击打开。真实出图必须逐张执行锚点图、续图、上一张成图引用规则。
+      </div>
+    </aside>
+
+    <main>
+      <section class="hero" id="overview">
+        <div class="hero-copy">
+          <span class="kicker">IP 入口｜童年线测试已准备</span>
+          <h1>从原文到连续图文分镜</h1>
+          <p class="lead">围绕陶淮南、迟苦、陶晓东和十爷爷，当前入口聚焦第1章到第10章：北方农村老家、城市楼房、盲校三段场景。目标不是一次性跑全书，而是先验收角色一致性、场景连续性和章节节奏。</p>
+          <div class="hero-actions">
+            <a class="btn primary" href="../prompts/batch/chapters_001_010.batch_plan.json">打开前10章批量计划</a>
+            <a class="btn" href="../config/chapter_scene_plan.json">查看章节分镜配置</a>
+            <a class="btn" href="../config/reference_manifest.json">查看引用锁定清单</a>
+          </div>
+        </div>
+        <div class="hero-board" aria-label="当前参考图">
+          <figure>
+            <img src="../02_风格母版图/v1/陶淮南小.png" alt="童年陶淮南参考图">
+          </figure>
+          <figure>
+            <img src="../02_风格母版图/v1/ChatGPT%20Image%202026年7月3日%2017_26_46%20(2).png" alt="童年迟苦参考图">
+          </figure>
+          <figure>
+            <img src="../02_风格母版图/v1/ChatGPT%20Image%202026年7月3日%2017_26_51%20(5).png" alt="年轻陶晓东候选参考图">
+          </figure>
+        </div>
+      </section>
+
+      <section class="band">
+        <div class="metrics">
+          <div class="metric">
+            <strong>10</strong>
+            <span>已配置测试章节，覆盖初遇、收留、新家、入学与盲杖训练。</span>
+          </div>
+          <div class="metric">
+            <strong>60</strong>
+            <span>前10章共60张测试分镜，每章6张连续剧情图。</span>
+          </div>
+          <div class="metric">
+            <strong>4</strong>
+            <span>已沉淀单角色 Prompt：陶淮南、迟苦、陶晓东、十爷爷。</span>
+          </div>
+          <div class="metric">
+            <strong>3</strong>
+            <span>待补场景母版：农村老家、城市楼房、盲校。</span>
+          </div>
+        </div>
+      </section>
+
+      <section class="band alt" id="lock">
+        <div class="section-head">
+          <h2>当前锁定包</h2>
+          <p>先锁角色身份和统一画风，场景先用文字设定生成。全书126章前，需要补齐少年线、青年线和三类场景母版。</p>
+        </div>
+        <div class="grid">
+          <article class="tile">
+            <h3>童年陶淮南</h3>
+            <p>8到10岁盲人男孩，奶白柔软，黑色大眼但视线不聚焦，依赖声音和触觉确认世界。</p>
+            <div class="tagrow">
+              <span class="tag">米白冬装</span>
+              <span class="tag green">小毯子</span>
+              <span class="tag blue">牛奶杯</span>
+            </div>
+          </article>
+          <article class="tile">
+            <h3>童年迟苦</h3>
+            <p>瘦小、沉默、防备，深色旧棉服，像小烈狗。受伤与寒冷只做克制表达。</p>
+            <div class="tagrow">
+              <span class="tag">深色棉服</span>
+              <span class="tag green">沉默护短</span>
+              <span class="tag blue">防备感</span>
+            </div>
+          </article>
+          <article class="tile">
+            <h3>年轻陶晓东</h3>
+            <p>25岁左右，纹身师，外糙内细，是两个孩子的保护者。当前参考仍需人工确认。</p>
+            <div class="tagrow">
+              <span class="tag gold">候选参考</span>
+              <span class="tag">军大衣</span>
+              <span class="tag green">护短</span>
+            </div>
+          </article>
+          <article class="tile">
+            <h3>十爷爷</h3>
+            <p>年老金毛犬，安静陪伴陶淮南。不是导盲犬，不拟人化，不画成幼犬。</p>
+            <div class="tagrow">
+              <span class="tag">老年金毛</span>
+              <span class="tag green">陪伴</span>
+            </div>
+          </article>
+          <article class="tile">
+            <h3>统一画风</h3>
+            <p>温柔现实向日系绘本插画，低饱和电影感光影，真实中国北方生活质感。</p>
+            <div class="tagrow">
+              <span class="tag">9:16</span>
+              <span class="tag blue">低饱和</span>
+              <span class="tag gold">生活感</span>
+            </div>
+          </article>
+          <article class="tile">
+            <h3>禁忌边界</h3>
+            <ul>
+              <li>不儿童成人化。</li>
+              <li>不直接生成中文正文。</li>
+              <li>不血腥、裸露、性暗示。</li>
+              <li>不把连续故事做成散图。</li>
+            </ul>
+          </article>
+        </div>
+      </section>
+
+      <section class="band" id="workflow">
+        <div class="section-head">
+          <h2>生成流程</h2>
+          <p>每章内部必须先有锚点图，再进入续图。全书批量前，前10章必须先验收。</p>
+        </div>
+        <div class="workflow">
+          <div class="step">
+            <b>生成角色参考</b>
+            <span>先跑单角色 Prompt，确认童年陶淮南、童年迟苦和陶晓东的视觉方向。</span>
+          </div>
+          <div class="step">
+            <b>生成章节任务</b>
+            <span>从 `chapter_scene_plan.json` 生成每章 V2 流水线产物。</span>
+          </div>
+          <div class="step">
+            <b>逐张出图验收</b>
+            <span>第1张是锚点，第2张起带锚点，第3张起再带上一张成图。</span>
+          </div>
+          <div class="step">
+            <b>决定是否扩展</b>
+            <span>前10章通过后，再补场景母版和年龄线，最后考虑126章批量。</span>
+          </div>
+        </div>
+      </section>
+
+      <section class="band alt" id="chapters">
+        <div class="section-head">
+          <h2>前10章测试</h2>
+          <p>按阶段查看章节。这里是导航视图，详细分镜以 `config/chapter_scene_plan.json` 为准。</p>
+        </div>
+        <div class="chapter-tools" role="tablist" aria-label="章节阶段筛选">
+          <button class="seg active" type="button" data-filter="all">全部</button>
+          <button class="seg" type="button" data-filter="rural">农村老家</button>
+          <button class="seg" type="button" data-filter="home">城市楼房</button>
+          <button class="seg" type="button" data-filter="school">盲校</button>
+        </div>
+        <div class="chapters">
+          <a class="chapter" data-phase="rural" href="../prompts/chapter/chapter_001.input.json"><small>第1章</small><b>初遇：灵棚前的牛奶</b><span>寒冬、灵棚、抢牛奶、陶晓东出手。</span></a>
+          <a class="chapter" data-phase="rural" href="../prompts/chapter/chapter_002.input.json"><small>第2章</small><b>收留：火炕上的第一夜</b><span>火炕、饭盆、两个孩子第一次共处。</span></a>
+          <a class="chapter" data-phase="rural" href="../prompts/chapter/chapter_003.input.json"><small>第3章</small><b>冰溜子：第一次示好</b><span>冰挂、触觉、新奇、短暂靠近。</span></a>
+          <a class="chapter" data-phase="home" href="../prompts/chapter/chapter_004.input.json"><small>第4章</small><b>领走：从县医院到陶家</b><span>救治、棒棒糖、被带进新生活。</span></a>
+          <a class="chapter" data-phase="home" href="../prompts/chapter/chapter_005.input.json"><small>第5章</small><b>新家：洗澡和第一晚</b><span>城市楼房、浴室、旧伤、床边。</span></a>
+          <a class="chapter" data-phase="home" href="../prompts/chapter/chapter_006.input.json"><small>第6章</small><b>上学准备：陪读的决定</b><span>十爷爷、入学材料、陪读安排。</span></a>
+          <a class="chapter" data-phase="school" href="../prompts/chapter/chapter_007.input.json"><small>第7章</small><b>入学：抓住不松手</b><span>盲校第一天、宿舍栏杆、牵手睡。</span></a>
+          <a class="chapter" data-phase="school" href="../prompts/chapter/chapter_008.input.json"><small>第8章</small><b>回家：学校牵手，家里别扭</b><span>校内依赖、回家反差、送走玩笑。</span></a>
+          <a class="chapter" data-phase="school" href="../prompts/chapter/chapter_009.input.json"><small>第9章</small><b>校内模式：找不到迟苦就慌</b><span>监控、枕巾、十爷爷、稳定模式。</span></a>
+          <a class="chapter" data-phase="school" href="../prompts/chapter/chapter_010.input.json"><small>第10章</small><b>体育课：盲杖和小手</b><span>盲杖训练、受挫、委屈、和好。</span></a>
+        </div>
+      </section>
+
+      <section class="band" id="commands">
+        <div class="section-head">
+          <h2>常用命令</h2>
+          <p>入口页不直接执行命令。复制后在项目根目录运行。</p>
+        </div>
+        <div class="command-list">
+          <div class="command">
+            <code>python tools/generate_story_assets.py character --character all</code>
+            <button class="copy" type="button">复制</button>
+          </div>
+          <div class="command">
+            <code>python tools/generate_story_assets.py batch --start 1 --end 10 --run-pipeline</code>
+            <button class="copy" type="button">复制</button>
+          </div>
+          <div class="command">
+            <code>python tools/validate_config.py</code>
+            <button class="copy" type="button">复制</button>
+          </div>
+          <div class="command">
+            <code>python tools/smoke_test.py</code>
+            <button class="copy" type="button">复制</button>
+          </div>
+        </div>
+      </section>
+
+      <section class="band alt" id="files">
+        <div class="section-head">
+          <h2>关键目录</h2>
+          <p>所有入口均为本地相对链接。若浏览器拦截本地 JSON 预览，可在文件管理器中打开。</p>
+        </div>
+        <div class="links">
+          <a class="link-tile" href="../config/character_spec.json"><b>角色设定</b><span>角色视觉基因和禁忌边界。</span></a>
+          <a class="link-tile" href="../config/reference_manifest.json"><b>引用清单</b><span>跨会话身份、画风和场景锁定。</span></a>
+          <a class="link-tile" href="../prompts/character/"><b>单角色 Prompt</b><span>角色身份参考图生成入口。</span></a>
+          <a class="link-tile" href="../outputs/batch_plans/"><b>V2 产物</b><span>章节流水线输出目录。</span></a>
+        </div>
+      </section>
+
+      <footer class="footer">
+        当前页面用于《陈年烈狗》IP 的 AIGC 图文连载生产，不包含原文长段落。所有章节内容以摘要、分镜和视觉约束形式进入生成流程。
+      </footer>
+    </main>
+  </div>
+
+  <script>
+    const filterButtons = document.querySelectorAll(".seg");
+    const chapters = document.querySelectorAll(".chapter");
+
+    filterButtons.forEach((button) => {
+      button.addEventListener("click", () => {
+        const filter = button.dataset.filter;
+        filterButtons.forEach((item) => item.classList.toggle("active", item === button));
+        chapters.forEach((chapter) => {
+          const visible = filter === "all" || chapter.dataset.phase === filter;
+          chapter.style.display = visible ? "" : "none";
+        });
+      });
+    });
+
+    document.querySelectorAll(".command").forEach((row) => {
+      const button = row.querySelector(".copy");
+      const command = row.querySelector("code").innerText;
+      button.addEventListener("click", async () => {
+        try {
+          await navigator.clipboard.writeText(command);
+          button.innerText = "已复制";
+          window.setTimeout(() => button.innerText = "复制", 1200);
+        } catch (error) {
+          button.innerText = "手动复制";
+        }
+      });
+    });
+  </script>
+</body>
+</html>
