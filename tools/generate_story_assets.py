@@ -141,7 +141,7 @@ def build_identity_references(character_ids: list[str], spec: dict[str, Any], ma
     return result
 
 
-def build_worldview_summary(chapter: dict[str, Any], manifest: dict[str, Any]) -> str:
+def scene_reference_for_chapter(chapter: dict[str, Any], manifest: dict[str, Any]) -> tuple[str | None, dict[str, Any]]:
     scene_refs = manifest.get("scene_master_references", {})
     chapter_no = chapter_number_from_source(chapter.get("source_file", ""))
     ref_id = None
@@ -151,8 +151,22 @@ def build_worldview_summary(chapter: dict[str, Any], manifest: dict[str, Any]) -
         ref_id = "city_home_winter_spring"
     elif chapter_no and 7 <= chapter_no <= 10:
         ref_id = "blind_school_childhood"
-    ref = scene_refs.get(ref_id or "", {})
-    scene_lock = f"{ref_id}: {ref.get('usage')}" if ref else "按章节场景设定执行，优先使用00_设定文档中的环境氛围。"
+    return ref_id, scene_refs.get(ref_id or "", {})
+
+
+def build_scene_references(chapter: dict[str, Any], manifest: dict[str, Any]) -> list[str]:
+    ref_id, ref = scene_reference_for_chapter(chapter, manifest)
+    if ref_id and ref.get("path"):
+        return [f"场景母版参考：{ref.get('path')}；用途：{ref.get('usage')}"]
+    return ["场景母版参考：暂无独立图片；使用章节场景设定文字。"]
+
+
+def build_worldview_summary(chapter: dict[str, Any], manifest: dict[str, Any]) -> str:
+    ref_id, ref = scene_reference_for_chapter(chapter, manifest)
+    if ref_id and ref:
+        scene_lock = f"{ref_id}: {ref.get('usage')}；母版：{ref.get('path', '暂无图片')}"
+    else:
+        scene_lock = "按章节场景设定执行，优先使用00_设定文档中的环境氛围。"
     return f"""章节时间：{chapter.get('period', '')}
 主场景：{chapter.get('scene', '')}
 场景锁定：{scene_lock}
@@ -212,6 +226,7 @@ def chapter_input(chapter_no: int, image_count: int | None = None) -> dict[str, 
             "mood_curve": chapter.get("mood_curve", []),
             "custom_frames": frames,
             "identity_references": build_identity_references(character_ids, spec, manifest),
+            "scene_references": build_scene_references(chapter, manifest),
             "character_lines": [
                 {"name": "旁白", "text": "这一幕开始了"},
                 {"name": "陶淮南", "text": "你在哪儿"},

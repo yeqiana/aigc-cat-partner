@@ -373,7 +373,8 @@ def required_references_for_frame(data: dict, frame: dict) -> list[str]:
     idx = frame.get("index", 1)
     continuous = to_bool_text(data.get("continuous_story", "否")) == "是"
     base = normalize_lines(data.get("identity_references")) or ["身份参考图 / 角色设定表", "风格参考图 / 世界观设定表"]
-    scene_ref = "当前场景母版图 / 场景设定"
+    scene_refs = normalize_lines(data.get("scene_references"))
+    scene_ref = scene_refs[0] if scene_refs else "当前场景母版图 / 场景设定"
     if not continuous:
         return base + [scene_ref]
     if idx == 1:

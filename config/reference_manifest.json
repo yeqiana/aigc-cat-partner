@@ -3,81 +3,86 @@
   "project_name": "陈年烈狗",
   "purpose": "跨会话身份、画风和章节场景引用清单。真实出图前按本清单逐张上传参考，避免角色和画风漂移。",
   "locked_master_policy": {
-    "status": "partial_locked",
-    "decision": "现有 02_风格母版图 多数为角色身份参考，不是完整场景母版。前10章测试先锁定角色身份参考和统一画风；场景母版暂以 00_设定文档 的场景文字设定生成，后续需补农村老家、城市楼房、盲校三类场景母版图。",
-    "style_master_reference": "02_风格母版图/ChatGPT Image 2026年7月3日 17_26_45 (1).png",
-    "style_master_reason": "第1张可作为童年线柔和绘本式人物画风基准，但不作为场景空间母版。",
+    "status": "identity_and_scene_locked",
+    "decision": "v2 已确认锁定童年陶淮南、童年迟苦/迟骋、25岁陶晓东三张角色身份参考，并已补齐农村老家、城市楼房、盲校三类场景母版。前10章测试统一使用 v2 角色母版、v2 场景母版和统一画风。",
+    "style_master_reference": "02_风格母版图/v2/陶淮南-小时候.png",
+    "style_master_reason": "v2 童年陶淮南图可作为童年线柔和、低饱和、冬季质感的人物画风基准，但不作为场景空间母版。",
     "must_confirm_before_126_chapters": [
       "是否继续使用当前柔和日系绘本画风",
-      "是否补齐三类核心场景母版图",
+      "三类核心场景母版图是否继续使用当前 v2 版本",
       "是否为少年线、青年线另建身份参考"
     ]
   },
   "required_each_new_session": [
     "角色身份参考：童年陶淮南、童年迟苦、年轻陶晓东（如出场）",
     "统一画风参考：当前锁定风格母版或同组画风参考图",
-    "章节场景设定：从 config/chapter_scene_plan.json 和 00_设定文档/场景设定_陈年烈狗.md 提取",
+    "章节场景设定：优先使用 03_场景资产/v2 场景母版，并结合 config/chapter_scene_plan.json 和 00_设定文档/场景设定_陈年烈狗.md",
     "第2张起继续上传第1张锚点图；第3张起继续上传上一张成图"
   ],
   "identity_references": {
     "ref_tao_huainan_child_01": {
       "character_id": "tao_huainan_child",
-      "path": "02_风格母版图/ChatGPT Image 2026年7月3日 17_26_45 (1).png",
-      "usage": "童年陶淮南身份参考：奶白、柔软、米白冬装、黑色大眼但视线不聚焦。",
+      "path": "02_风格母版图/v2/陶淮南-小时候.png",
+      "usage": "v2 锁定童年陶淮南身份参考：奶白、柔软、米白冬装、黑色大眼但视线不聚焦。",
       "lock_strength": "strong"
     },
     "ref_chi_ku_child_01": {
       "character_id": "chi_ku_child",
-      "path": "02_风格母版图/ChatGPT Image 2026年7月3日 17_26_46 (2).png",
-      "usage": "童年迟苦身份参考：深色旧棉服、瘦小、黑短发、冷淡防备。",
+      "path": "02_风格母版图/v2/迟骋-小时候.png",
+      "usage": "v2 锁定童年迟苦/迟骋身份参考：深色旧棉服、瘦小、黑短发、冷淡防备。",
       "lock_strength": "strong"
     },
     "ref_chi_cheng_adult_candidate": {
       "character_id": "chi_cheng_adult",
-      "path": "02_风格母版图/ChatGPT Image 2026年7月3日 17_26_47 (3).png",
-      "usage": "成人迟骋候选参考；前10章不启用，后续青年线确认后再锁定。",
+      "path": "02_风格母版图/v2/迟骋-成年.png",
+      "usage": "v2 成人迟骋候选参考；前10章不启用，后续青年线确认后再锁定。",
       "lock_strength": "candidate"
     },
     "ref_tao_xiaodong_young_candidate": {
       "character_id": "tao_xiaodong_young",
-      "path": "02_风格母版图/ChatGPT Image 2026年7月3日 17_26_51 (5).png",
-      "usage": "年轻陶晓东候选参考：成熟、可靠、生活感外套；需人工确认是否符合哥哥设定。",
+      "path": "02_风格母版图/v2/陶晓东25岁.png",
+      "usage": "v2 锁定25岁陶晓东身份参考：半长发可扎起、深色长外套、成熟可靠但避免黑帮化；历史 reference_id 保留。",
+      "lock_strength": "strong"
+    },
+    "ref_tao_huainan_adult_candidate": {
+      "character_id": "tao_huainan_adult",
+      "path": "02_风格母版图/v2/陶淮南-成年.png",
+      "usage": "v2 成年陶淮南候选参考；前10章不启用，后续成年线确认后再锁定。",
       "lock_strength": "candidate"
     }
   },
   "style_references": {
     "locked_soft_storybook_style": {
       "paths": [
-        "02_风格母版图/ChatGPT Image 2026年7月3日 17_26_45 (1).png",
-        "02_风格母版图/ChatGPT Image 2026年7月3日 17_26_46 (2).png",
-        "02_风格母版图/ChatGPT Image 2026年7月3日 17_26_47 (3).png",
-        "02_风格母版图/ChatGPT Image 2026年7月3日 17_26_48 (4).png",
-        "02_风格母版图/ChatGPT Image 2026年7月3日 17_26_51 (5).png",
-        "02_风格母版图/ChatGPT Image 2026年7月3日 17_26_52 (6).png",
-        "02_风格母版图/ChatGPT Image 2026年7月3日 17_26_54 (7).png",
-        "02_风格母版图/ChatGPT Image 2026年7月3日 17_26_55 (8).png",
-        "02_风格母版图/ChatGPT Image 2026年7月3日 17_26_56 (9).png",
-        "02_风格母版图/ChatGPT Image 2026年7月3日 17_26_58 (10).png"
+        "02_风格母版图/v2/陶淮南-小时候.png",
+        "02_风格母版图/v2/迟骋-小时候.png",
+        "02_风格母版图/v2/陶晓东25岁.png"
       ],
-      "usage": "统一人物线稿、柔和色彩、冬季生活质感和低饱和光影。",
-      "lock_strength": "medium"
+      "usage": "v2 童年线统一人物线稿、柔和色彩、冬季生活质感和低饱和光影。",
+      "lock_strength": "strong"
     }
   },
   "scene_master_references": {
     "rural_funeral_winter": {
-      "status": "missing_image",
+      "status": "strong",
+      "path": "03_场景资产/v2/农村老家、灵棚、火炕、雪地、纸灰.png",
       "source_text": "00_设定文档/场景设定_陈年烈狗.md#农村老家",
-      "usage": "第1-3章：北方农村老家、灵棚、火炕、火盆、纸灰味、冰雪寒风。"
+      "usage": "第1-3章：北方农村老家、灵棚、火炕、火盆、纸灰味、冰雪寒风。",
+      "lock_strength": "strong"
     },
     "city_home_winter_spring": {
-      "status": "missing_image",
+      "status": "strong",
+      "path": "03_场景资产/v2/陶晓东城市楼房、浴室、客厅、暖气.png",
       "source_text": "00_设定文档/场景设定_陈年烈狗.md#城市楼房",
-      "usage": "第4-6章：陶晓东城市两室两厅，暖气、路灯、客厅、浴室和沙发。"
+      "usage": "第4-6章：陶晓东城市两室两厅，暖气、路灯、客厅、浴室和沙发。",
+      "lock_strength": "strong"
     },
     "blind_school_childhood": {
-      "status": "missing_image",
+      "status": "strong",
+      "path": "03_场景资产/v2/盲校、教室、宿舍、走廊、操场盲道.png",
       "source_text": "00_设定文档/场景设定_陈年烈狗.md#盲校",
-      "usage": "第7-10章：盲校教室、宿舍栏杆、走廊、水房、操场盲道。"
+      "usage": "第7-10章：盲校教室、宿舍栏杆、走廊、水房、操场盲道。",
+      "lock_strength": "strong"
     }
   },
   "priority_order": [
