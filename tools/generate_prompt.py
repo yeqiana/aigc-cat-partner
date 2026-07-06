@@ -29,6 +29,8 @@ TEXT_RENDER_MODES = [
     "直接在图中生成文字",
 ]
 TEXT_POSITIONS = ["自动", "顶部标题区", "主体旁边", "底部字幕区"]
+TITLE_RENDER_MODES = ["不生成画面标题", "封面图标题", "每帧标题"]
+NARRATION_MODES = ["底部旁白框", "旁白气泡", "画外文案清单", "不使用旁白"]
 COPYWRITING_MODES = ["手动填写", "自动根据情节生成"]
 INTERACTION_MODES = ["不互动", "看向观众", "提问互动", "评论引导", "点赞关注", "选择投票"]
 CONTINUOUS_STORY_VALUES = ["否", "是"]
@@ -36,8 +38,8 @@ STORY_COHERENCE_VALUES = ["普通", "强"]
 OUTFIT_STYLE_LOCKS = ["不锁定", "弱锁定", "强锁定"]
 OUTFIT_REFERENCES = ["文字描述", "身份参考图", "第一张锚点图", "当前故事模板默认造型", "第一张锚点图 + 身份参考图"]
 IN_IMAGE_STORYBOARD_VALUES = ["关闭", "开启"]
-STORYBOARD_VIEWS = ["第一人称", "第三人称", "第一人称 + 第三人称"]
-STORYBOARD_LAYOUTS = ["上下分镜", "左右分镜", "主画面 + 小视角窗口"]
+STORYBOARD_VIEWS = ["第一人称", "第三人称", "第一人称 + 第三人称", "特写 + 中景 + 全景"]
+STORYBOARD_LAYOUTS = ["上下分镜", "左右分镜", "主画面 + 小视角窗口", "漫画三格竖排", "主画面 + 特写小窗"]
 QA_FAILURE_TYPES = ["剧情动作", "角色一致性", "世界观一致性", "造型道具连续性", "气泡可用性", "文案完整性", "镜头构图", "平台适配"]
 
 
@@ -138,8 +140,11 @@ def normalize_defaults(data: dict) -> dict:
     data.setdefault("extra", "")
     data.setdefault("identity_lock", "强锁定")
     data.setdefault("bubble_mode", "多角色气泡")
-    data.setdefault("text_mode", "空白气泡后期加字")
+    data.setdefault("text_mode", "直接生成文字")
     data.setdefault("text_position", "自动")
+    data.setdefault("text_render_mode", "直接在图中生成文字")
+    data.setdefault("title_render_mode", "不生成画面标题")
+    data.setdefault("narration_mode", "底部旁白框")
     data.setdefault("copywriting_mode", "自动根据情节生成")
     data.setdefault("interaction_mode", "评论引导")
     data.setdefault("story_coherence", "强")
@@ -534,10 +539,10 @@ def outfit_lock_description(data: dict) -> str:
 def storyboard_description(data: dict, angle: str) -> str:
     enabled = data.get("in_image_storyboard") or "关闭"
     if enabled != "开启":
-        return "当前图内分镜：关闭。必须保持单张完整大图，不要分镜框、不要视角窗口、不要多宫格。"
+        return "当前图内分镜：关闭。当前输出是一张独立漫画格，镜头本身承担分镜作用；不要做海报拼贴，不要把全章剧情塞进同一张图。"
     view = data.get("storyboard_view") or "第一人称 + 第三人称"
     layout = data.get("storyboard_layout") or "主画面 + 小视角窗口"
-    return f"当前图内分镜：开启。允许 2-3 个分镜，视角：{view}，布局：{layout}。主线镜头角度仍以 {angle} 为核心。"
+    return f"当前图内分镜：开启。必须在同一张图内生成边界明确的 2-3 个漫画分镜格，不要只生成单幅插画。视角：{view}，布局：{layout}。主线镜头角度仍以 {angle} 为核心。"
 
 
 def composition_description(data: dict, angle: str, idx: int, total: int) -> str:
@@ -545,8 +550,8 @@ def composition_description(data: dict, angle: str, idx: int, total: int) -> str
     platform = data.get("platform") or "通用"
     if ratio == "9:16" or platform == "抖音竖屏":
         return (
-            f"9:16，单张大图，适配{platform}。当前是第 {idx}/{total} 张。"
-            "主体居中偏上，关键动作和道具完整清晰可见。顶部预留标题安全区，底部预留字幕/互动安全区。"
+            f"9:16，单张大图，适配{platform}。任务序号第 {idx}/{total} 张仅用于配置，不得画进图片。"
+            "主体居中偏上，关键动作和道具完整清晰可见。顶部不要生成标题栏，底部按旁白模式安排安全区。"
             f"镜头角度：{angle}。\n{storyboard_description(data, angle)}"
         )
     return f"{ratio}，单张大图，镜头角度：{angle}。\n{storyboard_description(data, angle)}"
@@ -554,11 +559,27 @@ def composition_description(data: dict, angle: str, idx: int, total: int) -> str
 
 def text_layer_block(data: dict, frame: dict) -> str:
     copy = copy_for_frame(data, frame)
-    lines = [f"标题：{copy['title']}", f"旁白：{copy['narration']}"]
+    title_mode = data.get("title_render_mode") or "不生成画面标题"
+    narration_mode = data.get("narration_mode") or "底部旁白框"
+    lines = []
+    title_is_visible = title_mode == "每帧标题" or (title_mode == "封面图标题" and frame.get("index", 1) == 1)
+    if title_is_visible:
+        lines.append(f"顶部标题：{copy['title']}")
+    else:
+        lines.append("画面中不要生成章节标题、帧标题、第几幕、第几章、当前帧等标题栏文字。")
+
+    if narration_mode == "底部旁白框":
+        lines.append(f"底部旁白框：{copy['narration']}")
+    elif narration_mode == "旁白气泡":
+        lines.append(f"旁白气泡：{copy['narration']}")
+    elif narration_mode == "画外文案清单":
+        lines.append(f"旁白只作为画外文案清单，画面中不要生成旁白框：{copy['narration']}")
+    else:
+        lines.append("不使用旁白文字，画面只保留角色对白气泡。")
     for item in copy["character_lines"]:
         lines.append(f"{item['name']}：{item['text']}")
     if data.get("text_render_mode") == "直接在图中生成文字":
-        return "允许短文字直接出现在画面中，但必须清晰、无乱码、无多余字符。\n" + "\n".join(lines)
+        return "允许短文字直接出现在画面中，但必须清晰、无乱码、无多余字符；不要额外添加未列出的文字。\n" + "\n".join(lines)
     if data.get("text_mode") == "空白气泡后期加字":
         return "只生成干净空白气泡或留白区域，文字由后期叠加。文案清单如下：\n" + "\n".join(lines)
     return "仅输出文案清单，不要求画面中出现文字。\n" + "\n".join(lines)
@@ -574,6 +595,8 @@ def bubble_text_description(data: dict, frame: dict) -> str:
             f"气泡模式：{bubble_mode}",
             f"文字模式：{text_mode}",
             f"文字落地模式：{data.get('text_render_mode')}",
+            f"画面标题模式：{data.get('title_render_mode') or '不生成画面标题'}",
+            f"旁白存放方式：{data.get('narration_mode') or '底部旁白框'}",
             text_layer_block(data, frame),
         ]
     )
@@ -593,7 +616,7 @@ def audience_interaction_description(interaction_mode: str) -> str:
 
 def copywriting_block(data: dict, frame: dict) -> str:
     copy = copy_for_frame(data, frame)
-    lines = [f"- 标题：{copy['title']}", f"- 旁白：{copy['narration']}"]
+    lines = [f"- 配置标题（不等于必须入图）：{copy['title']}", f"- 旁白：{copy['narration']}"]
     for item in copy["character_lines"]:
         lines.append(f"- {item['name']}台词：{item['text']}")
     if data.get("interaction_mode") != "不互动":
@@ -606,6 +629,8 @@ def build_prompt(data: dict, frame: dict) -> str:
     scene_name = frame.get("scene") or data.get("scene") or "当前场景"
     angle = frame.get("camera") or frame.get("angle") or data.get("angle") or "第三人称中景"
     action = frame.get("action") or data.get("action") or "推进一个明确动作"
+    shot_type = frame.get("shot_type") or angle
+    focus = frame.get("focus") or frame.get("subject_focus") or "当前动作主体"
     story_outline = data.get("story_outline") or ""
     extra = data.get("extra") or ""
     visual_gene = data.get("visual_gene_summary") or world.get("visual_gene_template", {}).get("primary_subject", {}).get("fixed", "待填写：主角色固定视觉特征")
@@ -630,15 +655,17 @@ def build_prompt(data: dict, frame: dict) -> str:
 故事模板：{frame.get('story_template', choose_story_template(data))}
 故事情节：{story_outline if story_outline else '未单独填写，按故事模板和本幕推进'}
 情绪推进：{data.get('emotional_progression') or '按 mood_curve 逐张推进'}
-当前镜头：第 {idx}/{total} 张
-上一幕：{frame.get('prev_phase', '无')}
-本幕：{frame.get('story_phase', '当前镜头')}
-下一幕提示：{frame.get('next_hint', '无')}
+当前镜头编号（仅配置，不入图）：第 {idx}/{total} 张
+上一剧情节点（仅配置，不入图）：{frame.get('prev_phase', '无')}
+当前剧情节点（仅配置，不入图）：{frame.get('story_phase', '当前镜头')}
+下一剧情节点提示（仅配置，不入图）：{frame.get('next_hint', '无')}
 主体状态：{subject_state_for_frame(data, frame)}
 
 【本次生成目标】
 场景名称：{scene_name}
 动作：{action}
+镜头类型：{shot_type}
+主体焦点：{focus}
 视觉证据：{'、'.join(visual_evidence_for_frame(frame))}
 补充约束：{extra if extra else '无'}
 
@@ -666,7 +693,7 @@ def build_prompt(data: dict, frame: dict) -> str:
 5. 情绪要按 mood_curve 推进，不能每张都停在同一种情绪。
 
 【禁止项】
-不要换角色身份，不要偏离世界观，不要随机换画风，不要肢体错误，不要文字乱码，不要把连续故事做成彼此无关的散图。
+不要换角色身份，不要偏离世界观，不要随机换画风，不要肢体错误，不要文字乱码，不要把连续故事做成彼此无关的散图。不要在画面里生成“第1幕、第2幕、当前帧、章节标题”等未授权标题栏。
 
 negative prompt:
 {negative_prompt(data)}
@@ -848,6 +875,8 @@ def main():
     parser.add_argument("--text-mode", dest="text_mode", type=str, choices=TEXT_MODES)
     parser.add_argument("--text-render-mode", dest="text_render_mode", type=str, choices=TEXT_RENDER_MODES)
     parser.add_argument("--text-position", dest="text_position", type=str, choices=TEXT_POSITIONS)
+    parser.add_argument("--title-render-mode", dest="title_render_mode", type=str, choices=TITLE_RENDER_MODES)
+    parser.add_argument("--narration-mode", dest="narration_mode", type=str, choices=NARRATION_MODES)
     parser.add_argument("--copywriting-mode", dest="copywriting_mode", type=str, choices=COPYWRITING_MODES)
     parser.add_argument("--interaction-mode", dest="interaction_mode", type=str, choices=INTERACTION_MODES)
     parser.add_argument("--story-coherence", dest="story_coherence", type=str, choices=STORY_COHERENCE_VALUES)
@@ -894,6 +923,8 @@ def main():
         "text_mode",
         "text_render_mode",
         "text_position",
+        "title_render_mode",
+        "narration_mode",
         "copywriting_mode",
         "interaction_mode",
         "story_coherence",

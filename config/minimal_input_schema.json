@@ -11,8 +11,14 @@
     "ratio": "9:16",
     "platform": "抖音竖屏",
     "output_mode": "单张大图",
-    "text_render_mode": "生成空白气泡 + 后期叠字图层",
-    "in_image_storyboard": "关闭"
+    "bubble_mode": "多角色气泡",
+    "text_mode": "直接生成文字",
+    "text_render_mode": "直接在图中生成文字",
+    "title_render_mode": "不生成画面标题",
+    "narration_mode": "底部旁白框",
+    "in_image_storyboard": "开启",
+    "storyboard_view": "特写 + 中景 + 全景",
+    "storyboard_layout": "主画面 + 特写小窗"
   },
   "recommended_schema_file": "config/series_input_schema.json"
 }

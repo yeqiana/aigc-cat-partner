@@ -11,8 +11,14 @@
     "ratio": "9:16",
     "platform": "抖音竖屏",
     "output_mode": "单张大图",
-    "text_render_mode": "生成空白气泡 + 后期叠字图层",
-    "in_image_storyboard": "关闭",
+    "bubble_mode": "多角色气泡",
+    "text_mode": "直接生成文字",
+    "text_render_mode": "直接在图中生成文字",
+    "title_render_mode": "不生成画面标题",
+    "narration_mode": "底部旁白框",
+    "in_image_storyboard": "开启",
+    "storyboard_view": "特写 + 中景 + 全景",
+    "storyboard_layout": "主画面 + 特写小窗",
     "anchor_frame_index": 1
   },
   "fields": {
@@ -166,7 +172,7 @@
         "直接生成文字",
         "空白气泡后期加字"
       ],
-      "default": "空白气泡后期加字"
+      "default": "直接生成文字"
     },
     "text_render_mode": {
       "type": "string",
@@ -176,7 +182,7 @@
         "生成空白气泡 + 后期叠字图层",
         "直接在图中生成文字"
       ],
-      "default": "生成空白气泡 + 后期叠字图层"
+      "default": "直接在图中生成文字"
     },
     "text_position": {
       "type": "string",
@@ -187,6 +193,57 @@
         "底部字幕区"
       ],
       "default": "自动"
+    },
+    "title_render_mode": {
+      "type": "string",
+      "enum": [
+        "不生成画面标题",
+        "封面图标题",
+        "每帧标题"
+      ],
+      "default": "不生成画面标题",
+      "description": "控制画面中是否出现顶部标题栏。默认不入图，避免生成第1幕、第2幕等分镜标签。"
+    },
+    "narration_mode": {
+      "type": "string",
+      "enum": [
+        "底部旁白框",
+        "旁白气泡",
+        "画外文案清单",
+        "不使用旁白"
+      ],
+      "default": "底部旁白框",
+      "description": "旁白在漫画中的存放方式。画外文案清单表示只进任务文件，不进图片。"
+    },
+    "in_image_storyboard": {
+      "type": "string",
+      "enum": [
+        "关闭",
+        "开启"
+      ],
+      "default": "开启",
+      "description": "是否在单张图片内部生成2-3格漫画分镜。关闭时，每张输出图本身就是连续故事中的一格。"
+    },
+    "storyboard_view": {
+      "type": "string",
+      "enum": [
+        "第一人称",
+        "第三人称",
+        "第一人称 + 第三人称",
+        "特写 + 中景 + 全景"
+      ],
+      "default": "特写 + 中景 + 全景"
+    },
+    "storyboard_layout": {
+      "type": "string",
+      "enum": [
+        "上下分镜",
+        "左右分镜",
+        "主画面 + 小视角窗口",
+        "漫画三格竖排",
+        "主画面 + 特写小窗"
+      ],
+      "default": "主画面 + 特写小窗"
     },
     "copywriting_mode": {
       "type": "string",
