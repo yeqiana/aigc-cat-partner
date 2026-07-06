@@ -310,6 +310,14 @@ def build_frame_plan(data: dict, frames: list[dict]) -> list[dict]:
 
 def default_character_lines(data: dict, frame: dict) -> list[dict]:
     title = frame.get("story_phase") or f"第{frame.get('index', 1)}幕"
+    frame_lines = frame.get("dialogue") or frame.get("character_lines")
+    if frame_lines:
+        lines = []
+        for item in frame_lines:
+            if isinstance(item, dict):
+                lines.append({"name": short_text(item.get("name", "角色"), 8), "text": short_text(item.get("text", ""), 16)})
+        if lines:
+            return lines[:3]
     if data.get("character_lines"):
         lines = []
         for item in data.get("character_lines", []):

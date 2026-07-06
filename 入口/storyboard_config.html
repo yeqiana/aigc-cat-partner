@@ -1,0 +1,1071 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>陈年烈狗｜分镜配置台</title>
+  <style>
+    :root {
+      color-scheme: light;
+      --ink: #211d18;
+      --muted: #71685c;
+      --line: #d9c8ad;
+      --paper: #f7efe2;
+      --panel: #fffaf0;
+      --deep: #273846;
+      --green: #2f6b56;
+      --gold: #c8842f;
+      --red: #9f3e35;
+      --blue: #346a8f;
+      --shadow: 0 18px 42px rgba(39, 56, 70, .15);
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      color: var(--ink);
+      font-family: "Microsoft YaHei", "PingFang SC", Arial, sans-serif;
+      font-size: 15px;
+      line-height: 1.5;
+      background:
+        linear-gradient(90deg, rgba(39, 56, 70, .04) 1px, transparent 1px),
+        linear-gradient(180deg, rgba(39, 56, 70, .04) 1px, transparent 1px),
+        #efe4d1;
+      background-size: 28px 28px;
+    }
+
+    a { color: inherit; text-decoration: none; }
+    button, input, textarea, select { font: inherit; }
+
+    .app {
+      display: grid;
+      grid-template-columns: 260px minmax(0, 1fr);
+      min-height: 100vh;
+    }
+
+    .side {
+      position: sticky;
+      top: 0;
+      height: 100vh;
+      padding: 24px 18px;
+      color: #f6ead6;
+      background: #162532;
+      border-right: 1px solid rgba(255,255,255,.14);
+    }
+
+    .brand b {
+      display: block;
+      font-size: 24px;
+      letter-spacing: 0;
+    }
+
+    .brand span {
+      display: block;
+      margin-top: 8px;
+      color: rgba(246,234,214,.75);
+      font-size: 13px;
+    }
+
+    .nav {
+      display: grid;
+      gap: 8px;
+      margin-top: 26px;
+    }
+
+    .nav a {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      min-height: 42px;
+      padding: 10px 12px;
+      border: 1px solid rgba(246,234,214,.22);
+      background: rgba(255,255,255,.05);
+      border-radius: 8px;
+    }
+
+    .nav a:hover,
+    .nav a.active {
+      background: #264456;
+      border-color: rgba(246,234,214,.52);
+    }
+
+    .side-note {
+      margin-top: 24px;
+      padding: 14px;
+      color: rgba(246,234,214,.78);
+      border: 1px solid rgba(246,234,214,.22);
+      border-radius: 8px;
+      font-size: 13px;
+    }
+
+    main {
+      padding: 24px;
+      min-width: 0;
+    }
+
+    .topbar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 16px;
+      margin-bottom: 18px;
+    }
+
+    .title h1 {
+      margin: 0;
+      font-size: 28px;
+      letter-spacing: 0;
+    }
+
+    .title p {
+      margin: 6px 0 0;
+      color: var(--muted);
+    }
+
+    .actions {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+      justify-content: flex-end;
+    }
+
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      min-height: 38px;
+      padding: 9px 13px;
+      color: var(--ink);
+      border: 1px solid #b99b68;
+      background: #fff6d9;
+      border-radius: 8px;
+      cursor: pointer;
+      white-space: nowrap;
+      box-shadow: 0 3px 0 rgba(125, 87, 36, .16);
+    }
+
+    .btn.primary {
+      color: #fff;
+      border-color: #1e5e4a;
+      background: var(--green);
+    }
+
+    .btn.dark {
+      color: #fff;
+      border-color: #142331;
+      background: var(--deep);
+    }
+
+    .layout {
+      display: grid;
+      grid-template-columns: minmax(420px, 1.12fr) minmax(380px, .88fr);
+      gap: 18px;
+      align-items: start;
+    }
+
+    .panel {
+      background: var(--panel);
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      box-shadow: var(--shadow);
+      overflow: hidden;
+    }
+
+    .panel-head {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      padding: 14px 16px;
+      border-bottom: 1px solid var(--line);
+      background: #f4e5cb;
+    }
+
+    .panel-head h2 {
+      margin: 0;
+      font-size: 18px;
+      letter-spacing: 0;
+    }
+
+    .hint {
+      color: var(--muted);
+      font-size: 13px;
+    }
+
+    .controls {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 10px;
+      padding: 16px;
+    }
+
+    .field {
+      display: grid;
+      gap: 6px;
+      min-width: 0;
+    }
+
+    .field.wide { grid-column: span 2; }
+    .field.full { grid-column: 1 / -1; }
+
+    label,
+    .label {
+      color: #51483e;
+      font-weight: 700;
+      font-size: 13px;
+    }
+
+    input,
+    textarea,
+    select {
+      width: 100%;
+      color: var(--ink);
+      border: 1px solid #cdb892;
+      background: #fffdf7;
+      border-radius: 7px;
+      padding: 9px 10px;
+      outline: none;
+    }
+
+    textarea {
+      min-height: 76px;
+      resize: vertical;
+    }
+
+    input:focus,
+    textarea:focus,
+    select:focus {
+      border-color: var(--blue);
+      box-shadow: 0 0 0 3px rgba(52,106,143,.14);
+    }
+
+    .shot-bar {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      padding: 0 16px 16px;
+    }
+
+    .chip {
+      min-height: 32px;
+      padding: 6px 10px;
+      color: #20323f;
+      border: 1px solid #b7a07b;
+      background: #fff6dc;
+      border-radius: 999px;
+      cursor: pointer;
+    }
+
+    .chip.active,
+    .chip:hover {
+      color: #fff;
+      background: var(--blue);
+      border-color: var(--blue);
+    }
+
+    .timeline {
+      display: grid;
+      grid-template-columns: repeat(6, minmax(0, 1fr));
+      gap: 8px;
+      padding: 16px;
+      border-top: 1px solid rgba(217,200,173,.72);
+      background: #fbf2e2;
+    }
+
+    .frame-tab {
+      display: grid;
+      align-content: start;
+      gap: 4px;
+      min-height: 94px;
+      padding: 10px;
+      text-align: left;
+      border: 1px solid #ccb58b;
+      background: #fffdf7;
+      border-radius: 8px;
+      cursor: pointer;
+    }
+
+    .frame-tab.active {
+      color: #fff;
+      background: #294d62;
+      border-color: #294d62;
+    }
+
+    .frame-tab small {
+      font-weight: 700;
+      opacity: .8;
+    }
+
+    .frame-tab b {
+      display: block;
+      overflow: hidden;
+      font-size: 13px;
+      line-height: 1.35;
+      max-height: 38px;
+    }
+
+    .frame-tab span {
+      overflow: hidden;
+      font-size: 12px;
+      line-height: 1.3;
+      max-height: 32px;
+      opacity: .85;
+    }
+
+    .editor {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+      padding: 16px;
+    }
+
+    .dialogue {
+      display: grid;
+      gap: 8px;
+    }
+
+    .line-row {
+      display: grid;
+      grid-template-columns: 112px minmax(0, 1fr);
+      gap: 8px;
+    }
+
+    .preview-wrap {
+      display: grid;
+      gap: 14px;
+      padding: 16px;
+    }
+
+    .refs {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 8px;
+    }
+
+    .ref {
+      position: relative;
+      overflow: hidden;
+      aspect-ratio: 3 / 4;
+      border: 1px solid #cbb58d;
+      border-radius: 8px;
+      background: #eadcc7;
+    }
+
+    .ref.scene { grid-column: span 2; aspect-ratio: 16 / 10; }
+
+    .ref img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      display: block;
+    }
+
+    .ref span {
+      position: absolute;
+      left: 8px;
+      right: 8px;
+      bottom: 8px;
+      padding: 5px 7px;
+      color: #fff;
+      background: rgba(22,37,50,.82);
+      border-radius: 6px;
+      font-size: 12px;
+    }
+
+    .preview {
+      display: grid;
+      grid-template-columns: 160px minmax(0, 1fr);
+      gap: 12px;
+      padding: 12px;
+      border: 1px solid #cdb892;
+      border-radius: 8px;
+      background: #fffdf7;
+    }
+
+    .preview-art {
+      position: relative;
+      min-height: 220px;
+      overflow: hidden;
+      border-radius: 7px;
+      background: #223544;
+    }
+
+    .preview-art img {
+      width: 100%;
+      height: 100%;
+      min-height: 220px;
+      object-fit: cover;
+      display: block;
+      filter: saturate(.88) contrast(.95);
+    }
+
+    .preview-art .tag {
+      position: absolute;
+      left: 8px;
+      top: 8px;
+      padding: 5px 7px;
+      color: #fff;
+      background: rgba(39,56,70,.82);
+      border-radius: 6px;
+      font-size: 12px;
+    }
+
+    .preview-copy {
+      display: grid;
+      align-content: start;
+      gap: 10px;
+      min-width: 0;
+    }
+
+    .preview-copy h3 {
+      margin: 0;
+      font-size: 18px;
+      letter-spacing: 0;
+    }
+
+    .bubble {
+      padding: 9px 10px;
+      border: 1px solid #c7d0d6;
+      border-radius: 8px;
+      background: #eef6f5;
+      color: #26343e;
+      font-size: 14px;
+    }
+
+    .bubble b {
+      display: block;
+      margin-bottom: 3px;
+      color: var(--green);
+    }
+
+    .warn {
+      padding: 12px 14px;
+      color: #4b271f;
+      border: 1px solid #d29a87;
+      background: #fff0e8;
+      border-radius: 8px;
+    }
+
+    .json-grid {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 14px;
+      padding: 16px;
+    }
+
+    pre {
+      overflow: auto;
+      min-height: 260px;
+      max-height: 460px;
+      margin: 0;
+      padding: 14px;
+      color: #f6ead6;
+      background: #162532;
+      border-radius: 8px;
+      font-size: 13px;
+      line-height: 1.55;
+      white-space: pre-wrap;
+      word-break: break-word;
+    }
+
+    .prompt-box {
+      color: #1f2f39;
+      background: #f4fbff;
+      border: 1px solid #bdd1df;
+    }
+
+    .status {
+      min-height: 22px;
+      color: var(--green);
+      font-size: 13px;
+    }
+
+    @media (max-width: 1180px) {
+      .app { grid-template-columns: 1fr; }
+      .side {
+        position: static;
+        height: auto;
+      }
+      .nav { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+      .layout { grid-template-columns: 1fr; }
+    }
+
+    @media (max-width: 760px) {
+      main { padding: 14px; }
+      .topbar,
+      .panel-head,
+      .preview {
+        align-items: stretch;
+        flex-direction: column;
+        grid-template-columns: 1fr;
+      }
+      .controls,
+      .editor,
+      .timeline,
+      .refs,
+      .nav {
+        grid-template-columns: 1fr;
+      }
+      .field,
+      .field.wide,
+      .field.full,
+      .ref.scene { grid-column: 1; }
+      .actions { justify-content: flex-start; }
+    }
+  </style>
+</head>
+<body>
+  <div class="app">
+    <aside class="side">
+      <div class="brand">
+        <b>陈年烈狗</b>
+        <span>分镜配置台：先拆镜头和台词，再生成锚点图、续图和批量图。</span>
+      </div>
+      <nav class="nav" aria-label="页面导航">
+        <a class="active" href="#config">基础配置 <span>01</span></a>
+        <a href="#frames">分镜编辑 <span>02</span></a>
+        <a href="#preview">预览验收 <span>03</span></a>
+        <a href="#json">最小 JSON <span>04</span></a>
+        <a href="./入口_NEW.html">返回 NEW <span>↗</span></a>
+      </nav>
+      <div class="side-note">
+        规则：锚点图只锁定场景和关系，不能替代分镜。正式跑图前，每帧必须明确镜头、主体、动作、台词和气泡策略。
+      </div>
+    </aside>
+
+    <main>
+      <div class="topbar">
+        <div class="title">
+          <h1>第1章｜分镜配置台</h1>
+          <p>用于补足“人物特写、台词、镜头焦点、最小入参 JSON”。页面为静态 HTML，可直接打开使用。</p>
+        </div>
+        <div class="actions">
+          <button class="btn primary" id="copyJson">复制 JSON</button>
+          <button class="btn" id="copyPrompt">复制当前帧 Prompt</button>
+          <button class="btn dark" id="downloadJson">下载 JSON</button>
+        </div>
+      </div>
+
+      <div class="layout">
+        <section class="panel" id="config">
+          <div class="panel-head">
+            <h2>基础配置</h2>
+            <span class="hint">这些字段会进入最小入参 JSON</span>
+          </div>
+          <div class="controls">
+            <div class="field wide">
+              <label for="storyTitle">章节标题</label>
+              <input id="storyTitle" data-config="story_title">
+            </div>
+            <div class="field">
+              <label for="imageCount">图片张数</label>
+              <input id="imageCount" data-config="image_count" type="number" min="1" max="12">
+            </div>
+            <div class="field">
+              <label for="ratio">画幅</label>
+              <select id="ratio" data-config="ratio">
+                <option>9:16</option>
+                <option>3:4</option>
+                <option>16:9</option>
+                <option>1:1</option>
+              </select>
+            </div>
+            <div class="field wide">
+              <label for="scene">主场景</label>
+              <input id="scene" data-config="scene">
+            </div>
+            <div class="field">
+              <label for="bubbleMode">气泡模式</label>
+              <select id="bubbleMode" data-config="bubble_mode">
+                <option>多角色气泡</option>
+                <option>单角色气泡</option>
+                <option>无气泡</option>
+              </select>
+            </div>
+            <div class="field">
+              <label for="textRender">文字策略</label>
+              <select id="textRender" data-config="text_render_mode">
+                <option>生成空白气泡 + 后期叠字图层</option>
+                <option>直接生成中文短字</option>
+                <option>不生成文字</option>
+              </select>
+            </div>
+            <div class="field">
+              <label for="storyboardView">分镜视图</label>
+              <select id="storyboardView" data-config="storyboard_view">
+                <option>单帧逐张</option>
+                <option>三联分镜</option>
+                <option>六格分镜板</option>
+              </select>
+            </div>
+            <div class="field">
+              <label for="storyboardLayout">分镜布局</label>
+              <select id="storyboardLayout" data-config="storyboard_layout">
+                <option>竖屏连续图</option>
+                <option>漫画格横排</option>
+                <option>关键帧海报</option>
+              </select>
+            </div>
+            <div class="field full">
+              <label for="chapterGoal">本章目标</label>
+              <textarea id="chapterGoal" data-config="chapter_goal"></textarea>
+            </div>
+          </div>
+          <div class="shot-bar" aria-label="镜头快捷选择">
+            <button class="chip" data-shot="全景锚点">全景锚点</button>
+            <button class="chip" data-shot="中景推进">中景推进</button>
+            <button class="chip" data-shot="人物特写">人物特写</button>
+            <button class="chip" data-shot="手部特写">手部特写</button>
+            <button class="chip" data-shot="道具特写">道具特写</button>
+            <button class="chip" data-shot="过肩镜头">过肩镜头</button>
+            <button class="chip" data-shot="低角度">低角度</button>
+          </div>
+        </section>
+
+        <section class="panel" id="preview">
+          <div class="panel-head">
+            <h2>参考与当前帧预览</h2>
+            <span class="hint">只做构图提示，不替代出图验收</span>
+          </div>
+          <div class="preview-wrap">
+            <div class="refs">
+              <figure class="ref">
+                <img src="../02_风格母版图/v2/陶淮南-小时候.png" alt="陶淮南小时候">
+                <span>陶淮南-小时候</span>
+              </figure>
+              <figure class="ref">
+                <img src="../02_风格母版图/v2/迟骋-小时候.png" alt="迟骋小时候">
+                <span>迟骋-小时候</span>
+              </figure>
+              <figure class="ref">
+                <img src="../02_风格母版图/v2/陶晓东25岁.png" alt="陶晓东25岁">
+                <span>陶晓东25岁</span>
+              </figure>
+              <figure class="ref scene">
+                <img src="../03_场景资产/v2/农村老家、灵棚、火炕、雪地、纸灰.png" alt="农村老家灵棚场景">
+                <span>场景母版：农村老家、灵棚、火炕、雪地、纸灰</span>
+              </figure>
+            </div>
+            <div class="preview">
+              <div class="preview-art">
+                <img src="../03_场景资产/v2/农村老家、灵棚、火炕、雪地、纸灰.png" alt="当前帧视觉参考">
+                <span class="tag" id="previewShot">人物特写</span>
+              </div>
+              <div class="preview-copy">
+                <h3 id="previewTitle">当前帧</h3>
+                <div class="hint" id="previewMeta"></div>
+                <div id="previewBubbles"></div>
+              </div>
+            </div>
+            <div class="warn">
+              验收提醒：如果一章只有一张大场景锚点图，人物关系会被画成“同一张海报”。至少需要补人物特写、手部或道具特写、冲突动作中景，台词留空白气泡或后期叠字。
+            </div>
+          </div>
+        </section>
+
+        <section class="panel" id="frames">
+          <div class="panel-head">
+            <h2>分镜编辑</h2>
+            <span class="hint" id="activeHint">当前第1帧</span>
+          </div>
+          <div class="timeline" id="timeline"></div>
+          <div class="editor" id="editor"></div>
+        </section>
+
+        <section class="panel" id="json">
+          <div class="panel-head">
+            <h2>最小入参 JSON 与当前帧 Prompt</h2>
+            <span class="status" id="status"></span>
+          </div>
+          <div class="json-grid">
+            <pre id="jsonPreview"></pre>
+            <pre class="prompt-box" id="promptPreview"></pre>
+          </div>
+        </section>
+      </div>
+    </main>
+  </div>
+
+  <script>
+    const state = {
+      story_template: "通用悬念连载",
+      project_name: "陈年烈狗",
+      story_id: "chen_nian_lie_gou_chapter_001",
+      story_title: "第1章｜初遇：灵棚前的牛奶",
+      scene: "北方农村老家灵棚",
+      chapter_goal: "用锚点图锁定寒冬灵棚、三个角色的保护关系；后续分镜必须拆出人物特写、抢牛奶动作和陶晓东出手保护。",
+      image_count: 6,
+      continuous_story: "是",
+      ratio: "9:16",
+      platform: "抖音竖屏",
+      output_mode: "单张大图",
+      bubble_mode: "多角色气泡",
+      text_mode: "空白气泡后期加字",
+      text_render_mode: "生成空白气泡 + 后期叠字图层",
+      in_image_storyboard: "开启",
+      storyboard_view: "单帧逐张",
+      storyboard_layout: "竖屏连续图",
+      active: 0,
+      refs: {
+        character_identity_refs: [
+          "02_风格母版图/v2/陶淮南-小时候.png",
+          "02_风格母版图/v2/迟骋-小时候.png",
+          "02_风格母版图/v2/陶晓东25岁.png"
+        ],
+        scene_references: [
+          "03_场景资产/v2/农村老家、灵棚、火炕、雪地、纸灰.png"
+        ]
+      },
+      frames: [
+        {
+          phase: "第1幕",
+          scene: "漏风面包车后座",
+          title: "大衣下的小孩",
+          action: "陶淮南缩在陶晓东的大衣里，听见外面的白事声。",
+          state: "寒冬、丧礼、盲人小孩的不安处境。",
+          visual_evidence: ["面包车后座", "哥哥的大衣", "窗外寒风", "小孩缩着身体"],
+          camera: "车内近景",
+          shot_type: "人物特写",
+          focus: "陶淮南脸部和抓紧大衣的手，表现听觉不安。",
+          dialogue: [
+            { name: "陶淮南", text: "哥，外面什么声？" },
+            { name: "陶晓东", text: "别怕，到了。" }
+          ],
+          narration: "盲人小孩先听见冬天和丧礼。"
+        },
+        {
+          phase: "第2幕",
+          scene: "灵棚前雪地",
+          title: "热牛奶",
+          action: "陶淮南双手捧着热牛奶站在灵棚边，蒸汽贴着脸。",
+          state: "热牛奶成为寒冷里的安全感。",
+          visual_evidence: ["热牛奶蒸汽", "米白毛线帽", "灵棚背景", "双手捧杯"],
+          camera: "第三人称中景",
+          shot_type: "手部特写",
+          focus: "小手捧杯、牛奶蒸汽、陶淮南低头听声。",
+          dialogue: [
+            { name: "陶淮南", text: "这个是热的。" },
+            { name: "旁白", text: "他只敢靠近这一点温度。" }
+          ],
+          narration: "温度先出现，危险还没被看见。"
+        },
+        {
+          phase: "第3幕",
+          scene: "灵棚前雪地",
+          title: "迟苦抢走牛奶",
+          action: "迟苦突然从侧面冲出，抢走陶淮南手里的牛奶大口喝下。",
+          state: "迟苦第一次出现，瘦弱、防备、饥寒交迫。",
+          visual_evidence: ["牛奶泼出", "迟苦瘦小发抖", "陶淮南后缩", "雪地泥印"],
+          camera: "动态中景",
+          shot_type: "中景推进",
+          focus: "抢杯动作、陶淮南惊住、迟苦警惕的眼神。",
+          dialogue: [
+            { name: "陶淮南", text: "我的牛奶呢？" },
+            { name: "迟苦", text: "我喝了。" }
+          ],
+          narration: "第一次相遇不是温柔，是抢夺。"
+        },
+        {
+          phase: "第4幕",
+          scene: "灵棚院子",
+          title: "一件大衣",
+          action: "陶晓东脱下大衣裹住迟苦，陶淮南贴在哥哥身边。",
+          state: "陶晓东第一次对迟苦伸出保护动作。",
+          visual_evidence: ["军大衣", "迟苦被包住", "陶淮南贴着哥哥", "冷风和纸灰"],
+          camera: "侧前方中景",
+          shot_type: "人物特写",
+          focus: "陶晓东低头看迟苦的眼神，迟苦没有完全放松。",
+          dialogue: [
+            { name: "陶晓东", text: "穿上。" },
+            { name: "迟苦", text: "不用你管。" }
+          ],
+          narration: "保护发生得很快，信任还没有发生。"
+        },
+        {
+          phase: "第5幕",
+          scene: "夜里的院子火盆旁",
+          title: "追打闯进来",
+          action: "醉酒迟志德追打迟苦闯进院子，火盆边的人群散开。",
+          state: "危机升级，陶晓东从旁观转为出手。",
+          visual_evidence: ["火盆", "追打动势", "迟苦躲墙边", "陶晓东站起"],
+          camera: "低角度中景",
+          shot_type: "低角度",
+          focus: "迟苦缩在墙边，陶晓东从火光里站起。",
+          dialogue: [
+            { name: "迟苦", text: "别过来。" },
+            { name: "陶晓东", text: "站我后面。" }
+          ],
+          narration: "火光把危险推到所有人面前。"
+        },
+        {
+          phase: "第6幕",
+          scene: "灵棚院门口",
+          title: "挡在前面",
+          action: "陶晓东用长棍挡住迟志德，让迟苦退到自己身后。",
+          state: "本章收束在保护和命运转折上。",
+          visual_evidence: ["陶晓东护在前面", "迟苦缩在后方", "火盆余光", "院门大开"],
+          camera: "稳定中景",
+          shot_type: "全景锚点",
+          focus: "陶晓东、迟苦、陶淮南形成保护三角关系。",
+          dialogue: [
+            { name: "陶晓东", text: "滚。" },
+            { name: "旁白", text: "这一晚，有人被留下了。" }
+          ],
+          narration: "保护动作成为命运拐点。"
+        }
+      ]
+    };
+
+    const configInputs = document.querySelectorAll("[data-config]");
+    const timeline = document.getElementById("timeline");
+    const editor = document.getElementById("editor");
+    const activeHint = document.getElementById("activeHint");
+    const jsonPreview = document.getElementById("jsonPreview");
+    const promptPreview = document.getElementById("promptPreview");
+    const statusEl = document.getElementById("status");
+
+    function setStatus(text) {
+      statusEl.textContent = text;
+      window.clearTimeout(setStatus.timer);
+      setStatus.timer = window.setTimeout(() => statusEl.textContent = "", 2200);
+    }
+
+    function initConfig() {
+      configInputs.forEach(input => {
+        const key = input.dataset.config;
+        input.value = state[key];
+        input.addEventListener("input", () => {
+          const value = input.type === "number" ? Number(input.value) : input.value;
+          state[key] = value;
+          if (key === "image_count") state.image_count = state.frames.length;
+          renderAll();
+        });
+      });
+    }
+
+    function renderTimeline() {
+      timeline.innerHTML = "";
+      state.frames.forEach((frame, index) => {
+        const button = document.createElement("button");
+        button.className = `frame-tab${index === state.active ? " active" : ""}`;
+        button.type = "button";
+        button.innerHTML = `
+          <small>${frame.phase} / ${frame.shot_type}</small>
+          <b>${frame.title}</b>
+          <span>${frame.action}</span>
+        `;
+        button.addEventListener("click", () => {
+          state.active = index;
+          renderAll();
+        });
+        timeline.appendChild(button);
+      });
+    }
+
+    function fieldTemplate(label, key, value, type = "textarea") {
+      const control = type === "input"
+        ? `<input class="frame-field" data-key="${key}" value="${escapeHtml(value)}">`
+        : `<textarea class="frame-field" data-key="${key}">${escapeHtml(value)}</textarea>`;
+      return `
+        <div class="field ${key === "action" || key === "focus" ? "full" : ""}">
+          <label>${label}</label>
+          ${control}
+        </div>
+      `;
+    }
+
+    function renderEditor() {
+      const frame = state.frames[state.active];
+      activeHint.textContent = `当前第${state.active + 1}帧：${frame.title}`;
+      editor.innerHTML = `
+        ${fieldTemplate("标题", "title", frame.title, "input")}
+        ${fieldTemplate("场景", "scene", frame.scene, "input")}
+        ${fieldTemplate("镜头", "camera", frame.camera, "input")}
+        ${fieldTemplate("镜头类型", "shot_type", frame.shot_type, "input")}
+        ${fieldTemplate("动作", "action", frame.action)}
+        ${fieldTemplate("人物/道具焦点", "focus", frame.focus)}
+        ${fieldTemplate("画面证据，用顿号或逗号分隔", "visual_evidence", frame.visual_evidence.join("、"))}
+        ${fieldTemplate("叙事状态", "state", frame.state)}
+        <div class="field full dialogue">
+          <div class="label">台词 / 气泡</div>
+          ${frame.dialogue.map((line, index) => `
+            <div class="line-row">
+              <input class="dialogue-field" data-line="${index}" data-key="name" value="${escapeHtml(line.name)}" aria-label="说话人">
+              <input class="dialogue-field" data-line="${index}" data-key="text" value="${escapeHtml(line.text)}" aria-label="台词">
+            </div>
+          `).join("")}
+        </div>
+      `;
+      document.querySelectorAll(".frame-field").forEach(input => {
+        input.addEventListener("input", updateFrameField);
+      });
+      document.querySelectorAll(".dialogue-field").forEach(input => {
+        input.addEventListener("input", updateDialogueField);
+      });
+      document.querySelectorAll("[data-shot]").forEach(button => {
+        button.classList.toggle("active", button.dataset.shot === frame.shot_type);
+      });
+    }
+
+    function updateFrameField(event) {
+      const key = event.target.dataset.key;
+      const value = event.target.value;
+      if (key === "visual_evidence") {
+        state.frames[state.active][key] = value.split(/[、,，]/).map(item => item.trim()).filter(Boolean);
+      } else {
+        state.frames[state.active][key] = value;
+      }
+      renderTimeline();
+      renderPreview();
+      syncOutput();
+    }
+
+    function updateDialogueField(event) {
+      const lineIndex = Number(event.target.dataset.line);
+      const key = event.target.dataset.key;
+      state.frames[state.active].dialogue[lineIndex][key] = event.target.value;
+      renderPreview();
+      syncOutput();
+    }
+
+    function renderPreview() {
+      const frame = state.frames[state.active];
+      document.getElementById("previewShot").textContent = frame.shot_type;
+      document.getElementById("previewTitle").textContent = `${frame.phase}｜${frame.title}`;
+      document.getElementById("previewMeta").textContent = `${frame.scene} · ${frame.camera} · ${frame.focus}`;
+      document.getElementById("previewBubbles").innerHTML = frame.dialogue
+        .filter(line => line.name || line.text)
+        .map(line => `<div class="bubble"><b>${escapeHtml(line.name)}</b>${escapeHtml(line.text)}</div>`)
+        .join("");
+    }
+
+    function buildMinimalJson() {
+      return {
+        story_template: state.story_template,
+        project_name: state.project_name,
+        story_id: state.story_id,
+        story_title: state.story_title,
+        scene: state.scene,
+        chapter_goal: state.chapter_goal,
+        image_count: state.frames.length,
+        continuous_story: state.continuous_story,
+        ratio: state.ratio,
+        platform: state.platform,
+        output_mode: state.output_mode,
+        bubble_mode: state.bubble_mode,
+        text_mode: state.text_mode,
+        text_render_mode: state.text_render_mode,
+        in_image_storyboard: state.in_image_storyboard,
+        storyboard_view: state.storyboard_view,
+        storyboard_layout: state.storyboard_layout,
+        character_identity_refs: state.refs.character_identity_refs,
+        scene_references: state.refs.scene_references,
+        custom_frames: state.frames.map((frame, index) => ({
+          index: index + 1,
+          phase: frame.phase,
+          scene: frame.scene,
+          title: frame.title,
+          action: frame.action,
+          state: frame.state,
+          visual_evidence: frame.visual_evidence,
+          camera: frame.camera,
+          shot_type: frame.shot_type,
+          focus: frame.focus,
+          dialogue: frame.dialogue,
+          narration: frame.narration
+        }))
+      };
+    }
+
+    function buildPrompt() {
+      const frame = state.frames[state.active];
+      const lines = frame.dialogue
+        .filter(line => line.name || line.text)
+        .map(line => `${line.name}: ${line.text}`)
+        .join(" / ");
+      return [
+        `项目：${state.project_name}`,
+        `章节：${state.story_title}`,
+        `当前帧：${frame.phase}｜${frame.title}`,
+        `场景：${frame.scene}`,
+        `镜头：${frame.camera}，${frame.shot_type}`,
+        `主体焦点：${frame.focus}`,
+        `动作：${frame.action}`,
+        `画面证据：${frame.visual_evidence.join("、")}`,
+        `台词气泡：${lines || "无"}`,
+        `文字策略：${state.text_render_mode}`,
+        "要求：保持 v2 角色母版身份一致，北方冬季灵棚场景一致；如果是人物特写，优先脸部表情和手部动作，不要把所有剧情塞进同一张全景海报。"
+      ].join("\n");
+    }
+
+    function syncOutput() {
+      jsonPreview.textContent = JSON.stringify(buildMinimalJson(), null, 2);
+      promptPreview.textContent = buildPrompt();
+    }
+
+    function renderAll() {
+      renderTimeline();
+      renderEditor();
+      renderPreview();
+      syncOutput();
+    }
+
+    function escapeHtml(value) {
+      return String(value || "")
+        .replace(/&/g, "&amp;")
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;")
+        .replace(/"/g, "&quot;");
+    }
+
+    function copyText(text, successText) {
+      if (navigator.clipboard && window.isSecureContext) {
+        navigator.clipboard.writeText(text).then(() => setStatus(successText));
+        return;
+      }
+      const helper = document.createElement("textarea");
+      helper.value = text;
+      document.body.appendChild(helper);
+      helper.select();
+      document.execCommand("copy");
+      helper.remove();
+      setStatus(successText);
+    }
+
+    document.querySelectorAll("[data-shot]").forEach(button => {
+      button.addEventListener("click", () => {
+        const frame = state.frames[state.active];
+        frame.shot_type = button.dataset.shot;
+        frame.camera = button.dataset.shot;
+        renderAll();
+      });
+    });
+
+    document.getElementById("copyJson").addEventListener("click", () => {
+      copyText(JSON.stringify(buildMinimalJson(), null, 2), "JSON 已复制");
+    });
+
+    document.getElementById("copyPrompt").addEventListener("click", () => {
+      copyText(buildPrompt(), "当前帧 Prompt 已复制");
+    });
+
+    document.getElementById("downloadJson").addEventListener("click", () => {
+      const blob = new Blob([JSON.stringify(buildMinimalJson(), null, 2)], { type: "application/json;charset=utf-8" });
+      const url = URL.createObjectURL(blob);
+      const link = document.createElement("a");
+      link.href = url;
+      link.download = "chapter_001_storyboard_minimal.input.json";
+      document.body.appendChild(link);
+      link.click();
+      link.remove();
+      URL.revokeObjectURL(url);
+      setStatus("JSON 已下载");
+    });
+
+    initConfig();
+    renderAll();
+  </script>
+</body>
+</html>
