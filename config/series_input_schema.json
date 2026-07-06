@@ -19,6 +19,12 @@
     "emotion_acting_style": "克制现实",
     "expression_intensity": "轻微到中等",
     "body_language_mode": "手部/重心/距离表达",
+    "detail_density": "丰富但不堆满",
+    "conflict_intensity": "紧张增强",
+    "action_momentum_mode": "明确动势",
+    "shot_variation_mode": "远景建立 + 中景动作 + 特写反应",
+    "panel_continuity_mode": "视线/手势/走位承接",
+    "character_path_mode": "明确入口/站位/出口",
     "in_image_storyboard": "开启",
     "storyboard_view": "特写 + 中景 + 全景",
     "storyboard_layout": "主画面 + 特写小窗",
@@ -252,6 +258,72 @@
       ],
       "default": "手部/重心/距离表达",
       "description": "肢体语言表达方式，用于控制手、肩膀、站位、身体距离和重心。"
+    },
+    "detail_density": {
+      "type": "string",
+      "enum": [
+        "丰富但不堆满",
+        "标准",
+        "极简"
+      ],
+      "default": "丰富但不堆满",
+      "description": "控制场景、道具、前中后景细节密度。"
+    },
+    "conflict_intensity": {
+      "type": "string",
+      "enum": [
+        "紧张增强",
+        "克制紧张",
+        "平静铺垫",
+        "强冲突"
+      ],
+      "default": "紧张增强",
+      "description": "控制画面冲突感和紧张感。"
+    },
+    "action_momentum_mode": {
+      "type": "string",
+      "enum": [
+        "明确动势",
+        "静态对话",
+        "突然打断",
+        "追逐/抢夺",
+        "保护拦截"
+      ],
+      "default": "明确动势",
+      "description": "控制动作是否有起点、方向、结果和速度感。"
+    },
+    "shot_variation_mode": {
+      "type": "string",
+      "enum": [
+        "远景建立 + 中景动作 + 特写反应",
+        "主画面 + 局部特写",
+        "连续动作三格",
+        "环境压迫 + 人物近景"
+      ],
+      "default": "远景建立 + 中景动作 + 特写反应",
+      "description": "避免所有格子都是全景人物展示。"
+    },
+    "panel_continuity_mode": {
+      "type": "string",
+      "enum": [
+        "视线/手势/走位承接",
+        "前景道具承接",
+        "上一格动作延续",
+        "空间方位固定"
+      ],
+      "default": "视线/手势/走位承接",
+      "description": "控制多格漫画之间的阅读连接感。"
+    },
+    "character_path_mode": {
+      "type": "string",
+      "enum": [
+        "明确入口/站位/出口",
+        "保护三角站位",
+        "追逐推进",
+        "靠近/退开"
+      ],
+      "default": "明确入口/站位/出口",
+      "description": "控制人物动线和空间关系，让读者知道角色从哪里来、往哪里去。"
     },
     "in_image_storyboard": {
       "type": "string",

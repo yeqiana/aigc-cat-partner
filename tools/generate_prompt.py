@@ -34,6 +34,12 @@ NARRATION_MODES = ["底部旁白框", "旁白气泡", "画外文案清单", "不
 EMOTION_ACTING_STYLES = ["克制现实", "轻微外显", "沉默压抑", "紧绷防备", "保护性克制"]
 EXPRESSION_INTENSITIES = ["轻微", "轻微到中等", "中等", "强烈"]
 BODY_LANGUAGE_MODES = ["手部/重心/距离表达", "面部微表情优先", "保护性站位", "防备性蜷缩", "动作推进优先"]
+DETAIL_DENSITY_MODES = ["丰富但不堆满", "标准", "极简"]
+CONFLICT_INTENSITY_MODES = ["紧张增强", "克制紧张", "平静铺垫", "强冲突"]
+ACTION_MOMENTUM_MODES = ["明确动势", "静态对话", "突然打断", "追逐/抢夺", "保护拦截"]
+SHOT_VARIATION_MODES = ["远景建立 + 中景动作 + 特写反应", "主画面 + 局部特写", "连续动作三格", "环境压迫 + 人物近景"]
+PANEL_CONTINUITY_MODES = ["视线/手势/走位承接", "前景道具承接", "上一格动作延续", "空间方位固定"]
+CHARACTER_PATH_MODES = ["明确入口/站位/出口", "保护三角站位", "追逐推进", "靠近/退开"]
 COPYWRITING_MODES = ["手动填写", "自动根据情节生成"]
 INTERACTION_MODES = ["不互动", "看向观众", "提问互动", "评论引导", "点赞关注", "选择投票"]
 CONTINUOUS_STORY_VALUES = ["否", "是"]
@@ -151,6 +157,12 @@ def normalize_defaults(data: dict) -> dict:
     data.setdefault("emotion_acting_style", "克制现实")
     data.setdefault("expression_intensity", "轻微到中等")
     data.setdefault("body_language_mode", "手部/重心/距离表达")
+    data.setdefault("detail_density", "丰富但不堆满")
+    data.setdefault("conflict_intensity", "紧张增强")
+    data.setdefault("action_momentum_mode", "明确动势")
+    data.setdefault("shot_variation_mode", "远景建立 + 中景动作 + 特写反应")
+    data.setdefault("panel_continuity_mode", "视线/手势/走位承接")
+    data.setdefault("character_path_mode", "明确入口/站位/出口")
     data.setdefault("copywriting_mode", "自动根据情节生成")
     data.setdefault("interaction_mode", "评论引导")
     data.setdefault("story_coherence", "强")
@@ -637,6 +649,33 @@ def emotion_acting_block(data: dict, frame: dict) -> str:
     )
 
 
+def comic_storytelling_block(data: dict, frame: dict) -> str:
+    scene_detail = frame.get("scene_detail") or "补足可读环境：门、火盆、雪、纸灰、人物来路和遮挡物都要服务剧情，不要留大片空背景。"
+    conflict_point = frame.get("conflict_point") or frame.get("state") or "当前画面必须有明确的紧张点。"
+    action_detail = frame.get("action_momentum_detail") or frame.get("action") or "动作要有起点、方向和结果。"
+    continuity_link = frame.get("continuity_link") or "承接上一帧的位置、视线、手势、道具状态或人物距离，让读者知道上一张和这一张的关系。"
+    character_path = frame.get("character_path") or "明确人物从哪里来、站在哪里、下一步朝哪里动。"
+    panel_composition = frame.get("panel_composition") or "上方小环境建立，中间中景动作冲突，下方局部特写或人物反应。"
+    return "\n".join(
+        [
+            f"细节密度：{data.get('detail_density') or '丰富但不堆满'}",
+            f"冲突强度：{data.get('conflict_intensity') or '紧张增强'}",
+            f"动作动势：{data.get('action_momentum_mode') or '明确动势'}",
+            f"镜头变化：{data.get('shot_variation_mode') or '远景建立 + 中景动作 + 特写反应'}",
+            f"分镜连接：{data.get('panel_continuity_mode') or '视线/手势/走位承接'}",
+            f"人物动线：{data.get('character_path_mode') or '明确入口/站位/出口'}",
+            f"环境细节：{scene_detail}",
+            f"冲突点：{conflict_point}",
+            f"动作细节：{action_detail}",
+            f"承接关系：{continuity_link}",
+            f"人物走位：{character_path}",
+            f"分格结构：{panel_composition}",
+            "构图约束：不要所有格子都画成远景或全身站位展示；至少包含一个人物近景/手部道具特写/反应特写，另一个格子承担动作推进。",
+            "动势提示：可用衣角摆动、雪粒/纸灰方向、手臂轨迹、身体重心、视线方向、速度线或道具位移表达动作，但不要画成杂乱特效。",
+        ]
+    )
+
+
 def copywriting_block(data: dict, frame: dict) -> str:
     copy = copy_for_frame(data, frame)
     lines = [f"- 配置标题（不等于必须入图）：{copy['title']}", f"- 旁白：{copy['narration']}"]
@@ -694,6 +733,9 @@ def build_prompt(data: dict, frame: dict) -> str:
 
 【人物表演与情绪】
 {emotion_acting_block(data, frame)}
+
+【漫画叙事与动线】
+{comic_storytelling_block(data, frame)}
 
 【造型与道具锁定】
 {outfit_lock_description(data)}
@@ -906,6 +948,12 @@ def main():
     parser.add_argument("--emotion-acting-style", dest="emotion_acting_style", type=str, choices=EMOTION_ACTING_STYLES)
     parser.add_argument("--expression-intensity", dest="expression_intensity", type=str, choices=EXPRESSION_INTENSITIES)
     parser.add_argument("--body-language-mode", dest="body_language_mode", type=str, choices=BODY_LANGUAGE_MODES)
+    parser.add_argument("--detail-density", dest="detail_density", type=str, choices=DETAIL_DENSITY_MODES)
+    parser.add_argument("--conflict-intensity", dest="conflict_intensity", type=str, choices=CONFLICT_INTENSITY_MODES)
+    parser.add_argument("--action-momentum-mode", dest="action_momentum_mode", type=str, choices=ACTION_MOMENTUM_MODES)
+    parser.add_argument("--shot-variation-mode", dest="shot_variation_mode", type=str, choices=SHOT_VARIATION_MODES)
+    parser.add_argument("--panel-continuity-mode", dest="panel_continuity_mode", type=str, choices=PANEL_CONTINUITY_MODES)
+    parser.add_argument("--character-path-mode", dest="character_path_mode", type=str, choices=CHARACTER_PATH_MODES)
     parser.add_argument("--copywriting-mode", dest="copywriting_mode", type=str, choices=COPYWRITING_MODES)
     parser.add_argument("--interaction-mode", dest="interaction_mode", type=str, choices=INTERACTION_MODES)
     parser.add_argument("--story-coherence", dest="story_coherence", type=str, choices=STORY_COHERENCE_VALUES)
@@ -957,6 +1005,12 @@ def main():
         "emotion_acting_style",
         "expression_intensity",
         "body_language_mode",
+        "detail_density",
+        "conflict_intensity",
+        "action_momentum_mode",
+        "shot_variation_mode",
+        "panel_continuity_mode",
+        "character_path_mode",
         "copywriting_mode",
         "interaction_mode",
         "story_coherence",

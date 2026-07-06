@@ -641,6 +641,60 @@
               </select>
             </div>
             <div class="field">
+              <label for="detailDensity">细节密度</label>
+              <select id="detailDensity" data-config="detail_density">
+                <option>丰富但不堆满</option>
+                <option>标准</option>
+                <option>极简</option>
+              </select>
+            </div>
+            <div class="field">
+              <label for="conflictIntensity">冲突强度</label>
+              <select id="conflictIntensity" data-config="conflict_intensity">
+                <option>紧张增强</option>
+                <option>克制紧张</option>
+                <option>平静铺垫</option>
+                <option>强冲突</option>
+              </select>
+            </div>
+            <div class="field">
+              <label for="actionMomentumMode">动作动势</label>
+              <select id="actionMomentumMode" data-config="action_momentum_mode">
+                <option>明确动势</option>
+                <option>静态对话</option>
+                <option>突然打断</option>
+                <option>追逐/抢夺</option>
+                <option>保护拦截</option>
+              </select>
+            </div>
+            <div class="field">
+              <label for="shotVariationMode">镜头变化</label>
+              <select id="shotVariationMode" data-config="shot_variation_mode">
+                <option>远景建立 + 中景动作 + 特写反应</option>
+                <option>主画面 + 局部特写</option>
+                <option>连续动作三格</option>
+                <option>环境压迫 + 人物近景</option>
+              </select>
+            </div>
+            <div class="field">
+              <label for="panelContinuityMode">分镜连接</label>
+              <select id="panelContinuityMode" data-config="panel_continuity_mode">
+                <option>视线/手势/走位承接</option>
+                <option>前景道具承接</option>
+                <option>上一格动作延续</option>
+                <option>空间方位固定</option>
+              </select>
+            </div>
+            <div class="field">
+              <label for="characterPathMode">人物动线</label>
+              <select id="characterPathMode" data-config="character_path_mode">
+                <option>明确入口/站位/出口</option>
+                <option>保护三角站位</option>
+                <option>追逐推进</option>
+                <option>靠近/退开</option>
+              </select>
+            </div>
+            <div class="field">
               <label for="inImageStoryboard">图内分镜</label>
               <select id="inImageStoryboard" data-config="in_image_storyboard">
                 <option>开启</option>
@@ -768,6 +822,12 @@
       emotion_acting_style: "克制现实",
       expression_intensity: "轻微到中等",
       body_language_mode: "手部/重心/距离表达",
+      detail_density: "丰富但不堆满",
+      conflict_intensity: "紧张增强",
+      action_momentum_mode: "明确动势",
+      shot_variation_mode: "远景建立 + 中景动作 + 特写反应",
+      panel_continuity_mode: "视线/手势/走位承接",
+      character_path_mode: "明确入口/站位/出口",
       in_image_storyboard: "开启",
       storyboard_view: "特写 + 中景 + 全景",
       storyboard_layout: "主画面 + 特写小窗",
@@ -796,6 +856,12 @@
           emotion: "寒冷、不安、依赖哥哥",
           expression: "眼神不聚焦，眉头轻轻皱起，嘴唇微抿，不做夸张哭相。",
           body_language: "肩膀缩起，一只手抓紧陶晓东的大衣，身体向哥哥怀里靠。",
+          scene_detail: "车窗结霜，窗外远处有灵棚白布、火盆微光和纸灰，车内空间狭窄压迫。",
+          conflict_point: "外面的丧礼声越来越近，陶淮南看不见，只能靠声音判断陌生环境。",
+          action_momentum_detail: "镜头从窗外灵棚火光切到陶淮南抓紧衣角的手，手指收紧形成动势。",
+          continuity_link: "建立车内保护关系，下一帧承接牛奶杯、灵棚雪地和下车后的移动。",
+          character_path: "陶晓东在右侧护住孩子，陶淮南向哥哥怀里缩，耳朵朝窗外声源。",
+          panel_composition: "上方车窗外灵棚远景，中间陶淮南脸部近景，下方抓衣角和牛奶杯局部特写。",
           dialogue: [
             { name: "陶淮南", text: "哥，外面什么声？" },
             { name: "陶晓东", text: "别怕，到了。" }
@@ -815,6 +881,12 @@
           emotion: "短暂安心、小心珍惜",
           expression: "脸部放松一点，嘴角不明显上扬，注意力集中在手里的热牛奶。",
           body_language: "双手贴近杯身，手指收紧取暖，身体微微向杯子靠近。",
+          scene_detail: "灵棚白布在风里轻晃，雪地有泥脚印，火盆烟和纸灰从背景飘过。",
+          conflict_point: "安全感只集中在一杯热牛奶上，周围冷风、白事声和陌生人群形成压力。",
+          action_momentum_detail: "陶淮南双手把杯子往胸前拢，蒸汽向上，背景人影从旁边经过。",
+          continuity_link: "承接上一帧的车窗外灵棚，牛奶杯成为下一帧被抢走的关键道具。",
+          character_path: "陶淮南站在灵棚边缘，身体朝陶晓东方向微微偏，不主动走进人群。",
+          panel_composition: "上方灵棚环境建立，中间陶淮南捧杯半身，底部牛奶杯和小手大特写。",
           dialogue: [
             { name: "陶淮南", text: "这个是热的。" },
             { name: "旁白", text: "他只敢靠近这一点温度。" }
@@ -834,6 +906,12 @@
           emotion: "突然受惊、防备冲突",
           expression: "陶淮南怔住，迟苦眼神警惕下压，表情紧绷但不狰狞。",
           body_language: "陶淮南手向后缩，迟苦身体前倾抢杯后立刻护住牛奶。",
+          scene_detail: "雪地脚印被踩乱，牛奶洒出几滴，灵棚白布和纸灰被风吹斜。",
+          conflict_point: "迟苦的饥寒和陶淮南的惊吓第一次正面撞上，牛奶杯成为冲突中心。",
+          action_momentum_detail: "迟苦从侧边冲入斜向抢杯，陶淮南手指松开后身体后缩，牛奶杯产生清楚位移。",
+          continuity_link: "承接上一帧牛奶杯特写，让牛奶杯从陶淮南手中移动到迟苦手中。",
+          character_path: "迟苦从灵棚侧门方向冲入，抢完后身体转向逃离方向；陶淮南后退半步。",
+          panel_composition: "上方牛奶杯被抢瞬间，中间迟苦护杯喝奶近景，下方陶淮南空手和洒落牛奶特写。",
           dialogue: [
             { name: "陶淮南", text: "我的牛奶呢？" },
             { name: "迟苦", text: "我喝了。" }
@@ -853,6 +931,12 @@
           emotion: "保护、迟疑、防备未退",
           expression: "陶晓东神情沉稳疲惫，迟苦低眼戒备，陶淮南贴近哥哥听动静。",
           body_language: "陶晓东展开大衣包住迟苦，迟苦肩膀僵硬，陶淮南抓着哥哥衣角。",
+          scene_detail: "院子里火盆低烧，白布和纸灰在风里晃动，军大衣厚重遮住迟苦半边身体。",
+          conflict_point: "陶晓东的保护动作和迟苦的本能防备相撞，温暖靠近但信任还没建立。",
+          action_momentum_detail: "陶晓东脱大衣的动作从肩膀展开到包住迟苦，迟苦肩膀僵住没有完全接受。",
+          continuity_link: "承接上一帧迟苦抢奶后的饥寒状态，让陶晓东进入两人之间改变关系。",
+          character_path: "陶晓东从陶淮南身侧迈向迟苦，陶淮南贴着安全侧，迟苦停在院墙边。",
+          panel_composition: "上方院子火盆和三人位置，中间陶晓东展开大衣，下方迟苦被包住的手和表情特写。",
           dialogue: [
             { name: "陶晓东", text: "穿上。" },
             { name: "迟苦", text: "不用你管。" }
@@ -872,6 +956,12 @@
           emotion: "危机压迫、恐惧和保护欲上升",
           expression: "迟苦咬紧嘴唇不哭，陶晓东眉眼压低，情绪克制但明显警觉。",
           body_language: "迟苦贴墙缩肩，陶晓东从火盆旁起身挡到前方。",
+          scene_detail: "夜雪落下，火盆映出人影，院门被撞开，地上纸灰和雪被脚步踢散。",
+          conflict_point: "醉酒追打者闯入，迟苦退无可退，陶晓东必须从旁观变成阻拦。",
+          action_momentum_detail: "追打者从院门斜冲入，手臂扬起；迟苦沿墙缩退，陶晓东从火盆旁起身。",
+          continuity_link: "承接上一帧大衣保护，让外部威胁闯入并迫使陶晓东升级保护动作。",
+          character_path: "迟志德从右侧院门冲入，迟苦向左后方墙角退，陶晓东向前形成阻断线。",
+          panel_composition: "上方院门闯入远景，中间迟苦贴墙近景，下方陶晓东起身的手、衣摆、火光特写。",
           dialogue: [
             { name: "迟苦", text: "别过来。" },
             { name: "陶晓东", text: "站我后面。" }
@@ -891,6 +981,12 @@
           emotion: "压住怒气、余震、被保护后的迟疑",
           expression: "陶晓东表情冷静坚决，迟苦低头发怔，陶淮南茫然侧耳。",
           body_language: "陶晓东站在最前方持棍挡住来人，迟苦退到身后，陶淮南贴近安全侧。",
+          scene_detail: "院门大开，雪和纸灰被风卷进来，火盆余光照出三个人的前后站位。",
+          conflict_point: "陶晓东用身体和长棍划出边界，把迟苦和陶淮南从危险前方隔开。",
+          action_momentum_detail: "长棍横向伸出形成阻挡线，迟苦从墙角退到陶晓东身后。",
+          continuity_link: "承接上一帧陶晓东起身，本帧完成从起身到挡住的动作结果。",
+          character_path: "陶晓东站到中央偏前，迟苦退到他身后，陶淮南在更内侧被保护。",
+          panel_composition: "上方院门和威胁位置，中间长棍拦截动作，下方迟苦和陶淮南躲在身后的反应特写。",
           dialogue: [
             { name: "陶晓东", text: "滚。" },
             { name: "旁白", text: "这一晚，有人被留下了。" }
@@ -959,7 +1055,7 @@
         ? `<input class="frame-field" data-key="${key}" value="${escapeHtml(value)}">`
         : `<textarea class="frame-field" data-key="${key}">${escapeHtml(value)}</textarea>`;
       return `
-        <div class="field ${["action", "focus", "expression", "body_language"].includes(key) ? "full" : ""}">
+        <div class="field ${["action", "focus", "expression", "body_language", "scene_detail", "conflict_point", "action_momentum_detail", "continuity_link", "character_path", "panel_composition"].includes(key) ? "full" : ""}">
           <label>${label}</label>
           ${control}
         </div>
@@ -979,6 +1075,12 @@
         ${fieldTemplate("当前情绪", "emotion", frame.emotion || frame.state, "input")}
         ${fieldTemplate("脸部表情", "expression", frame.expression || "")}
         ${fieldTemplate("肢体动作", "body_language", frame.body_language || "")}
+        ${fieldTemplate("环境细节", "scene_detail", frame.scene_detail || "")}
+        ${fieldTemplate("冲突点", "conflict_point", frame.conflict_point || "")}
+        ${fieldTemplate("动作动势", "action_momentum_detail", frame.action_momentum_detail || "")}
+        ${fieldTemplate("承接关系", "continuity_link", frame.continuity_link || "")}
+        ${fieldTemplate("人物动线", "character_path", frame.character_path || "")}
+        ${fieldTemplate("分格结构", "panel_composition", frame.panel_composition || "")}
         ${fieldTemplate("画面证据，用顿号或逗号分隔", "visual_evidence", frame.visual_evidence.join("、"))}
         ${fieldTemplate("叙事状态", "state", frame.state)}
         <div class="field full dialogue">
@@ -1055,6 +1157,12 @@
         emotion_acting_style: state.emotion_acting_style,
         expression_intensity: state.expression_intensity,
         body_language_mode: state.body_language_mode,
+        detail_density: state.detail_density,
+        conflict_intensity: state.conflict_intensity,
+        action_momentum_mode: state.action_momentum_mode,
+        shot_variation_mode: state.shot_variation_mode,
+        panel_continuity_mode: state.panel_continuity_mode,
+        character_path_mode: state.character_path_mode,
         in_image_storyboard: state.in_image_storyboard,
         storyboard_view: state.storyboard_view,
         storyboard_layout: state.storyboard_layout,
@@ -1074,6 +1182,12 @@
           emotion: frame.emotion,
           expression: frame.expression,
           body_language: frame.body_language,
+          scene_detail: frame.scene_detail,
+          conflict_point: frame.conflict_point,
+          action_momentum_detail: frame.action_momentum_detail,
+          continuity_link: frame.continuity_link,
+          character_path: frame.character_path,
+          panel_composition: frame.panel_composition,
           dialogue: frame.dialogue,
           narration: frame.narration
         }))
@@ -1126,6 +1240,25 @@
       ].join("\n");
     }
 
+    function buildComicStorytellingRules(frame) {
+      return [
+        `细节密度：${state.detail_density}`,
+        `冲突强度：${state.conflict_intensity}`,
+        `动作动势：${state.action_momentum_mode}`,
+        `镜头变化：${state.shot_variation_mode}`,
+        `分镜连接：${state.panel_continuity_mode}`,
+        `人物动线：${state.character_path_mode}`,
+        `环境细节：${frame.scene_detail || "补足前景/中景/背景细节，不要留大片空背景。"}`,
+        `冲突点：${frame.conflict_point || frame.state}`,
+        `动作细节：${frame.action_momentum_detail || frame.action}`,
+        `承接关系：${frame.continuity_link || "承接上一帧的位置、视线、手势、道具状态或人物距离。"}`,
+        `人物走位：${frame.character_path || "明确人物从哪里来、站在哪里、下一步朝哪里动。"}`,
+        `分格结构：${frame.panel_composition || "上方环境建立，中间动作冲突，下方局部特写或人物反应。"}`,
+        "构图约束：不要所有格子都画成远景或全身站位展示；至少包含一个人物近景/手部道具特写/反应特写，另一个格子承担动作推进。",
+        "动势提示：可用衣角摆动、雪粒/纸灰方向、手臂轨迹、身体重心、视线方向、速度线或道具位移表达动作，但不要画成杂乱特效。"
+      ].join("\n");
+    }
+
     function buildFramePrompt(frame, index) {
       const lines = frame.dialogue
         .filter(line => line.name || line.text)
@@ -1153,6 +1286,9 @@
         "【人物表演与情绪】",
         buildActingRules(frame),
         "",
+        "【漫画叙事与动线】",
+        buildComicStorytellingRules(frame),
+        "",
         "【连续性要求】",
         "保持 v2 角色母版身份一致，北方冬季灵棚场景一致；如果是人物特写，优先脸部表情和手部动作；不要把所有剧情塞进同一张全景海报。",
         "",
@@ -1171,6 +1307,7 @@
         buildStoryboardRule(),
         `默认文字：${state.bubble_mode}，${state.text_render_mode}，${state.title_render_mode}，${state.narration_mode}`,
         `默认表演：${state.emotion_acting_style}，${state.expression_intensity}，${state.body_language_mode}`,
+        `默认叙事：${state.detail_density}，${state.conflict_intensity}，${state.action_momentum_mode}，${state.shot_variation_mode}，${state.panel_continuity_mode}，${state.character_path_mode}`,
         "画面中不要出现第几幕、第几章、当前帧等标签，除非画面标题模式明确要求。",
         "",
         ...state.frames.map((frame, index) => `---\n\n## 第${index + 1}帧\n\n${buildFramePrompt(frame, index)}`)

@@ -19,6 +19,12 @@
     "emotion_acting_style": "克制现实",
     "expression_intensity": "轻微到中等",
     "body_language_mode": "手部/重心/距离表达",
+    "detail_density": "丰富但不堆满",
+    "conflict_intensity": "紧张增强",
+    "action_momentum_mode": "明确动势",
+    "shot_variation_mode": "远景建立 + 中景动作 + 特写反应",
+    "panel_continuity_mode": "视线/手势/走位承接",
+    "character_path_mode": "明确入口/站位/出口",
     "in_image_storyboard": "开启",
     "storyboard_view": "特写 + 中景 + 全景",
     "storyboard_layout": "主画面 + 特写小窗"
