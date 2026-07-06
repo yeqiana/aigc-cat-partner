@@ -16,6 +16,9 @@
     "text_render_mode": "直接在图中生成文字",
     "title_render_mode": "不生成画面标题",
     "narration_mode": "底部旁白框",
+    "dialogue_name_mode": "气泡内不显示姓名",
+    "character_label_mode": "首次出场/形象变化时标注",
+    "scene_label_mode": "主要场景切换时标注",
     "emotion_acting_style": "克制现实",
     "expression_intensity": "轻微到中等",
     "body_language_mode": "手部/重心/距离表达",
@@ -223,6 +226,36 @@
       ],
       "default": "底部旁白框",
       "description": "旁白在漫画中的存放方式。画外文案清单表示只进任务文件，不进图片。"
+    },
+    "dialogue_name_mode": {
+      "type": "string",
+      "enum": [
+        "气泡内不显示姓名",
+        "姓名小标签",
+        "气泡内显示姓名"
+      ],
+      "default": "气泡内不显示姓名",
+      "description": "控制对白气泡中是否出现说话人姓名。默认气泡只显示台词正文。"
+    },
+    "character_label_mode": {
+      "type": "string",
+      "enum": [
+        "首次出场/形象变化时标注",
+        "不标注",
+        "每帧标注"
+      ],
+      "default": "首次出场/形象变化时标注",
+      "description": "人物姓名只在首次出场或形象发生明显变化时用小标签标注。"
+    },
+    "scene_label_mode": {
+      "type": "string",
+      "enum": [
+        "主要场景切换时标注",
+        "不标注",
+        "每帧标注"
+      ],
+      "default": "主要场景切换时标注",
+      "description": "场景名只在主要或重要场景切换时标注，避免频繁重复。"
     },
     "emotion_acting_style": {
       "type": "string",

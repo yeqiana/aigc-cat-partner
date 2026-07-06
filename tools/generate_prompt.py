@@ -31,6 +31,9 @@ TEXT_RENDER_MODES = [
 TEXT_POSITIONS = ["自动", "顶部标题区", "主体旁边", "底部字幕区"]
 TITLE_RENDER_MODES = ["不生成画面标题", "封面图标题", "每帧标题"]
 NARRATION_MODES = ["底部旁白框", "旁白气泡", "画外文案清单", "不使用旁白"]
+DIALOGUE_NAME_MODES = ["气泡内不显示姓名", "姓名小标签", "气泡内显示姓名"]
+CHARACTER_LABEL_MODES = ["首次出场/形象变化时标注", "不标注", "每帧标注"]
+SCENE_LABEL_MODES = ["主要场景切换时标注", "不标注", "每帧标注"]
 EMOTION_ACTING_STYLES = ["克制现实", "轻微外显", "沉默压抑", "紧绷防备", "保护性克制"]
 EXPRESSION_INTENSITIES = ["轻微", "轻微到中等", "中等", "强烈"]
 BODY_LANGUAGE_MODES = ["手部/重心/距离表达", "面部微表情优先", "保护性站位", "防备性蜷缩", "动作推进优先"]
@@ -154,6 +157,9 @@ def normalize_defaults(data: dict) -> dict:
     data.setdefault("text_render_mode", "直接在图中生成文字")
     data.setdefault("title_render_mode", "不生成画面标题")
     data.setdefault("narration_mode", "底部旁白框")
+    data.setdefault("dialogue_name_mode", "气泡内不显示姓名")
+    data.setdefault("character_label_mode", "首次出场/形象变化时标注")
+    data.setdefault("scene_label_mode", "主要场景切换时标注")
     data.setdefault("emotion_acting_style", "克制现实")
     data.setdefault("expression_intensity", "轻微到中等")
     data.setdefault("body_language_mode", "手部/重心/距离表达")
@@ -579,6 +585,7 @@ def text_layer_block(data: dict, frame: dict) -> str:
     copy = copy_for_frame(data, frame)
     title_mode = data.get("title_render_mode") or "不生成画面标题"
     narration_mode = data.get("narration_mode") or "底部旁白框"
+    dialogue_name_mode = data.get("dialogue_name_mode") or "气泡内不显示姓名"
     lines = []
     title_is_visible = title_mode == "每帧标题" or (title_mode == "封面图标题" and frame.get("index", 1) == 1)
     if title_is_visible:
@@ -594,8 +601,14 @@ def text_layer_block(data: dict, frame: dict) -> str:
         lines.append(f"旁白只作为画外文案清单，画面中不要生成旁白框：{copy['narration']}")
     else:
         lines.append("不使用旁白文字，画面只保留角色对白气泡。")
-    for item in copy["character_lines"]:
-        lines.append(f"{item['name']}：{item['text']}")
+    if dialogue_name_mode == "气泡内显示姓名":
+        lines.append("对白气泡可显示“角色名：台词”，但只在用户明确选择此模式时使用。")
+        for item in copy["character_lines"]:
+            lines.append(f"对白气泡：{item['name']}：{item['text']}")
+    else:
+        lines.append("对白气泡规则：气泡内只生成台词正文，不要生成说话人姓名，不要出现“陶淮南：”“迟苦：”“陶晓东：”“旁白：”等姓名前缀。")
+        for item in copy["character_lines"]:
+            lines.append(f"说话人定位（不入图）：{item['name']}；气泡文字：{item['text']}")
     if data.get("text_render_mode") == "直接在图中生成文字":
         return "允许短文字直接出现在画面中，但必须清晰、无乱码、无多余字符；不要额外添加未列出的文字。\n" + "\n".join(lines)
     if data.get("text_mode") == "空白气泡后期加字":
@@ -615,9 +628,36 @@ def bubble_text_description(data: dict, frame: dict) -> str:
             f"文字落地模式：{data.get('text_render_mode')}",
             f"画面标题模式：{data.get('title_render_mode') or '不生成画面标题'}",
             f"旁白存放方式：{data.get('narration_mode') or '底部旁白框'}",
+            f"对白姓名模式：{data.get('dialogue_name_mode') or '气泡内不显示姓名'}",
+            label_description(data, frame),
             text_layer_block(data, frame),
         ]
     )
+
+
+def label_description(data: dict, frame: dict) -> str:
+    character_mode = data.get("character_label_mode") or "首次出场/形象变化时标注"
+    scene_mode = data.get("scene_label_mode") or "主要场景切换时标注"
+    character_label = frame.get("character_label") or ""
+    scene_label = frame.get("scene_label") or ""
+    lines = [
+        f"人物姓名标注模式：{character_mode}",
+        f"场景标注模式：{scene_mode}",
+    ]
+    if character_mode == "不标注":
+        lines.append("本帧不生成任何人物姓名标签。")
+    elif character_label:
+        lines.append(f"人物姓名小标签：{character_label}；只在人物旁边用小而克制的标签标注，不放进对白气泡，不遮挡脸和手。")
+    else:
+        lines.append("本帧没有首次出场或形象变化时，不生成姓名标签。")
+
+    if scene_mode == "不标注":
+        lines.append("本帧不生成场景标签。")
+    elif scene_label:
+        lines.append(f"场景小标签：{scene_label}；只在主要场景切换或重要空间建立时出现，放在角落或环境边缘，不要每格重复。")
+    else:
+        lines.append("本帧不是重要场景切换时，不生成场景标签。")
+    return "\n".join(lines)
 
 
 def audience_interaction_description(interaction_mode: str) -> str:
@@ -761,7 +801,7 @@ def build_prompt(data: dict, frame: dict) -> str:
 5. 情绪要按 mood_curve 推进，不能每张都停在同一种情绪。
 
 【禁止项】
-不要换角色身份，不要偏离世界观，不要随机换画风，不要肢体错误，不要文字乱码，不要把连续故事做成彼此无关的散图。不要在画面里生成“第1幕、第2幕、当前帧、章节标题”等未授权标题栏。
+不要换角色身份，不要偏离世界观，不要随机换画风，不要肢体错误，不要文字乱码，不要把连续故事做成彼此无关的散图。不要在画面里生成“第1幕、第2幕、当前帧、章节标题”等未授权标题栏。对白气泡内不要生成“角色名：台词”的姓名前缀，除非明确选择气泡内显示姓名模式。
 
 negative prompt:
 {negative_prompt(data)}
@@ -945,6 +985,9 @@ def main():
     parser.add_argument("--text-position", dest="text_position", type=str, choices=TEXT_POSITIONS)
     parser.add_argument("--title-render-mode", dest="title_render_mode", type=str, choices=TITLE_RENDER_MODES)
     parser.add_argument("--narration-mode", dest="narration_mode", type=str, choices=NARRATION_MODES)
+    parser.add_argument("--dialogue-name-mode", dest="dialogue_name_mode", type=str, choices=DIALOGUE_NAME_MODES)
+    parser.add_argument("--character-label-mode", dest="character_label_mode", type=str, choices=CHARACTER_LABEL_MODES)
+    parser.add_argument("--scene-label-mode", dest="scene_label_mode", type=str, choices=SCENE_LABEL_MODES)
     parser.add_argument("--emotion-acting-style", dest="emotion_acting_style", type=str, choices=EMOTION_ACTING_STYLES)
     parser.add_argument("--expression-intensity", dest="expression_intensity", type=str, choices=EXPRESSION_INTENSITIES)
     parser.add_argument("--body-language-mode", dest="body_language_mode", type=str, choices=BODY_LANGUAGE_MODES)
@@ -1002,6 +1045,9 @@ def main():
         "text_position",
         "title_render_mode",
         "narration_mode",
+        "dialogue_name_mode",
+        "character_label_mode",
+        "scene_label_mode",
         "emotion_acting_style",
         "expression_intensity",
         "body_language_mode",
