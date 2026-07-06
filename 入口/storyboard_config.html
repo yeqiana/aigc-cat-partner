@@ -612,6 +612,35 @@
               </select>
             </div>
             <div class="field">
+              <label for="emotionActing">情绪表演</label>
+              <select id="emotionActing" data-config="emotion_acting_style">
+                <option>克制现实</option>
+                <option>轻微外显</option>
+                <option>沉默压抑</option>
+                <option>紧绷防备</option>
+                <option>保护性克制</option>
+              </select>
+            </div>
+            <div class="field">
+              <label for="expressionIntensity">表情强度</label>
+              <select id="expressionIntensity" data-config="expression_intensity">
+                <option>轻微到中等</option>
+                <option>轻微</option>
+                <option>中等</option>
+                <option>强烈</option>
+              </select>
+            </div>
+            <div class="field">
+              <label for="bodyLanguageMode">肢体语言</label>
+              <select id="bodyLanguageMode" data-config="body_language_mode">
+                <option>手部/重心/距离表达</option>
+                <option>面部微表情优先</option>
+                <option>保护性站位</option>
+                <option>防备性蜷缩</option>
+                <option>动作推进优先</option>
+              </select>
+            </div>
+            <div class="field">
               <label for="inImageStoryboard">图内分镜</label>
               <select id="inImageStoryboard" data-config="in_image_storyboard">
                 <option>开启</option>
@@ -736,6 +765,9 @@
       text_render_mode: "直接在图中生成文字",
       title_render_mode: "不生成画面标题",
       narration_mode: "底部旁白框",
+      emotion_acting_style: "克制现实",
+      expression_intensity: "轻微到中等",
+      body_language_mode: "手部/重心/距离表达",
       in_image_storyboard: "开启",
       storyboard_view: "特写 + 中景 + 全景",
       storyboard_layout: "主画面 + 特写小窗",
@@ -761,6 +793,9 @@
           camera: "车内近景",
           shot_type: "人物特写",
           focus: "陶淮南脸部和抓紧大衣的手，表现听觉不安。",
+          emotion: "寒冷、不安、依赖哥哥",
+          expression: "眼神不聚焦，眉头轻轻皱起，嘴唇微抿，不做夸张哭相。",
+          body_language: "肩膀缩起，一只手抓紧陶晓东的大衣，身体向哥哥怀里靠。",
           dialogue: [
             { name: "陶淮南", text: "哥，外面什么声？" },
             { name: "陶晓东", text: "别怕，到了。" }
@@ -777,6 +812,9 @@
           camera: "第三人称中景",
           shot_type: "手部特写",
           focus: "小手捧杯、牛奶蒸汽、陶淮南低头听声。",
+          emotion: "短暂安心、小心珍惜",
+          expression: "脸部放松一点，嘴角不明显上扬，注意力集中在手里的热牛奶。",
+          body_language: "双手贴近杯身，手指收紧取暖，身体微微向杯子靠近。",
           dialogue: [
             { name: "陶淮南", text: "这个是热的。" },
             { name: "旁白", text: "他只敢靠近这一点温度。" }
@@ -793,6 +831,9 @@
           camera: "动态中景",
           shot_type: "中景推进",
           focus: "抢杯动作、陶淮南惊住、迟苦警惕的眼神。",
+          emotion: "突然受惊、防备冲突",
+          expression: "陶淮南怔住，迟苦眼神警惕下压，表情紧绷但不狰狞。",
+          body_language: "陶淮南手向后缩，迟苦身体前倾抢杯后立刻护住牛奶。",
           dialogue: [
             { name: "陶淮南", text: "我的牛奶呢？" },
             { name: "迟苦", text: "我喝了。" }
@@ -809,6 +850,9 @@
           camera: "侧前方中景",
           shot_type: "人物特写",
           focus: "陶晓东低头看迟苦的眼神，迟苦没有完全放松。",
+          emotion: "保护、迟疑、防备未退",
+          expression: "陶晓东神情沉稳疲惫，迟苦低眼戒备，陶淮南贴近哥哥听动静。",
+          body_language: "陶晓东展开大衣包住迟苦，迟苦肩膀僵硬，陶淮南抓着哥哥衣角。",
           dialogue: [
             { name: "陶晓东", text: "穿上。" },
             { name: "迟苦", text: "不用你管。" }
@@ -825,6 +869,9 @@
           camera: "低角度中景",
           shot_type: "低角度",
           focus: "迟苦缩在墙边，陶晓东从火光里站起。",
+          emotion: "危机压迫、恐惧和保护欲上升",
+          expression: "迟苦咬紧嘴唇不哭，陶晓东眉眼压低，情绪克制但明显警觉。",
+          body_language: "迟苦贴墙缩肩，陶晓东从火盆旁起身挡到前方。",
           dialogue: [
             { name: "迟苦", text: "别过来。" },
             { name: "陶晓东", text: "站我后面。" }
@@ -841,6 +888,9 @@
           camera: "稳定中景",
           shot_type: "全景锚点",
           focus: "陶晓东、迟苦、陶淮南形成保护三角关系。",
+          emotion: "压住怒气、余震、被保护后的迟疑",
+          expression: "陶晓东表情冷静坚决，迟苦低头发怔，陶淮南茫然侧耳。",
+          body_language: "陶晓东站在最前方持棍挡住来人，迟苦退到身后，陶淮南贴近安全侧。",
           dialogue: [
             { name: "陶晓东", text: "滚。" },
             { name: "旁白", text: "这一晚，有人被留下了。" }
@@ -909,7 +959,7 @@
         ? `<input class="frame-field" data-key="${key}" value="${escapeHtml(value)}">`
         : `<textarea class="frame-field" data-key="${key}">${escapeHtml(value)}</textarea>`;
       return `
-        <div class="field ${key === "action" || key === "focus" ? "full" : ""}">
+        <div class="field ${["action", "focus", "expression", "body_language"].includes(key) ? "full" : ""}">
           <label>${label}</label>
           ${control}
         </div>
@@ -926,6 +976,9 @@
         ${fieldTemplate("镜头类型", "shot_type", frame.shot_type, "input")}
         ${fieldTemplate("动作", "action", frame.action)}
         ${fieldTemplate("人物/道具焦点", "focus", frame.focus)}
+        ${fieldTemplate("当前情绪", "emotion", frame.emotion || frame.state, "input")}
+        ${fieldTemplate("脸部表情", "expression", frame.expression || "")}
+        ${fieldTemplate("肢体动作", "body_language", frame.body_language || "")}
         ${fieldTemplate("画面证据，用顿号或逗号分隔", "visual_evidence", frame.visual_evidence.join("、"))}
         ${fieldTemplate("叙事状态", "state", frame.state)}
         <div class="field full dialogue">
@@ -974,7 +1027,7 @@
       const frame = state.frames[state.active];
       document.getElementById("previewShot").textContent = frame.shot_type;
       document.getElementById("previewTitle").textContent = `第${state.active + 1}帧｜${frame.title}`;
-      document.getElementById("previewMeta").textContent = `${frame.scene} · ${frame.camera} · ${frame.focus}`;
+      document.getElementById("previewMeta").textContent = `${frame.scene} · ${frame.camera} · ${frame.emotion || frame.state} · ${frame.focus}`;
       document.getElementById("previewBubbles").innerHTML = frame.dialogue
         .filter(line => line.name || line.text)
         .map(line => `<div class="bubble"><b>${escapeHtml(line.name)}</b>${escapeHtml(line.text)}</div>`)
@@ -999,6 +1052,9 @@
         text_render_mode: state.text_render_mode,
         title_render_mode: state.title_render_mode,
         narration_mode: state.narration_mode,
+        emotion_acting_style: state.emotion_acting_style,
+        expression_intensity: state.expression_intensity,
+        body_language_mode: state.body_language_mode,
         in_image_storyboard: state.in_image_storyboard,
         storyboard_view: state.storyboard_view,
         storyboard_layout: state.storyboard_layout,
@@ -1015,6 +1071,9 @@
           camera: frame.camera,
           shot_type: frame.shot_type,
           focus: frame.focus,
+          emotion: frame.emotion,
+          expression: frame.expression,
+          body_language: frame.body_language,
           dialogue: frame.dialogue,
           narration: frame.narration
         }))
@@ -1055,6 +1114,18 @@
       return `图内分镜：开启。必须在同一张图中生成边界明确的2-3个漫画分镜格，不要只生成单幅插画；视角为${state.storyboard_view}，布局为${state.storyboard_layout}。`;
     }
 
+    function buildActingRules(frame) {
+      return [
+        `情绪表演风格：${state.emotion_acting_style}`,
+        `表情强度：${state.expression_intensity}`,
+        `肢体语言方式：${state.body_language_mode}`,
+        `当前情绪：${frame.emotion || frame.state}`,
+        `脸部表情：${frame.expression || "表情微收，眉眼和嘴角只做轻微变化。"}`,
+        `肢体动作：${frame.body_language || "用手部动作、肩膀收紧、身体重心和人物距离表达情绪。"}`,
+        "约束：表情和肢体必须配合情绪，但整体克制真实，不要夸张大哭、大喊、瞪眼、过度张嘴或舞台剧姿势。"
+      ].join("\n");
+    }
+
     function buildFramePrompt(frame, index) {
       const lines = frame.dialogue
         .filter(line => line.name || line.text)
@@ -1068,6 +1139,7 @@
         `场景：${frame.scene}`,
         `镜头：${frame.camera}，${frame.shot_type}`,
         `主体焦点：${frame.focus}`,
+        `当前情绪：${frame.emotion || frame.state}`,
         `动作：${frame.action}`,
         `画面证据：${frame.visual_evidence.join("、")}`,
         `台词气泡：${lines || "无"}`,
@@ -1077,6 +1149,9 @@
         "",
         "【分镜要求】",
         buildStoryboardRule(),
+        "",
+        "【人物表演与情绪】",
+        buildActingRules(frame),
         "",
         "【连续性要求】",
         "保持 v2 角色母版身份一致，北方冬季灵棚场景一致；如果是人物特写，优先脸部表情和手部动作；不要把所有剧情塞进同一张全景海报。",
@@ -1095,6 +1170,7 @@
         `参考图：${state.refs.character_identity_refs.concat(state.refs.scene_references).join("；")}`,
         buildStoryboardRule(),
         `默认文字：${state.bubble_mode}，${state.text_render_mode}，${state.title_render_mode}，${state.narration_mode}`,
+        `默认表演：${state.emotion_acting_style}，${state.expression_intensity}，${state.body_language_mode}`,
         "画面中不要出现第几幕、第几章、当前帧等标签，除非画面标题模式明确要求。",
         "",
         ...state.frames.map((frame, index) => `---\n\n## 第${index + 1}帧\n\n${buildFramePrompt(frame, index)}`)

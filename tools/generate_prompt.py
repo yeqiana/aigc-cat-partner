@@ -31,6 +31,9 @@ TEXT_RENDER_MODES = [
 TEXT_POSITIONS = ["自动", "顶部标题区", "主体旁边", "底部字幕区"]
 TITLE_RENDER_MODES = ["不生成画面标题", "封面图标题", "每帧标题"]
 NARRATION_MODES = ["底部旁白框", "旁白气泡", "画外文案清单", "不使用旁白"]
+EMOTION_ACTING_STYLES = ["克制现实", "轻微外显", "沉默压抑", "紧绷防备", "保护性克制"]
+EXPRESSION_INTENSITIES = ["轻微", "轻微到中等", "中等", "强烈"]
+BODY_LANGUAGE_MODES = ["手部/重心/距离表达", "面部微表情优先", "保护性站位", "防备性蜷缩", "动作推进优先"]
 COPYWRITING_MODES = ["手动填写", "自动根据情节生成"]
 INTERACTION_MODES = ["不互动", "看向观众", "提问互动", "评论引导", "点赞关注", "选择投票"]
 CONTINUOUS_STORY_VALUES = ["否", "是"]
@@ -145,6 +148,9 @@ def normalize_defaults(data: dict) -> dict:
     data.setdefault("text_render_mode", "直接在图中生成文字")
     data.setdefault("title_render_mode", "不生成画面标题")
     data.setdefault("narration_mode", "底部旁白框")
+    data.setdefault("emotion_acting_style", "克制现实")
+    data.setdefault("expression_intensity", "轻微到中等")
+    data.setdefault("body_language_mode", "手部/重心/距离表达")
     data.setdefault("copywriting_mode", "自动根据情节生成")
     data.setdefault("interaction_mode", "评论引导")
     data.setdefault("story_coherence", "强")
@@ -614,6 +620,23 @@ def audience_interaction_description(interaction_mode: str) -> str:
     return mapping.get(interaction_mode, mapping["不互动"])
 
 
+def emotion_acting_block(data: dict, frame: dict) -> str:
+    emotion = frame.get("emotion") or frame.get("character_emotion") or subject_state_for_frame(data, frame)
+    expression = frame.get("expression") or "表情微收，眉眼和嘴角只做轻微变化，避免夸张哭喊或大幅漫画表情。"
+    body_language = frame.get("body_language") or "用手部动作、肩膀收紧、身体重心、人物距离来表达情绪，动作要服务当前剧情。"
+    return "\n".join(
+        [
+            f"情绪表演风格：{data.get('emotion_acting_style') or '克制现实'}",
+            f"表情强度：{data.get('expression_intensity') or '轻微到中等'}",
+            f"肢体语言方式：{data.get('body_language_mode') or '手部/重心/距离表达'}",
+            f"当前情绪：{emotion}",
+            f"脸部表情：{expression}",
+            f"肢体动作：{body_language}",
+            "表演约束：人物表情和肢体必须配合当前情绪，但整体克制真实，不要夸张大哭、大喊、瞪眼、过度张嘴或舞台剧姿势。",
+        ]
+    )
+
+
 def copywriting_block(data: dict, frame: dict) -> str:
     copy = copy_for_frame(data, frame)
     lines = [f"- 配置标题（不等于必须入图）：{copy['title']}", f"- 旁白：{copy['narration']}"]
@@ -668,6 +691,9 @@ def build_prompt(data: dict, frame: dict) -> str:
 主体焦点：{focus}
 视觉证据：{'、'.join(visual_evidence_for_frame(frame))}
 补充约束：{extra if extra else '无'}
+
+【人物表演与情绪】
+{emotion_acting_block(data, frame)}
 
 【造型与道具锁定】
 {outfit_lock_description(data)}
@@ -877,6 +903,9 @@ def main():
     parser.add_argument("--text-position", dest="text_position", type=str, choices=TEXT_POSITIONS)
     parser.add_argument("--title-render-mode", dest="title_render_mode", type=str, choices=TITLE_RENDER_MODES)
     parser.add_argument("--narration-mode", dest="narration_mode", type=str, choices=NARRATION_MODES)
+    parser.add_argument("--emotion-acting-style", dest="emotion_acting_style", type=str, choices=EMOTION_ACTING_STYLES)
+    parser.add_argument("--expression-intensity", dest="expression_intensity", type=str, choices=EXPRESSION_INTENSITIES)
+    parser.add_argument("--body-language-mode", dest="body_language_mode", type=str, choices=BODY_LANGUAGE_MODES)
     parser.add_argument("--copywriting-mode", dest="copywriting_mode", type=str, choices=COPYWRITING_MODES)
     parser.add_argument("--interaction-mode", dest="interaction_mode", type=str, choices=INTERACTION_MODES)
     parser.add_argument("--story-coherence", dest="story_coherence", type=str, choices=STORY_COHERENCE_VALUES)
@@ -925,6 +954,9 @@ def main():
         "text_position",
         "title_render_mode",
         "narration_mode",
+        "emotion_acting_style",
+        "expression_intensity",
+        "body_language_mode",
         "copywriting_mode",
         "interaction_mode",
         "story_coherence",

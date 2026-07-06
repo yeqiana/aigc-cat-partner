@@ -16,6 +16,9 @@
     "text_render_mode": "直接在图中生成文字",
     "title_render_mode": "不生成画面标题",
     "narration_mode": "底部旁白框",
+    "emotion_acting_style": "克制现实",
+    "expression_intensity": "轻微到中等",
+    "body_language_mode": "手部/重心/距离表达",
     "in_image_storyboard": "开启",
     "storyboard_view": "特写 + 中景 + 全景",
     "storyboard_layout": "主画面 + 特写小窗",
@@ -214,6 +217,41 @@
       ],
       "default": "底部旁白框",
       "description": "旁白在漫画中的存放方式。画外文案清单表示只进任务文件，不进图片。"
+    },
+    "emotion_acting_style": {
+      "type": "string",
+      "enum": [
+        "克制现实",
+        "轻微外显",
+        "沉默压抑",
+        "紧绷防备",
+        "保护性克制"
+      ],
+      "default": "克制现实",
+      "description": "人物表演的整体情绪风格。默认避免夸张哭喊，用微表情和身体状态表达。"
+    },
+    "expression_intensity": {
+      "type": "string",
+      "enum": [
+        "轻微",
+        "轻微到中等",
+        "中等",
+        "强烈"
+      ],
+      "default": "轻微到中等",
+      "description": "脸部表情强度。儿童和现实向漫画建议保持轻微到中等。"
+    },
+    "body_language_mode": {
+      "type": "string",
+      "enum": [
+        "手部/重心/距离表达",
+        "面部微表情优先",
+        "保护性站位",
+        "防备性蜷缩",
+        "动作推进优先"
+      ],
+      "default": "手部/重心/距离表达",
+      "description": "肢体语言表达方式，用于控制手、肩膀、站位、身体距离和重心。"
     },
     "in_image_storyboard": {
       "type": "string",
