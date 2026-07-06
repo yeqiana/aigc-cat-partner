@@ -15,7 +15,7 @@
     "text_mode": "直接生成文字",
     "text_render_mode": "直接在图中生成文字",
     "title_render_mode": "不生成画面标题",
-    "narration_mode": "底部旁白框",
+    "narration_mode": "独立旁白框",
     "dialogue_name_mode": "气泡内不显示姓名",
     "character_label_mode": "首次出场/形象变化时标注",
     "scene_label_mode": "主要场景切换时标注",
@@ -219,13 +219,14 @@
     "narration_mode": {
       "type": "string",
       "enum": [
+        "独立旁白框",
         "底部旁白框",
         "旁白气泡",
         "画外文案清单",
         "不使用旁白"
       ],
-      "default": "底部旁白框",
-      "description": "旁白在漫画中的存放方式。画外文案清单表示只进任务文件，不进图片。"
+      "default": "独立旁白框",
+      "description": "旁白在漫画中的存放方式。默认使用独立旁白框，与角色对白气泡区分；画外文案清单表示只进任务文件，不进图片。"
     },
     "dialogue_name_mode": {
       "type": "string",

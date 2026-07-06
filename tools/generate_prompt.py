@@ -30,7 +30,7 @@ TEXT_RENDER_MODES = [
 ]
 TEXT_POSITIONS = ["自动", "顶部标题区", "主体旁边", "底部字幕区"]
 TITLE_RENDER_MODES = ["不生成画面标题", "封面图标题", "每帧标题"]
-NARRATION_MODES = ["底部旁白框", "旁白气泡", "画外文案清单", "不使用旁白"]
+NARRATION_MODES = ["独立旁白框", "底部旁白框", "旁白气泡", "画外文案清单", "不使用旁白"]
 DIALOGUE_NAME_MODES = ["气泡内不显示姓名", "姓名小标签", "气泡内显示姓名"]
 CHARACTER_LABEL_MODES = ["首次出场/形象变化时标注", "不标注", "每帧标注"]
 SCENE_LABEL_MODES = ["主要场景切换时标注", "不标注", "每帧标注"]
@@ -53,6 +53,7 @@ IN_IMAGE_STORYBOARD_VALUES = ["关闭", "开启"]
 STORYBOARD_VIEWS = ["第一人称", "第三人称", "第一人称 + 第三人称", "特写 + 中景 + 全景"]
 STORYBOARD_LAYOUTS = ["上下分镜", "左右分镜", "主画面 + 小视角窗口", "漫画三格竖排", "主画面 + 特写小窗"]
 QA_FAILURE_TYPES = ["剧情动作", "角色一致性", "世界观一致性", "造型道具连续性", "气泡可用性", "文案完整性", "镜头构图", "平台适配"]
+NARRATION_SPEAKERS = {"旁白", "叙述", "画外音", "旁白/叙述"}
 
 
 def load_json(path: Path, default: Any | None = None) -> Any:
@@ -156,7 +157,7 @@ def normalize_defaults(data: dict) -> dict:
     data.setdefault("text_position", "自动")
     data.setdefault("text_render_mode", "直接在图中生成文字")
     data.setdefault("title_render_mode", "不生成画面标题")
-    data.setdefault("narration_mode", "底部旁白框")
+    data.setdefault("narration_mode", "独立旁白框")
     data.setdefault("dialogue_name_mode", "气泡内不显示姓名")
     data.setdefault("character_label_mode", "首次出场/形象变化时标注")
     data.setdefault("scene_label_mode", "主要场景切换时标注")
@@ -358,6 +359,33 @@ def default_character_lines(data: dict, frame: dict) -> list[dict]:
         {"name": "角色A", "text": short_text("先看看情况", 16)},
         {"name": "角色B", "text": short_text("事情不太对", 16)},
     ] if data.get("bubble_mode") == "多角色气泡" else [{"name": "主角", "text": short_text(title, 16)}]
+
+
+def is_narration_line(item: dict) -> bool:
+    return str(item.get("name", "")).strip() in NARRATION_SPEAKERS
+
+
+def split_dialogue_lines(lines: list[dict]) -> tuple[list[dict], list[dict]]:
+    character_lines = []
+    narration_lines = []
+    for item in lines:
+        if is_narration_line(item):
+            narration_lines.append(item)
+        else:
+            character_lines.append(item)
+    return character_lines, narration_lines
+
+
+def narration_texts_for_frame(data: dict, frame: dict, copy: dict) -> list[str]:
+    _, narration_lines = split_dialogue_lines(copy.get("character_lines") or [])
+    texts = [copy.get("narration") or ""]
+    texts.extend(item.get("text", "") for item in narration_lines)
+    result = []
+    for text in texts:
+        text = str(text).strip()
+        if text and text not in result:
+            result.append(text)
+    return result
 
 
 def copy_for_frame(data: dict, frame: dict) -> dict:
@@ -583,8 +611,10 @@ def composition_description(data: dict, angle: str, idx: int, total: int) -> str
 
 def text_layer_block(data: dict, frame: dict) -> str:
     copy = copy_for_frame(data, frame)
+    character_lines, _ = split_dialogue_lines(copy["character_lines"])
+    narration_text = " / ".join(narration_texts_for_frame(data, frame, copy))
     title_mode = data.get("title_render_mode") or "不生成画面标题"
-    narration_mode = data.get("narration_mode") or "底部旁白框"
+    narration_mode = data.get("narration_mode") or "独立旁白框"
     dialogue_name_mode = data.get("dialogue_name_mode") or "气泡内不显示姓名"
     lines = []
     title_is_visible = title_mode == "每帧标题" or (title_mode == "封面图标题" and frame.get("index", 1) == 1)
@@ -593,21 +623,23 @@ def text_layer_block(data: dict, frame: dict) -> str:
     else:
         lines.append("画面中不要生成章节标题、帧标题、第几幕、第几章、当前帧等标题栏文字。")
 
-    if narration_mode == "底部旁白框":
-        lines.append(f"底部旁白框：{copy['narration']}")
+    if narration_mode in ["独立旁白框", "底部旁白框"]:
+        lines.append(f"{narration_mode}：{narration_text}")
+        lines.append("旁白框规则：使用矩形或窄条字幕框，无气泡尾巴，不指向任何人物；必须与角色对白气泡视觉区分。")
     elif narration_mode == "旁白气泡":
-        lines.append(f"旁白气泡：{copy['narration']}")
+        lines.append(f"独立旁白框（兼容旧“旁白气泡”配置）：{narration_text}")
+        lines.append("旁白不要画成带尾巴的对白气泡，不要指向人物。")
     elif narration_mode == "画外文案清单":
-        lines.append(f"旁白只作为画外文案清单，画面中不要生成旁白框：{copy['narration']}")
+        lines.append(f"旁白只作为画外文案清单，画面中不要生成旁白框：{narration_text}")
     else:
         lines.append("不使用旁白文字，画面只保留角色对白气泡。")
     if dialogue_name_mode == "气泡内显示姓名":
         lines.append("对白气泡可显示“角色名：台词”，但只在用户明确选择此模式时使用。")
-        for item in copy["character_lines"]:
+        for item in character_lines:
             lines.append(f"对白气泡：{item['name']}：{item['text']}")
     else:
-        lines.append("对白气泡规则：气泡内只生成台词正文，不要生成说话人姓名，不要出现“陶淮南：”“迟苦：”“陶晓东：”“旁白：”等姓名前缀。")
-        for item in copy["character_lines"]:
+        lines.append("对白气泡规则：气泡内只生成角色台词正文，不要生成说话人姓名，不要出现“陶淮南：”“迟苦：”“陶晓东：”“旁白：”等姓名前缀；旁白不进入角色对白气泡。")
+        for item in character_lines:
             lines.append(f"说话人定位（不入图）：{item['name']}；气泡文字：{item['text']}")
     if data.get("text_render_mode") == "直接在图中生成文字":
         return "允许短文字直接出现在画面中，但必须清晰、无乱码、无多余字符；不要额外添加未列出的文字。\n" + "\n".join(lines)
@@ -627,7 +659,7 @@ def bubble_text_description(data: dict, frame: dict) -> str:
             f"文字模式：{text_mode}",
             f"文字落地模式：{data.get('text_render_mode')}",
             f"画面标题模式：{data.get('title_render_mode') or '不生成画面标题'}",
-            f"旁白存放方式：{data.get('narration_mode') or '底部旁白框'}",
+            f"旁白存放方式：{data.get('narration_mode') or '独立旁白框'}",
             f"对白姓名模式：{data.get('dialogue_name_mode') or '气泡内不显示姓名'}",
             label_description(data, frame),
             text_layer_block(data, frame),
@@ -718,8 +750,10 @@ def comic_storytelling_block(data: dict, frame: dict) -> str:
 
 def copywriting_block(data: dict, frame: dict) -> str:
     copy = copy_for_frame(data, frame)
-    lines = [f"- 配置标题（不等于必须入图）：{copy['title']}", f"- 旁白：{copy['narration']}"]
-    for item in copy["character_lines"]:
+    character_lines, _ = split_dialogue_lines(copy["character_lines"])
+    narration_text = " / ".join(narration_texts_for_frame(data, frame, copy))
+    lines = [f"- 配置标题（不等于必须入图）：{copy['title']}", f"- 独立旁白：{narration_text}"]
+    for item in character_lines:
         lines.append(f"- {item['name']}台词：{item['text']}")
     if data.get("interaction_mode") != "不互动":
         lines.append(f"- 互动引导：{interaction_prompt(data.get('interaction_mode'), copy['title'])}")
@@ -801,7 +835,7 @@ def build_prompt(data: dict, frame: dict) -> str:
 5. 情绪要按 mood_curve 推进，不能每张都停在同一种情绪。
 
 【禁止项】
-不要换角色身份，不要偏离世界观，不要随机换画风，不要肢体错误，不要文字乱码，不要把连续故事做成彼此无关的散图。不要在画面里生成“第1幕、第2幕、当前帧、章节标题”等未授权标题栏。对白气泡内不要生成“角色名：台词”的姓名前缀，除非明确选择气泡内显示姓名模式。
+不要换角色身份，不要偏离世界观，不要随机换画风，不要肢体错误，不要文字乱码，不要把连续故事做成彼此无关的散图。不要在画面里生成“第1幕、第2幕、当前帧、章节标题”等未授权标题栏。对白气泡内不要生成“角色名：台词”的姓名前缀，除非明确选择气泡内显示姓名模式。旁白不要画成带尾巴的对白气泡，不要指向人物。
 
 negative prompt:
 {negative_prompt(data)}

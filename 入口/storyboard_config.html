@@ -440,6 +440,25 @@
       color: var(--green);
     }
 
+    .caption-preview {
+      padding: 9px 10px;
+      border: 1px solid #c7a66f;
+      border-radius: 4px;
+      background: #fff7e6;
+      color: #4a3824;
+      font-size: 13px;
+      line-height: 1.5;
+    }
+
+    .caption-preview::before {
+      content: "旁白";
+      display: block;
+      margin-bottom: 4px;
+      color: #8a5d1f;
+      font-size: 12px;
+      font-weight: 700;
+    }
+
     .warn {
       padding: 12px 14px;
       color: #4b271f;
@@ -605,8 +624,8 @@
             <div class="field">
               <label for="narrationMode">旁白存放</label>
               <select id="narrationMode" data-config="narration_mode">
+                <option>独立旁白框</option>
                 <option>底部旁白框</option>
-                <option>旁白气泡</option>
                 <option>画外文案清单</option>
                 <option>不使用旁白</option>
               </select>
@@ -842,7 +861,7 @@
       text_mode: "直接生成文字",
       text_render_mode: "直接在图中生成文字",
       title_render_mode: "不生成画面标题",
-      narration_mode: "底部旁白框",
+      narration_mode: "独立旁白框",
       dialogue_name_mode: "气泡内不显示姓名",
       character_label_mode: "首次出场/形象变化时标注",
       scene_label_mode: "主要场景切换时标注",
@@ -1070,6 +1089,25 @@
       return "直接生成文字";
     }
 
+    function isNarrationLine(line) {
+      return ["旁白", "叙述", "画外音", "旁白/叙述"].includes(String(line?.name || "").trim());
+    }
+
+    function characterDialogue(frame) {
+      return (frame.dialogue || []).filter(line => (line.name || line.text) && !isNarrationLine(line));
+    }
+
+    function narrationTexts(frame) {
+      const texts = [];
+      if (frame.narration) texts.push(frame.narration);
+      (frame.dialogue || [])
+        .filter(isNarrationLine)
+        .forEach(line => {
+          if (line.text) texts.push(line.text);
+        });
+      return [...new Set(texts.map(text => String(text).trim()).filter(Boolean))];
+    }
+
     function renderTimeline() {
       timeline.innerHTML = "";
       state.frames.forEach((frame, index) => {
@@ -1171,10 +1209,14 @@
       document.getElementById("previewShot").textContent = frame.shot_type;
       document.getElementById("previewTitle").textContent = `第${state.active + 1}帧｜${frame.title}`;
       document.getElementById("previewMeta").textContent = `${frame.scene} · ${frame.camera} · ${frame.emotion || frame.state} · ${frame.focus}`;
-      document.getElementById("previewBubbles").innerHTML = frame.dialogue
-        .filter(line => line.name || line.text)
+      const captions = narrationTexts(frame);
+      const captionHtml = state.narration_mode === "不使用旁白"
+        ? ""
+        : captions.map(text => `<div class="caption-preview">${escapeHtml(text)}</div>`).join("");
+      const bubbleHtml = characterDialogue(frame)
         .map(line => `<div class="bubble">${escapeHtml(line.text)}</div>`)
         .join("");
+      document.getElementById("previewBubbles").innerHTML = captionHtml + bubbleHtml;
     }
 
     function buildMinimalJson() {
@@ -1246,22 +1288,23 @@
     }
 
     function buildTextRules(frame) {
-      const dialogueTexts = frame.dialogue
-        .filter(line => line.name || line.text)
+      const lines = characterDialogue(frame);
+      const captions = narrationTexts(frame);
+      const narrationCopy = captions.join(" / ");
+      const dialogueTexts = lines
         .map(line => line.text)
         .join(" / ");
-      const speakerMeta = frame.dialogue
-        .filter(line => line.name || line.text)
+      const speakerMeta = lines
         .map(line => `${line.name} -> ${line.text}`)
         .join(" / ");
       const titleRule = state.title_render_mode === "不生成画面标题"
         ? "画面中禁止出现章节标题、帧标题、第1幕、第2幕、当前帧等顶部标题栏。"
         : `画面标题模式：${state.title_render_mode}。`;
       const narrationRule = state.narration_mode === "画外文案清单"
-        ? `旁白只放在任务清单，不进入图片：${frame.narration}`
+        ? `旁白只放在任务清单，不进入图片：${narrationCopy || "无"}`
         : state.narration_mode === "不使用旁白"
           ? "画面不生成旁白，只保留角色对白。"
-          : `${state.narration_mode}：${frame.narration}`;
+          : `${state.narration_mode}：${narrationCopy || "无"}；旁白框必须与角色对白气泡区分：使用矩形或窄条字幕框，无气泡尾巴，不指向任何人物。`;
       return [
         `气泡模式：${state.bubble_mode}`,
         `文字策略：${state.text_render_mode}`,
@@ -1270,7 +1313,7 @@
         narrationRule,
         state.dialogue_name_mode === "气泡内显示姓名"
           ? `角色对白：${speakerMeta || "无"}`
-          : `对白气泡正文：${dialogueTexts || "无"}；说话人定位仅供放置气泡参考：${speakerMeta || "无"}；气泡内禁止出现姓名前缀。`,
+          : `对白气泡正文：${dialogueTexts || "无"}；说话人定位仅供放置气泡参考：${speakerMeta || "无"}；气泡内禁止出现姓名前缀；旁白不进入角色对白气泡。`,
         buildLabelRules(frame)
       ].join("\n");
     }
@@ -1327,12 +1370,12 @@
     }
 
     function buildFramePrompt(frame, index) {
-      const dialogueTexts = frame.dialogue
-        .filter(line => line.name || line.text)
+      const lines = characterDialogue(frame);
+      const captions = narrationTexts(frame);
+      const dialogueTexts = lines
         .map(line => line.text)
         .join(" / ");
-      const speakerMeta = frame.dialogue
-        .filter(line => line.name || line.text)
+      const speakerMeta = lines
         .map(line => `${line.name} -> ${line.text}`)
         .join(" / ");
       return [
@@ -1347,6 +1390,7 @@
         `动作：${frame.action}`,
         `画面证据：${frame.visual_evidence.join("、")}`,
         `台词气泡正文：${dialogueTexts || "无"}`,
+        `旁白文本：${captions.join(" / ") || "无"}；旁白必须使用独立旁白框或画外文案清单，不要画成角色对白气泡。`,
         `说话人定位（不入图）：${speakerMeta || "无"}`,
         "",
         "【文字与旁白】",
@@ -1365,7 +1409,7 @@
         "保持 v2 角色母版身份一致，北方冬季灵棚场景一致；如果是人物特写，优先脸部表情和手部动作；不要把所有剧情塞进同一张全景海报。",
         "",
         "【禁止项】",
-        "不要生成第1幕、第2幕、当前帧、章节标题等顶部标签；对白气泡里不要出现陶淮南：、迟苦：、陶晓东：、旁白：等姓名前缀；不要额外添加未列出的文字；不要乱码；不要把儿童画成成年人。"
+        "不要生成第1幕、第2幕、当前帧、章节标题等顶部标签；对白气泡里不要出现陶淮南：、迟苦：、陶晓东：、旁白：等姓名前缀；旁白不要画成带尾巴的对白气泡，不要指向人物；不要额外添加未列出的文字；不要乱码；不要把儿童画成成年人。"
       ].join("\n");
     }
 
