@@ -1275,6 +1275,8 @@
       const archive = archiveEntries();
       if (!chapterArchiveSelect || !archive.length) return;
       renderChapterOptions();
+      const current = archive.find(entry => entry.input && entry.input.story_id === state.story_id) || archive[0];
+      loadChapterFromArchive(current);
       const loadSelected = () => {
         const entry = archiveEntries().find(item => item.id === chapterArchiveSelect.value);
         loadChapterFromArchive(entry);

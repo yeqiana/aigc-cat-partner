@@ -208,6 +208,7 @@ def chapter_input(chapter_no: int, image_count: int | None = None) -> dict[str, 
 
     character_ids = list(chapter.get("characters", []))
     frames = enriched_frames(chapter)
+    data["image_count"] = len(frames)
     data.update(
         {
             "project_name": plan.get("project_name", "陈年烈狗"),
