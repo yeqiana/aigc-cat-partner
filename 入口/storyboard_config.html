@@ -158,6 +158,27 @@
       background: var(--deep);
     }
 
+    .chapter-switcher {
+      display: grid;
+      grid-template-columns: minmax(220px, .7fr) minmax(320px, 1fr) auto;
+      gap: 12px;
+      align-items: end;
+      margin-bottom: 18px;
+      padding: 14px 16px;
+      background: rgba(255, 250, 240, .86);
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      box-shadow: var(--shadow);
+    }
+
+    .chapter-summary {
+      color: var(--muted);
+      font-size: 13px;
+      align-self: center;
+      min-width: 128px;
+      text-align: right;
+    }
+
     .layout {
       display: grid;
       grid-template-columns: minmax(420px, 1.12fr) minmax(380px, .88fr);
@@ -514,6 +535,7 @@
     @media (max-width: 760px) {
       main { padding: 14px; }
       .topbar,
+      .chapter-switcher,
       .panel-head,
       .preview {
         align-items: stretch;
@@ -531,6 +553,7 @@
       .field.wide,
       .field.full,
       .ref.scene { grid-column: 1; }
+      .chapter-summary { text-align: left; }
       .actions { justify-content: flex-start; }
     }
   </style>
@@ -557,7 +580,7 @@
     <main>
       <div class="topbar">
         <div class="title">
-          <h1>第1章｜分镜配置台</h1>
+          <h1 id="pageTitle">第2章｜分镜配置台</h1>
           <p>用于补足“人物特写、台词、镜头焦点、最小入参 JSON”。页面为静态 HTML，可直接打开使用。</p>
         </div>
         <div class="actions">
@@ -566,6 +589,18 @@
           <button class="btn" id="copyFullPrompt">复制完整 Prompt</button>
           <button class="btn dark" id="downloadJson">下载 JSON</button>
         </div>
+      </div>
+
+      <div class="chapter-switcher" aria-label="章节选择">
+        <div class="field">
+          <label for="chapterArchiveSearch">搜索章节</label>
+          <input id="chapterArchiveSearch" placeholder="输入章节号、标题、场景">
+        </div>
+        <div class="field">
+          <label for="chapterArchiveSelect">选择章节</label>
+          <select id="chapterArchiveSelect"></select>
+        </div>
+        <div class="chapter-summary" id="chapterArchiveSummary">已载入 2/10</div>
       </div>
 
       <div class="layout">
@@ -844,217 +879,263 @@
     </main>
   </div>
 
+  <script src="./storyboard_chapter_archive.js"></script>
   <script>
-    const state = {
-      story_template: "通用悬念连载",
-      project_name: "陈年烈狗",
-      story_id: "chen_nian_lie_gou_chapter_001",
-      story_title: "第1章｜初遇：灵棚前的牛奶",
-      scene: "北方农村老家灵棚",
-      chapter_goal: "用锚点图锁定寒冬灵棚、三个角色的保护关系；后续分镜必须拆出人物特写、抢牛奶动作和陶晓东出手保护。",
-      image_count: 6,
-      continuous_story: "是",
-      ratio: "9:16",
-      platform: "抖音竖屏",
-      output_mode: "单张大图",
-      bubble_mode: "多角色气泡",
-      text_mode: "直接生成文字",
-      text_render_mode: "直接在图中生成文字",
-      title_render_mode: "不生成画面标题",
-      narration_mode: "独立旁白框",
-      dialogue_name_mode: "气泡内不显示姓名",
-      character_label_mode: "首次出场/形象变化时标注",
-      scene_label_mode: "主要场景切换时标注",
-      emotion_acting_style: "克制现实",
-      expression_intensity: "轻微到中等",
-      body_language_mode: "手部/重心/距离表达",
-      detail_density: "丰富但不堆满",
-      conflict_intensity: "紧张增强",
-      action_momentum_mode: "明确动势",
-      shot_variation_mode: "远景建立 + 中景动作 + 特写反应",
-      panel_continuity_mode: "视线/手势/走位承接",
-      character_path_mode: "明确入口/站位/出口",
-      in_image_storyboard: "开启",
-      storyboard_view: "特写 + 中景 + 全景",
-      storyboard_layout: "主画面 + 特写小窗",
-      active: 0,
-      refs: {
-        character_identity_refs: [
-          "02_风格母版图/v2/陶淮南-小时候.png",
-          "02_风格母版图/v2/迟骋-小时候.png",
-          "02_风格母版图/v2/陶晓东25岁.png"
-        ],
-        scene_references: [
-          "03_场景资产/v2/农村老家、灵棚、火炕、雪地、纸灰.png"
-        ]
+    let state = {
+      "story_template": "通用悬念连载",
+      "project_name": "陈年烈狗",
+      "story_id": "chen_nian_lie_gou_chapter_002",
+      "source_file": "00_设定文档/原文/第2章.txt",
+      "story_title": "第2章｜收留：火炕上的第一夜",
+      "scene": "农村老屋火炕",
+      "chapter_goal": "迟苦深夜再次逃到陶家院子躲避父亲，陶晓东把他带进屋里暖身，并决定暂时收留。陶淮南和迟苦第一次在同一间屋、同一个火炕上相处，两个陌生小孩在尴尬、害怕和沉默中建立最早的微弱连接。",
+      "image_count": 6,
+      "continuous_story": "是",
+      "ratio": "9:16",
+      "platform": "抖音竖屏",
+      "output_mode": "单张大图",
+      "bubble_mode": "多角色气泡",
+      "text_mode": "直接生成文字",
+      "text_render_mode": "直接在图中生成文字",
+      "title_render_mode": "不生成画面标题",
+      "narration_mode": "独立旁白框",
+      "dialogue_name_mode": "气泡内不显示姓名",
+      "character_label_mode": "首次出场/形象变化时标注",
+      "scene_label_mode": "主要场景切换时标注",
+      "emotion_acting_style": "克制现实",
+      "expression_intensity": "轻微到中等",
+      "body_language_mode": "手部/重心/距离表达",
+      "detail_density": "丰富但不堆满",
+      "conflict_intensity": "紧张增强",
+      "action_momentum_mode": "明确动势",
+      "shot_variation_mode": "远景建立 + 中景动作 + 特写反应",
+      "panel_continuity_mode": "视线/手势/走位承接",
+      "character_path_mode": "明确入口/站位/出口",
+      "in_image_storyboard": "开启",
+      "storyboard_view": "特写 + 中景 + 全景",
+      "storyboard_layout": "主画面 + 特写小窗",
+      "active": 0,
+      "refs": {
+            "character_identity_refs": [],
+            "scene_references": [
+                  "场景母版参考：03_场景资产/v2/农村老家、灵棚、火炕、雪地、纸灰.png；用途：第1-3章：北方农村老家、灵棚、火炕、火盆、纸灰味、冰雪寒风。"
+            ]
       },
-      frames: [
-        {
-          phase: "第1幕",
-          scene: "漏风面包车后座",
-          title: "大衣下的小孩",
-          action: "陶淮南缩在陶晓东的大衣里，听见外面的白事声。",
-          state: "寒冬、丧礼、盲人小孩的不安处境。",
-          visual_evidence: ["面包车后座", "哥哥的大衣", "窗外寒风", "小孩缩着身体"],
-          camera: "车内近景",
-          shot_type: "人物特写",
-          focus: "陶淮南脸部和抓紧大衣的手，表现听觉不安。",
-          emotion: "寒冷、不安、依赖哥哥",
-          expression: "眼神不聚焦，眉头轻轻皱起，嘴唇微抿，不做夸张哭相。",
-          body_language: "肩膀缩起，一只手抓紧陶晓东的大衣，身体向哥哥怀里靠。",
-          scene_detail: "车窗结霜，窗外远处有灵棚白布、火盆微光和纸灰，车内空间狭窄压迫。",
-          conflict_point: "外面的丧礼声越来越近，陶淮南看不见，只能靠声音判断陌生环境。",
-          action_momentum_detail: "镜头从窗外灵棚火光切到陶淮南抓紧衣角的手，手指收紧形成动势。",
-          continuity_link: "建立车内保护关系，下一帧承接牛奶杯、灵棚雪地和下车后的移动。",
-          character_path: "陶晓东在右侧护住孩子，陶淮南向哥哥怀里缩，耳朵朝窗外声源。",
-          panel_composition: "上方车窗外灵棚远景，中间陶淮南脸部近景，下方抓衣角和牛奶杯局部特写。",
-          character_label: "陶淮南、陶晓东；首次出场，小标签靠近人物但不要放进对白气泡。",
-          scene_label: "漏风面包车后座；本章开场空间，小标签放在车窗或座椅边缘。",
-          dialogue: [
-            { name: "陶淮南", text: "哥，外面什么声？" },
-            { name: "陶晓东", text: "别怕，到了。" }
-          ],
-          narration: "盲人小孩先听见冬天和丧礼。"
-        },
-        {
-          phase: "第2幕",
-          scene: "灵棚前雪地",
-          title: "热牛奶",
-          action: "陶淮南双手捧着热牛奶站在灵棚边，蒸汽贴着脸。",
-          state: "热牛奶成为寒冷里的安全感。",
-          visual_evidence: ["热牛奶蒸汽", "米白毛线帽", "灵棚背景", "双手捧杯"],
-          camera: "第三人称中景",
-          shot_type: "手部特写",
-          focus: "小手捧杯、牛奶蒸汽、陶淮南低头听声。",
-          emotion: "短暂安心、小心珍惜",
-          expression: "脸部放松一点，嘴角不明显上扬，注意力集中在手里的热牛奶。",
-          body_language: "双手贴近杯身，手指收紧取暖，身体微微向杯子靠近。",
-          scene_detail: "灵棚白布在风里轻晃，雪地有泥脚印，火盆烟和纸灰从背景飘过。",
-          conflict_point: "安全感只集中在一杯热牛奶上，周围冷风、白事声和陌生人群形成压力。",
-          action_momentum_detail: "陶淮南双手把杯子往胸前拢，蒸汽向上，背景人影从旁边经过。",
-          continuity_link: "承接上一帧的车窗外灵棚，牛奶杯成为下一帧被抢走的关键道具。",
-          character_path: "陶淮南站在灵棚边缘，身体朝陶晓东方向微微偏，不主动走进人群。",
-          panel_composition: "上方灵棚环境建立，中间陶淮南捧杯半身，底部牛奶杯和小手大特写。",
-          character_label: "",
-          scene_label: "灵棚前雪地；第一次进入主要场景，只标一次，后续同场景不重复。",
-          dialogue: [
-            { name: "陶淮南", text: "这个是热的。" },
-            { name: "旁白", text: "他只敢靠近这一点温度。" }
-          ],
-          narration: "温度先出现，危险还没被看见。"
-        },
-        {
-          phase: "第3幕",
-          scene: "灵棚前雪地",
-          title: "迟苦抢走牛奶",
-          action: "迟苦突然从侧面冲出，抢走陶淮南手里的牛奶大口喝下。",
-          state: "迟苦第一次出现，瘦弱、防备、饥寒交迫。",
-          visual_evidence: ["牛奶泼出", "迟苦瘦小发抖", "陶淮南后缩", "雪地泥印"],
-          camera: "动态中景",
-          shot_type: "中景推进",
-          focus: "抢杯动作、陶淮南惊住、迟苦警惕的眼神。",
-          emotion: "突然受惊、防备冲突",
-          expression: "陶淮南怔住，迟苦眼神警惕下压，表情紧绷但不狰狞。",
-          body_language: "陶淮南手向后缩，迟苦身体前倾抢杯后立刻护住牛奶。",
-          scene_detail: "雪地脚印被踩乱，牛奶洒出几滴，灵棚白布和纸灰被风吹斜。",
-          conflict_point: "迟苦的饥寒和陶淮南的惊吓第一次正面撞上，牛奶杯成为冲突中心。",
-          action_momentum_detail: "迟苦从侧边冲入斜向抢杯，陶淮南手指松开后身体后缩，牛奶杯产生清楚位移。",
-          continuity_link: "承接上一帧牛奶杯特写，让牛奶杯从陶淮南手中移动到迟苦手中。",
-          character_path: "迟苦从灵棚侧门方向冲入，抢完后身体转向逃离方向；陶淮南后退半步。",
-          panel_composition: "上方牛奶杯被抢瞬间，中间迟苦护杯喝奶近景，下方陶淮南空手和洒落牛奶特写。",
-          character_label: "迟苦；首次出场，标签贴近人物肩侧或衣角旁，不进入对白气泡。",
-          scene_label: "",
-          dialogue: [
-            { name: "陶淮南", text: "我的牛奶呢？" },
-            { name: "迟苦", text: "我喝了。" }
-          ],
-          narration: "第一次相遇不是温柔，是抢夺。"
-        },
-        {
-          phase: "第4幕",
-          scene: "灵棚院子",
-          title: "一件大衣",
-          action: "陶晓东脱下大衣裹住迟苦，陶淮南贴在哥哥身边。",
-          state: "陶晓东第一次对迟苦伸出保护动作。",
-          visual_evidence: ["军大衣", "迟苦被包住", "陶淮南贴着哥哥", "冷风和纸灰"],
-          camera: "侧前方中景",
-          shot_type: "人物特写",
-          focus: "陶晓东低头看迟苦的眼神，迟苦没有完全放松。",
-          emotion: "保护、迟疑、防备未退",
-          expression: "陶晓东神情沉稳疲惫，迟苦低眼戒备，陶淮南贴近哥哥听动静。",
-          body_language: "陶晓东展开大衣包住迟苦，迟苦肩膀僵硬，陶淮南抓着哥哥衣角。",
-          scene_detail: "院子里火盆低烧，白布和纸灰在风里晃动，军大衣厚重遮住迟苦半边身体。",
-          conflict_point: "陶晓东的保护动作和迟苦的本能防备相撞，温暖靠近但信任还没建立。",
-          action_momentum_detail: "陶晓东脱大衣的动作从肩膀展开到包住迟苦，迟苦肩膀僵住没有完全接受。",
-          continuity_link: "承接上一帧迟苦抢奶后的饥寒状态，让陶晓东进入两人之间改变关系。",
-          character_path: "陶晓东从陶淮南身侧迈向迟苦，陶淮南贴着安全侧，迟苦停在院墙边。",
-          panel_composition: "上方院子火盆和三人位置，中间陶晓东展开大衣，下方迟苦被包住的手和表情特写。",
-          character_label: "",
-          scene_label: "",
-          dialogue: [
-            { name: "陶晓东", text: "穿上。" },
-            { name: "迟苦", text: "不用你管。" }
-          ],
-          narration: "保护发生得很快，信任还没有发生。"
-        },
-        {
-          phase: "第5幕",
-          scene: "夜里的院子火盆旁",
-          title: "追打闯进来",
-          action: "醉酒迟志德追打迟苦闯进院子，火盆边的人群散开。",
-          state: "危机升级，陶晓东从旁观转为出手。",
-          visual_evidence: ["火盆", "追打动势", "迟苦躲墙边", "陶晓东站起"],
-          camera: "低角度中景",
-          shot_type: "低角度",
-          focus: "迟苦缩在墙边，陶晓东从火光里站起。",
-          emotion: "危机压迫、恐惧和保护欲上升",
-          expression: "迟苦咬紧嘴唇不哭，陶晓东眉眼压低，情绪克制但明显警觉。",
-          body_language: "迟苦贴墙缩肩，陶晓东从火盆旁起身挡到前方。",
-          scene_detail: "夜雪落下，火盆映出人影，院门被撞开，地上纸灰和雪被脚步踢散。",
-          conflict_point: "醉酒追打者闯入，迟苦退无可退，陶晓东必须从旁观变成阻拦。",
-          action_momentum_detail: "追打者从院门斜冲入，手臂扬起；迟苦沿墙缩退，陶晓东从火盆旁起身。",
-          continuity_link: "承接上一帧大衣保护，让外部威胁闯入并迫使陶晓东升级保护动作。",
-          character_path: "迟志德从右侧院门冲入，迟苦向左后方墙角退，陶晓东向前形成阻断线。",
-          panel_composition: "上方院门闯入远景，中间迟苦贴墙近景，下方陶晓东起身的手、衣摆、火光特写。",
-          character_label: "",
-          scene_label: "夜里的院子火盆旁；危机升级的重要场景切换，只标一次。",
-          dialogue: [
-            { name: "迟苦", text: "别过来。" },
-            { name: "陶晓东", text: "站我后面。" }
-          ],
-          narration: "火光把危险推到所有人面前。"
-        },
-        {
-          phase: "第6幕",
-          scene: "灵棚院门口",
-          title: "挡在前面",
-          action: "陶晓东用长棍挡住迟志德，让迟苦退到自己身后。",
-          state: "本章收束在保护和命运转折上。",
-          visual_evidence: ["陶晓东护在前面", "迟苦缩在后方", "火盆余光", "院门大开"],
-          camera: "稳定中景",
-          shot_type: "全景锚点",
-          focus: "陶晓东、迟苦、陶淮南形成保护三角关系。",
-          emotion: "压住怒气、余震、被保护后的迟疑",
-          expression: "陶晓东表情冷静坚决，迟苦低头发怔，陶淮南茫然侧耳。",
-          body_language: "陶晓东站在最前方持棍挡住来人，迟苦退到身后，陶淮南贴近安全侧。",
-          scene_detail: "院门大开，雪和纸灰被风卷进来，火盆余光照出三个人的前后站位。",
-          conflict_point: "陶晓东用身体和长棍划出边界，把迟苦和陶淮南从危险前方隔开。",
-          action_momentum_detail: "长棍横向伸出形成阻挡线，迟苦从墙角退到陶晓东身后。",
-          continuity_link: "承接上一帧陶晓东起身，本帧完成从起身到挡住的动作结果。",
-          character_path: "陶晓东站到中央偏前，迟苦退到他身后，陶淮南在更内侧被保护。",
-          panel_composition: "上方院门和威胁位置，中间长棍拦截动作，下方迟苦和陶淮南躲在身后的反应特写。",
-          character_label: "",
-          scene_label: "灵棚院门口；本章冲突收束位置，小标签放在院门边缘。",
-          dialogue: [
-            { name: "陶晓东", text: "滚。" },
-            { name: "旁白", text: "这一晚，有人被留下了。" }
-          ],
-          narration: "保护动作成为命运拐点。"
-        }
+      "frames": [
+            {
+                  "scene": "农村老屋火炕",
+                  "phase": "第1幕",
+                  "title": "门外余响",
+                  "action": "陶晓东进屋查看陶淮南，门外还有砖头砸门的余响",
+                  "state": "第1章冲突刚退去，陶淮南害怕哥哥受伤",
+                  "visual_evidence": [
+                        "火炕",
+                        "开着的灯",
+                        "陶淮南摸哥哥的脸",
+                        "门外雪夜阴影"
+                  ],
+                  "camera": "室内近景",
+                  "shot_type": "人物特写",
+                  "focus": "陶淮南仰脸摸陶晓东的脸，确认哥哥有没有受伤",
+                  "scene_detail": "老屋灯光偏黄，火炕边有小毛衣和鞋，门外夜雪和院门阴影压在画面边缘。",
+                  "conflict_point": "危险已经退到门外，但陶淮南只能靠声音和触摸确认哥哥是否安全。",
+                  "action_momentum_detail": "陶晓东从门口带着冷气进屋，弯身抱起陶淮南；陶淮南两只手摸上哥哥的脸。",
+                  "continuity_link": "承接第1章陶晓东挡住迟志德后的余波，从院门冲突转入老屋内部。",
+                  "character_path": "陶晓东从门口进入火炕边，陶淮南从炕上探身向哥哥靠近，听觉朝门外。",
+                  "panel_composition": "上方门外阴影和砸门余响，中间陶淮南摸哥哥脸的近景，下方陶晓东给孩子擦脚或整理被子的手部特写。",
+                  "character_label": "",
+                  "scene_label": "农村老屋火炕；第2章主要室内场景，标签放在墙角或炕沿边缘。",
+                  "dialogue": [
+                        {
+                              "name": "陶淮南",
+                              "text": "打着你了吗？"
+                        },
+                        {
+                              "name": "陶晓东",
+                              "text": "没有。"
+                        }
+                  ],
+                  "narration": "门外还冷，屋里的人先确认彼此没事。"
+            },
+            {
+                  "scene": "陶家院子熄灭火盆旁",
+                  "phase": "第2幕",
+                  "title": "火盆边的小孩",
+                  "action": "陶晓东在院子里找到冻得发抖的迟苦，把衣服放到他旁边",
+                  "state": "迟苦还停在危险边缘，防备又没有力气逃",
+                  "visual_evidence": [
+                        "熄灭火盆",
+                        "雪夜",
+                        "迟苦蜷缩",
+                        "陶晓东弯身递衣服"
+                  ],
+                  "camera": "俯视中景",
+                  "shot_type": "中景推进",
+                  "focus": "迟苦蜷在火盆旁发抖，手指僵硬伸向衣服",
+                  "scene_detail": "火盆只剩黑灰，院子雪地被踩乱，灵棚白布在远处暗处晃动，陶晓东的军大衣边缘带着雪水。",
+                  "conflict_point": "迟苦想活下来却不敢相信别人，陶晓东必须靠近又不能吓到他。",
+                  "action_momentum_detail": "镜头从熄灭火盆推向迟苦发抖的手，再到陶晓东弯腰把衣服放下。",
+                  "continuity_link": "承接上一帧陶晓东安顿陶淮南后出门找人，本帧把迟苦从院子边缘带回故事中心。",
+                  "character_path": "迟苦缩在火盆左侧，陶晓东从屋门方向走近，身影挡住门外冷风。",
+                  "panel_composition": "上方院子冷夜建立，中间陶晓东递衣服，底部迟苦手指和灭掉火盆的特写。",
+                  "character_label": "",
+                  "scene_label": "",
+                  "dialogue": [
+                        {
+                              "name": "陶晓东",
+                              "text": "穿上吧。"
+                        },
+                        {
+                              "name": "陶晓东",
+                              "text": "别动。"
+                        }
+                  ],
+                  "narration": "他冷得连防备都快撑不住。"
+            },
+            {
+                  "scene": "火炕屋内",
+                  "phase": "第3幕",
+                  "title": "放上火炕",
+                  "action": "陶晓东把迟苦夹抱进屋，放到火炕另一头暖身",
+                  "state": "危险被关在门外，陌生孩子被放进同一间屋",
+                  "visual_evidence": [
+                        "火炕",
+                        "军大衣",
+                        "迟苦趴在炕上",
+                        "陶淮南侧耳听声"
+                  ],
+                  "camera": "室内中景",
+                  "shot_type": "人物特写",
+                  "focus": "迟苦贴着火炕缓过来的身体和陶淮南听见牙齿打颤的反应",
+                  "scene_detail": "屋里只有一套被褥，陶淮南盖在一侧，迟苦被军大衣盖住，炕面暖光与门口冷气形成对比。",
+                  "conflict_point": "收留已经发生，但两个孩子彼此陌生，一个害怕，一个沉默。",
+                  "action_momentum_detail": "陶晓东从门口把迟苦带进来，动作停在把人放到炕上的瞬间，军大衣落下遮住迟苦。",
+                  "continuity_link": "承接上一帧院子火盆边，人物从室外冷处移动到火炕暖处。",
+                  "character_path": "陶晓东从屋门进到炕边，迟苦被放在炕的远端，陶淮南在另一端缩在被子里侧耳。",
+                  "panel_composition": "上方陶晓东抱人进屋，中间迟苦趴在炕上发抖，下方陶淮南侧耳听声的近景。",
+                  "character_label": "",
+                  "scene_label": "",
+                  "dialogue": [
+                        {
+                              "name": "陶晓东",
+                              "text": "躺会儿缓缓。"
+                        },
+                        {
+                              "name": "陶晓东",
+                              "text": "今晚你睡这儿。"
+                        }
+                  ],
+                  "narration": "火炕把两个人放进同一个夜里。"
+            },
+            {
+                  "scene": "深夜火炕两端",
+                  "phase": "第4幕",
+                  "title": "同屋沉默",
+                  "action": "陶淮南背对迟苦缩进小毛毯，听着迟苦的牙齿打颤慢慢停下",
+                  "state": "两个孩子第一次共处，距离很近但关系很远",
+                  "visual_evidence": [
+                        "两端火炕",
+                        "小毛毯",
+                        "迟苦蜷着",
+                        "陶淮南侧耳"
+                  ],
+                  "camera": "横向中景",
+                  "shot_type": "过肩镜头",
+                  "focus": "火炕两端的距离，陶淮南不敢动，迟苦沉默缓过来",
+                  "scene_detail": "灯被留下，屋里有炕革纹理、厚被褥和军大衣阴影，窗外仍是冷蓝夜色。",
+                  "conflict_point": "陶淮南知道旁边有人，却看不见也不敢确认；迟苦被留下，却没有任何回应。",
+                  "action_momentum_detail": "画面动势从迟苦颤抖的肩背减弱，到陶淮南把毯子拉到脸边。",
+                  "continuity_link": "承接上一帧迟苦被放到炕上，本帧拉长夜晚时间，让两人第一次共享空间。",
+                  "character_path": "陶淮南在炕内侧背向迟苦，迟苦在炕外端靠近墙，陶晓东已经出屋守夜。",
+                  "panel_composition": "上方火炕横向全景，中间陶淮南拉毯子的手部特写，下方迟苦蜷缩肩背和军大衣特写。",
+                  "character_label": "",
+                  "scene_label": "",
+                  "dialogue": [
+                        {
+                              "name": "旁白",
+                              "text": "一个真瞎子，一个假哑巴，沉默着搭了个伴。"
+                        }
+                  ],
+                  "narration": "这一夜没有亲近，只有彼此的呼吸声。"
+            },
+            {
+                  "scene": "火炕早晨",
+                  "phase": "第5幕",
+                  "title": "一碗粥",
+                  "action": "陶晓东给陶淮南喂粥，也给迟苦盛了一大碗饭菜",
+                  "state": "迟苦被允许留下几天，但仍然像随时会退回墙角",
+                  "visual_evidence": [
+                        "粥碗",
+                        "二大碗",
+                        "陶晓东喂饭",
+                        "迟苦靠墙吃饭"
+                  ],
+                  "camera": "桌面中景",
+                  "shot_type": "手部特写",
+                  "focus": "陶晓东递碗的手、迟苦接碗的沉默和陶淮南好奇转头",
+                  "scene_detail": "炕桌上有热粥蒸汽，陶淮南坐在被褥边，迟苦穿着不合身的旧衣靠墙，胸前仍有牛奶渍。",
+                  "conflict_point": "陶晓东试探迟苦的处境，迟苦不回答；陶淮南对这个沉默存在从害怕变成好奇。",
+                  "action_momentum_detail": "陶晓东把碗推向迟苦，迟苦抬眼又低头接过去，陶淮南的空洞视线朝声音方向偏。",
+                  "continuity_link": "承接深夜共处后的早晨，让收留从一晚变成几天的生活安排。",
+                  "character_path": "陶晓东坐在炕桌边照顾陶淮南，迟苦在墙边接碗，陶淮南向声音来源转头。",
+                  "panel_composition": "上方炕桌和三人位置，中间递碗与接碗手部特写，下方陶淮南侧耳好奇的脸部近景。",
+                  "character_label": "",
+                  "scene_label": "",
+                  "dialogue": [
+                        {
+                              "name": "陶晓东",
+                              "text": "你爸总打你？"
+                        },
+                        {
+                              "name": "旁白",
+                              "text": "他没回答，只端着碗退到一边。"
+                        }
+                  ],
+                  "narration": "被留下，不等于已经相信。"
+            },
+            {
+                  "scene": "火炕边与外屋锅台",
+                  "phase": "第6幕",
+                  "title": "饭盆秘密",
+                  "action": "大人不在时，迟苦帮陶淮南找来饭盆，又沉默地拿出去倒掉",
+                  "state": "两个小孩用尴尬的生活小事建立第一次互助",
+                  "visual_evidence": [
+                        "铝饭盆",
+                        "陶淮南摸索",
+                        "迟苦推盆",
+                        "外屋锅台"
+                  ],
+                  "camera": "近景",
+                  "shot_type": "手部特写",
+                  "focus": "陶淮南摸到冰凉饭盆的手，迟苦把盆推近又退回墙边",
+                  "scene_detail": "火炕边只有两个孩子，半截门帘通向外屋，铝盆边缘反冷光，水泥地和旧棉鞋留下清楚动线。",
+                  "conflict_point": "陶淮南必须求助陌生孩子，迟苦第一次用行动回应他。",
+                  "action_momentum_detail": "迟苦从墙根走向外屋找盆，把盆推到陶淮南手边，再把盆拿出去放到锅台边。",
+                  "continuity_link": "承接上一帧几天共处后的微弱适应，本帧完成第一次明确互助。",
+                  "character_path": "陶淮南坐在炕上向前摸索，迟苦从墙根到外屋再回墙根，二人距离短暂拉近。",
+                  "panel_composition": "上方陶淮南侧耳求助，中间饭盆被推到手边的特写，下方迟苦拿盆出门和陶淮南不好意思笑的反应。",
+                  "character_label": "",
+                  "scene_label": "",
+                  "dialogue": [
+                        {
+                              "name": "陶淮南",
+                              "text": "你帮我找个瓶儿。"
+                        },
+                        {
+                              "name": "陶淮南",
+                              "text": "咱们别说吧？"
+                        }
+                  ],
+                  "narration": "第一个秘密，比一句谢谢更早出现。"
+            }
       ]
-    };
+};
 
     const configInputs = document.querySelectorAll("[data-config]");
+    const pageTitle = document.getElementById("pageTitle");
+    const chapterArchiveSearch = document.getElementById("chapterArchiveSearch");
+    const chapterArchiveSelect = document.getElementById("chapterArchiveSelect");
+    const chapterArchiveSummary = document.getElementById("chapterArchiveSummary");
     const timeline = document.getElementById("timeline");
     const editor = document.getElementById("editor");
     const activeHint = document.getElementById("activeHint");
@@ -1069,10 +1150,17 @@
       setStatus.timer = window.setTimeout(() => statusEl.textContent = "", 2200);
     }
 
-    function initConfig() {
+    function syncConfigInputs() {
       configInputs.forEach(input => {
         const key = input.dataset.config;
-        input.value = state[key];
+        input.value = state[key] ?? "";
+      });
+    }
+
+    function initConfig() {
+      syncConfigInputs();
+      configInputs.forEach(input => {
+        const key = input.dataset.config;
         input.addEventListener("input", () => {
           const value = input.type === "number" ? Number(input.value) : input.value;
           state[key] = value;
@@ -1081,6 +1169,118 @@
           renderAll();
         });
       });
+    }
+
+    function chapterInputToState(input) {
+      return removeEmptyValues({
+        story_template: input.story_template,
+        project_name: input.project_name,
+        story_id: input.story_id,
+        source_file: input.source_file,
+        story_title: input.story_title,
+        scene: input.scene,
+        chapter_goal: input.chapter_goal || input.story_outline,
+        image_count: (input.custom_frames || []).length || input.image_count,
+        continuous_story: input.continuous_story,
+        ratio: input.ratio,
+        platform: input.platform,
+        output_mode: input.output_mode,
+        bubble_mode: input.bubble_mode,
+        text_mode: input.text_mode,
+        text_render_mode: input.text_render_mode,
+        title_render_mode: input.title_render_mode,
+        narration_mode: input.narration_mode,
+        dialogue_name_mode: input.dialogue_name_mode,
+        character_label_mode: input.character_label_mode,
+        scene_label_mode: input.scene_label_mode,
+        emotion_acting_style: input.emotion_acting_style,
+        expression_intensity: input.expression_intensity,
+        body_language_mode: input.body_language_mode,
+        detail_density: input.detail_density,
+        conflict_intensity: input.conflict_intensity,
+        action_momentum_mode: input.action_momentum_mode,
+        shot_variation_mode: input.shot_variation_mode,
+        panel_continuity_mode: input.panel_continuity_mode,
+        character_path_mode: input.character_path_mode,
+        in_image_storyboard: input.in_image_storyboard,
+        storyboard_view: input.storyboard_view,
+        storyboard_layout: input.storyboard_layout,
+        active: 0,
+        refs: {
+          character_identity_refs: input.character_identity_refs || input.identity_references || [],
+          scene_references: input.scene_references || []
+        },
+        frames: input.custom_frames || input.frames || []
+      });
+    }
+
+    function chapterSearchText(entry) {
+      const input = entry.input || {};
+      return [
+        entry.id,
+        entry.label,
+        input.story_id,
+        input.story_title,
+        input.scene,
+        input.source_file
+      ].join(" ").toLowerCase();
+    }
+
+    function archiveEntries() {
+      return window.STORYBOARD_CHAPTER_ARCHIVE || [];
+    }
+
+    function renderChapterOptions() {
+      const archive = archiveEntries();
+      if (!chapterArchiveSelect) return;
+      const query = String(chapterArchiveSearch?.value || "").trim().toLowerCase();
+      const entries = query
+        ? archive.filter(entry => chapterSearchText(entry).includes(query))
+        : archive;
+      chapterArchiveSelect.innerHTML = entries
+        .map(entry => `<option value="${escapeHtml(entry.id)}">${escapeHtml(entry.label)}</option>`)
+        .join("");
+      const current = entries.find(entry => entry.input && entry.input.story_id === state.story_id) || entries[0];
+      if (current) chapterArchiveSelect.value = current.id;
+      if (chapterArchiveSummary) {
+        chapterArchiveSummary.textContent = entries.length
+          ? `可选 ${entries.length}/${archive.length} 章`
+          : "未匹配章节";
+      }
+    }
+
+    function removeEmptyValues(value) {
+      if (Array.isArray(value)) return value.map(removeEmptyValues);
+      if (value && typeof value === "object") {
+        return Object.fromEntries(
+          Object.entries(value)
+            .filter(([, item]) => item !== undefined && item !== null)
+            .map(([key, item]) => [key, removeEmptyValues(item)])
+        );
+      }
+      return value;
+    }
+
+    function loadChapterFromArchive(entry) {
+      if (!entry || !entry.input) return;
+      state = chapterInputToState(entry.input);
+      state.active = 0;
+      syncConfigInputs();
+      renderChapterOptions();
+      renderAll();
+      setStatus(`已载入：${entry.label}`);
+    }
+
+    function initChapterArchive() {
+      const archive = archiveEntries();
+      if (!chapterArchiveSelect || !archive.length) return;
+      renderChapterOptions();
+      const loadSelected = () => {
+        const entry = archiveEntries().find(item => item.id === chapterArchiveSelect.value);
+        loadChapterFromArchive(entry);
+      };
+      chapterArchiveSelect.addEventListener("change", loadSelected);
+      chapterArchiveSearch?.addEventListener("input", renderChapterOptions);
     }
 
     function textModeForRender(value) {
@@ -1224,6 +1424,7 @@
         story_template: state.story_template,
         project_name: state.project_name,
         story_id: state.story_id,
+        source_file: state.source_file,
         story_title: state.story_title,
         scene: state.scene,
         chapter_goal: state.chapter_goal,
@@ -1382,6 +1583,7 @@
         "【完整出图 Prompt】",
         `项目：${state.project_name}`,
         `章节配置名：${state.story_title}（仅供任务识别，不等于画面标题）`,
+        `原文来源：${state.source_file || "未配置"}（仅供任务识别，不入图）`,
         `帧序号：第${index + 1}/${state.frames.length}帧（仅供任务识别，不入图）`,
         `场景：${frame.scene}`,
         `镜头：${frame.camera}，${frame.shot_type}`,
@@ -1419,6 +1621,7 @@
         "",
         "## 全局规则",
         `画幅：${state.ratio}，平台：${state.platform}`,
+        `原文来源：${state.source_file || "未配置"}（仅供任务识别，不入图）`,
         `参考图：${state.refs.character_identity_refs.concat(state.refs.scene_references).join("；")}`,
         buildStoryboardRule(),
         `默认文字：${state.bubble_mode}，${state.text_render_mode}，${state.title_render_mode}，${state.narration_mode}`,
@@ -1437,7 +1640,13 @@
       fullPromptPreview.textContent = buildFullPrompt();
     }
 
+    function syncHeader() {
+      const chapterName = String(state.story_title || "章节").split("｜")[0] || "章节";
+      pageTitle.textContent = `${chapterName}｜分镜配置台`;
+    }
+
     function renderAll() {
+      syncHeader();
       renderTimeline();
       renderEditor();
       renderPreview();
@@ -1487,12 +1696,24 @@
       copyText(buildFullPrompt(), "完整 Prompt 已复制");
     });
 
+    function safeDownloadName(value) {
+      return String(value || "storyboard")
+        .replace(/[<>:"/\\|?*\x00-\x1f]/g, "_")
+        .replace(/\s+/g, "_")
+        .slice(0, 96);
+    }
+
+    function downloadJsonName() {
+      const id = safeDownloadName(state.story_id || state.story_title || "storyboard");
+      return `${id}_storyboard_minimal.input.json`;
+    }
+
     document.getElementById("downloadJson").addEventListener("click", () => {
       const blob = new Blob([JSON.stringify(buildMinimalJson(), null, 2)], { type: "application/json;charset=utf-8" });
       const url = URL.createObjectURL(blob);
       const link = document.createElement("a");
       link.href = url;
-      link.download = "chapter_001_storyboard_minimal.input.json";
+      link.download = downloadJsonName();
       document.body.appendChild(link);
       link.click();
       link.remove();
@@ -1501,6 +1722,7 @@
     });
 
     initConfig();
+    initChapterArchive();
     renderAll();
   </script>
 </body>
