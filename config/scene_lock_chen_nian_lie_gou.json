@@ -1,0 +1,105 @@
+{
+  "version": "3.0",
+  "project": "陈年烈狗",
+  "global_rules": [
+    "场景必须保持2000年代中国北方现实生活质感。",
+    "场景锁定高于画风修饰和本帧动作。",
+    "连续章节必须保持空间结构、季节、道具和光线逻辑一致。"
+  ],
+  "scenes": {
+    "rural_old_house_winter": {
+      "display_name": "农村老屋和窗外冰挂",
+      "chapter_range": "第1-3章",
+      "time": "童年线，寒冬白天或夜晚",
+      "space": "北方农村老屋，火炕、漏风窗、旧木门、院子和灵棚气氛",
+      "season_weather": "寒冬、厚雪、坚冰、窗框冰溜子、刺骨寒风",
+      "props": [
+        "火炕",
+        "饭碗",
+        "冰溜子",
+        "火盆",
+        "纸灰",
+        "军大衣",
+        "小毯子",
+        "瓜子"
+      ],
+      "sensory_details": [
+        "柴火味",
+        "纸灰味",
+        "炕面发热",
+        "鼻尖冰冷",
+        "风砸窗声",
+        "冰挂掉落声"
+      ],
+      "forbidden": [
+        "现代豪华装修",
+        "城市公寓",
+        "赛博设备",
+        "欧式庄园",
+        "影视棚布景感",
+        "恐怖片血腥灵堂"
+      ],
+      "reference_ids": [
+        "ref_rural_funeral_winter_master"
+      ]
+    },
+    "city_apartment_winter": {
+      "display_name": "陶晓东城市楼房",
+      "chapter_range": "第4章起",
+      "time": "童年线，冬春过渡",
+      "space": "两室两厅城市楼房，暖气、沙发、窗外黄路灯",
+      "season_weather": "室内温暖，窗外冬夜或初春",
+      "props": [
+        "沙发",
+        "暖气",
+        "外套",
+        "书包",
+        "牛奶杯",
+        "旧窗户"
+      ],
+      "sensory_details": [
+        "暖气干燥",
+        "傍晚光",
+        "路灯黄光",
+        "家庭生活杂物"
+      ],
+      "forbidden": [
+        "豪宅",
+        "高级样板间",
+        "现代极简网红房",
+        "科幻智能家居"
+      ],
+      "reference_ids": [
+        "ref_city_apartment_master"
+      ]
+    },
+    "blind_school": {
+      "display_name": "盲校",
+      "chapter_range": "第7-16章",
+      "time": "童年线，上学阶段",
+      "space": "盲校教室、宿舍、水房、操场",
+      "season_weather": "春夏秋冬按章节推进",
+      "props": [
+        "宿舍床栏杆",
+        "枕巾",
+        "盲杖",
+        "盲文课本",
+        "水房"
+      ],
+      "sensory_details": [
+        "小孩哭声",
+        "宿舍奶奶照看",
+        "手抓前一个衣服排队",
+        "摸索走路"
+      ],
+      "forbidden": [
+        "普通贵族学校",
+        "现代科技校园",
+        "无障碍细节缺失"
+      ],
+      "reference_ids": [
+        "ref_blind_school_master"
+      ]
+    }
+  }
+}

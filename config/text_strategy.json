@@ -1,0 +1,41 @@
+{
+  "version": "3.0",
+  "project": "陈年烈狗",
+  "default": {
+    "allow_text_in_image": false,
+    "text_mode": "空白气泡后期加字",
+    "text_render_mode": "生成空白气泡 + 后期叠字图层",
+    "bubble_mode": "多角色气泡",
+    "narration_mode": "独立旁白框",
+    "dialogue_name_mode": "气泡内不显示姓名",
+    "character_label_mode": "不标注",
+    "scene_label_mode": "不标注",
+    "title_render_mode": "不生成画面标题"
+  },
+  "rules": [
+    "默认不直接生成中文台词、旁白、人物姓名、章节标题。",
+    "画面中只生成空白对白气泡、空白矩形旁白框或安全留白。",
+    "台词、旁白、标题进入后期叠字清单，不直接入图。",
+    "除非输入显式设置 allow_text_in_image=true，否则不得直接生成中文文字。",
+    "不得把 dialogue.name 变成人物姓名标签或气泡内姓名前缀。"
+  ],
+  "forbidden_text": [
+    "写出文字'陶淮南'",
+    "写出文字'迟苦'",
+    "写出文字'陶晓东'",
+    "第几章",
+    "第几帧",
+    "第1幕",
+    "当前帧",
+    "章节标题",
+    "人物介绍",
+    "首次出场",
+    "角色名：台词"
+  ],
+  "post_text_list_fields": [
+    "title",
+    "narration",
+    "dialogue",
+    "comment_prompt"
+  ]
+}

@@ -12,13 +12,13 @@
     "platform": "抖音竖屏",
     "output_mode": "单张大图",
     "bubble_mode": "多角色气泡",
-    "text_mode": "直接生成文字",
-    "text_render_mode": "直接在图中生成文字",
+    "text_mode": "空白气泡后期加字",
+    "text_render_mode": "生成空白气泡 + 后期叠字图层",
     "title_render_mode": "不生成画面标题",
     "narration_mode": "独立旁白框",
     "dialogue_name_mode": "气泡内不显示姓名",
-    "character_label_mode": "首次出场/形象变化时标注",
-    "scene_label_mode": "主要场景切换时标注",
+    "character_label_mode": "不标注",
+    "scene_label_mode": "不标注",
     "emotion_acting_style": "克制现实",
     "expression_intensity": "轻微到中等",
     "body_language_mode": "手部/重心/距离表达",
@@ -184,7 +184,12 @@
         "直接生成文字",
         "空白气泡后期加字"
       ],
-      "default": "直接生成文字"
+      "default": "空白气泡后期加字"
+    },
+    "allow_text_in_image": {
+      "type": "boolean",
+      "default": false,
+      "description": "是否显式允许中文文字直接进入图片。默认 false；未开启时，台词、旁白、标题和姓名只进入后期叠字清单。"
     },
     "text_render_mode": {
       "type": "string",
@@ -194,7 +199,7 @@
         "生成空白气泡 + 后期叠字图层",
         "直接在图中生成文字"
       ],
-      "default": "直接在图中生成文字"
+      "default": "生成空白气泡 + 后期叠字图层"
     },
     "text_position": {
       "type": "string",
@@ -245,8 +250,8 @@
         "不标注",
         "每帧标注"
       ],
-      "default": "首次出场/形象变化时标注",
-      "description": "人物姓名只在首次出场或形象发生明显变化时用小标签标注。"
+      "default": "不标注",
+      "description": "默认不在画面中标注人物姓名，避免模型生成姓名标签和角色介绍浮标。"
     },
     "scene_label_mode": {
       "type": "string",
@@ -255,8 +260,8 @@
         "不标注",
         "每帧标注"
       ],
-      "default": "主要场景切换时标注",
-      "description": "场景名只在主要或重要场景切换时标注，避免频繁重复。"
+      "default": "不标注",
+      "description": "默认不在画面中标注场景名，场景信息只作为配置和后期文字素材。"
     },
     "emotion_acting_style": {
       "type": "string",

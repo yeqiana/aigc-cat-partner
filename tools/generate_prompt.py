@@ -108,6 +108,37 @@ def load_schema() -> dict:
     return load_json(CONFIG_DIR / "series_input_schema.json", default={}) or {}
 
 
+def resolve_repo_path(value: str | None, default: Path) -> Path:
+    if not value:
+        return default
+    path = Path(value)
+    return path if path.is_absolute() else ROOT / path
+
+
+def public_data(data: dict) -> dict:
+    return {key: value for key, value in data.items() if not str(key).startswith("__")}
+
+
+def policy_path(data: dict, key: str, default_name: str) -> Path:
+    return resolve_repo_path(data.get(key), CONFIG_DIR / default_name)
+
+
+def load_prompt_policy(data: dict) -> dict:
+    return load_json(policy_path(data, "__policy_path", "prompt_policy.json"), default={}) or {}
+
+
+def load_character_lock(data: dict) -> dict:
+    return load_json(policy_path(data, "__character_lock_path", "character_lock_chen_nian_lie_gou.json"), default={}) or {}
+
+
+def load_scene_lock(data: dict) -> dict:
+    return load_json(policy_path(data, "__scene_lock_path", "scene_lock_chen_nian_lie_gou.json"), default={}) or {}
+
+
+def load_text_strategy(data: dict) -> dict:
+    return load_json(policy_path(data, "__text_strategy_path", "text_strategy.json"), default={}) or {}
+
+
 def load_templates() -> dict:
     return load_json(CONFIG_DIR / "story_templates.json", default={}) or {}
 
@@ -153,14 +184,14 @@ def normalize_defaults(data: dict) -> dict:
     data.setdefault("extra", "")
     data.setdefault("identity_lock", "强锁定")
     data.setdefault("bubble_mode", "多角色气泡")
-    data.setdefault("text_mode", "直接生成文字")
+    data.setdefault("text_mode", "空白气泡后期加字")
     data.setdefault("text_position", "自动")
-    data.setdefault("text_render_mode", "直接在图中生成文字")
+    data.setdefault("text_render_mode", "生成空白气泡 + 后期叠字图层")
     data.setdefault("title_render_mode", "不生成画面标题")
     data.setdefault("narration_mode", "独立旁白框")
     data.setdefault("dialogue_name_mode", "气泡内不显示姓名")
-    data.setdefault("character_label_mode", "首次出场/形象变化时标注")
-    data.setdefault("scene_label_mode", "主要场景切换时标注")
+    data.setdefault("character_label_mode", "不标注")
+    data.setdefault("scene_label_mode", "不标注")
     data.setdefault("emotion_acting_style", "克制现实")
     data.setdefault("expression_intensity", "轻微到中等")
     data.setdefault("body_language_mode", "手部/重心/距离表达")
@@ -185,6 +216,30 @@ def normalize_defaults(data: dict) -> dict:
         data["output_mode"] = "单张大图"
     if data.get("in_image_storyboard") != "开启":
         data["in_image_storyboard"] = "关闭"
+    return data
+
+
+def apply_policy_defaults(data: dict) -> dict:
+    data = dict(data)
+    text_strategy = load_text_strategy(data)
+    text_defaults = text_strategy.get("default", {})
+    allow_text = data.get("allow_text_in_image") is True or str(data.get("allow_text_in_image", "")).lower() == "true"
+    if not allow_text:
+        for key, value in text_defaults.items():
+            if key == "allow_text_in_image":
+                continue
+            data[key] = value
+        data["allow_text_in_image"] = False
+    else:
+        data["allow_text_in_image"] = True
+        data.setdefault("dialogue_name_mode", "气泡内不显示姓名")
+        data.setdefault("character_label_mode", "不标注")
+    policy = load_prompt_policy(data)
+    storyboard = policy.get("storyboard", {})
+    data.setdefault("ratio", storyboard.get("ratio", "9:16"))
+    data.setdefault("platform", storyboard.get("platform", "抖音竖屏"))
+    data.setdefault("storyboard_layout", storyboard.get("layout", "主画面 + 特写小窗"))
+    data.setdefault("in_image_storyboard", "开启")
     return data
 
 
@@ -461,7 +516,99 @@ def negative_prompt(data: dict) -> str:
     common = load_text(CONFIG_DIR / "negative_prompt_common.txt")
     project = load_text(CONFIG_DIR / "negative_prompt_project.txt")
     inline = data.get("project_negative_prompt") or ""
-    return "\n".join([x for x in [common, project, inline] if x]).strip()
+    policy = load_prompt_policy(data)
+    text_strategy = load_text_strategy(data)
+    policy_negative = "；".join(policy.get("negative_prompt", []))
+    text_negative = "；".join(text_strategy.get("forbidden_text", []))
+    return "\n".join([x for x in [common, project, policy_negative, text_negative, inline] if x]).strip()
+
+
+def line_block(items: list[str]) -> str:
+    return "\n".join(f"- {item}" for item in items if str(item).strip())
+
+
+def character_lock_block(data: dict) -> str:
+    lock = load_character_lock(data)
+    chars = lock.get("characters", {})
+    active_ids = data.get("character_ids") or ["tao_huainan_child", "chi_ku_child", "tao_xiaodong_young"]
+    lines = list(lock.get("global_rules", []))
+    for char_id in active_ids:
+        char = chars.get(char_id)
+        if not char:
+            continue
+        lines.append(f"{char.get('display_name', char_id)}｜{char.get('stage', '')}：{char.get('must', '')}")
+        lines.extend(char.get("visual_rules", []))
+        lines.extend(char.get("behavior_rules", []))
+        if char.get("forbidden"):
+            lines.append("禁止：" + "；".join(char.get("forbidden", [])))
+    return line_block(lines) or "使用输入中的人物视觉基因，保持年龄、五官、发型、服装和行为逻辑稳定。"
+
+
+def style_lock_block(data: dict, fallback_style: str) -> str:
+    lock = load_character_lock(data)
+    style = lock.get("global_style_lock", {})
+    lines = [data.get("style_prompt") or style.get("style_prompt") or fallback_style]
+    lines.extend(style.get("render_rules", []))
+    return line_block(lines)
+
+
+def choose_locked_scene(data: dict, scene_name: str) -> dict:
+    scene_lock = load_scene_lock(data)
+    scenes = scene_lock.get("scenes", {})
+    for scene in scenes.values():
+        if scene.get("display_name") and scene.get("display_name") in scene_name:
+            return scene
+    for scene_id, scene in scenes.items():
+        if scene_id in scene_name:
+            return scene
+    return next(iter(scenes.values()), {})
+
+
+def scene_lock_block(data: dict, scene_name: str) -> str:
+    scene_lock = load_scene_lock(data)
+    scene = choose_locked_scene(data, scene_name)
+    lines = list(scene_lock.get("global_rules", []))
+    if scene:
+        lines.append(f"{scene.get('display_name', scene_name)}：{scene.get('space', '')}")
+        lines.append(f"时间/天气：{scene.get('time', '')}；{scene.get('season_weather', '')}")
+        lines.append("关键道具：" + "、".join(scene.get("props", [])))
+        lines.append("感官细节：" + "、".join(scene.get("sensory_details", [])))
+        lines.append("禁止：" + "；".join(scene.get("forbidden", [])))
+    else:
+        lines.append(data.get("worldview_summary") or "按输入场景保持年代、空间、道具和光线连续。")
+    return line_block(lines)
+
+
+def policy_storyboard_block(data: dict) -> str:
+    policy = load_prompt_policy(data)
+    storyboard = policy.get("storyboard", {})
+    lines = [
+        f"{storyboard.get('ratio', data.get('ratio', '9:16'))} {storyboard.get('platform', data.get('platform', '抖音竖屏'))}",
+        f"{storyboard.get('panel_count', '2-3')} 个漫画分镜格，布局：{storyboard.get('layout', data.get('storyboard_layout', '主画面 + 特写小窗'))}",
+    ]
+    lines.extend(storyboard.get("required_shots", []))
+    if storyboard.get("forbidden"):
+        lines.append("禁止：" + "；".join(storyboard.get("forbidden", [])))
+    return line_block(lines)
+
+
+def policy_text_strategy_block(data: dict) -> str:
+    text_strategy = load_text_strategy(data)
+    defaults = text_strategy.get("default", {})
+    allow_text = data.get("allow_text_in_image") is True
+    lines = list(text_strategy.get("rules", []))
+    if allow_text:
+        lines.insert(0, "本次显式开启 allow_text_in_image=true：只允许短文字直接入图，仍禁止姓名标签、章节标题和帧序号。")
+    else:
+        lines.insert(0, f"默认文字模式：{defaults.get('text_render_mode', '生成空白气泡 + 后期叠字图层')}")
+    lines.append(f"人物姓名标注：{data.get('character_label_mode', defaults.get('character_label_mode', '不标注'))}")
+    lines.append(f"对白姓名模式：{data.get('dialogue_name_mode', defaults.get('dialogue_name_mode', '气泡内不显示姓名'))}")
+    return line_block(lines)
+
+
+def qa_policy_block(data: dict) -> str:
+    policy = load_prompt_policy(data)
+    return line_block(policy.get("acceptance", []))
 
 
 def build_prompt_plan(data: dict, frames: list[dict], prompts: list[tuple[dict, str]]) -> list[dict]:
@@ -544,7 +691,7 @@ def build_retake_prompt(data: dict, frames: list[dict]) -> list[dict]:
 
 def build_pipeline_artifacts(data: dict, frames: list[dict], prompts: list[tuple[dict, str]]) -> dict:
     return {
-        "input": data,
+        "input": public_data(data),
         "story_plan": build_story_plan(data),
         "frame_plan": build_frame_plan(data, frames),
         "copy_plan": build_copy_plan(data, frames),
@@ -774,7 +921,32 @@ def build_prompt(data: dict, frame: dict) -> str:
     style_prompt = data.get("style_prompt") or world.get("style", {}).get("default", "请填写目标画风")
     idx, total = frame.get("index", 1), frame.get("total", 1)
 
-    return f"""基于《通用剧情连载系统 V2.0》，生成同一项目、同一角色体系、同一世界观、同一画风下的连续剧情图。只改变本张的场景、动作、镜头和剧情推进，不随机改变核心视觉基因。
+    return f"""最高优先级：人物锁定
+{character_lock_block(data)}
+
+画风锁定
+{style_lock_block(data, style_prompt)}
+
+场景锁定
+{scene_lock_block(data, scene_name)}
+
+本帧剧情
+- 项目名称：{data.get('project_name') or '通用剧情连载'}
+- 当前镜头编号（仅配置，不入图）：第 {idx}/{total} 张
+- 场景名称：{scene_name}
+- 动作：{action}
+- 镜头类型：{shot_type}
+- 主体焦点：{focus}
+- 视觉证据：{'、'.join(visual_evidence_for_frame(frame))}
+- 补充约束：{extra if extra else '无'}
+
+分镜要求
+{policy_storyboard_block(data)}
+
+文字策略
+{policy_text_strategy_block(data)}
+
+基于《通用剧情连载系统 V2.0》，生成同一项目、同一角色体系、同一世界观、同一画风下的连续剧情图。只改变本张的场景、动作、镜头和剧情推进，不随机改变核心视觉基因。
 
 {reference_block(data, frame)}
 
@@ -834,7 +1006,10 @@ def build_prompt(data: dict, frame: dict) -> str:
 4. 道具状态要推进，不要回退；已经发生的剧情状态不能凭空消失。
 5. 情绪要按 mood_curve 推进，不能每张都停在同一种情绪。
 
-【禁止项】
+验收清单
+{qa_policy_block(data)}
+
+禁止项 / Negative Prompt
 不要换角色身份，不要偏离世界观，不要随机换画风，不要肢体错误，不要文字乱码，不要把连续故事做成彼此无关的散图。不要在画面里生成“第1幕、第2幕、当前帧、章节标题”等未授权标题栏。对白气泡内不要生成“角色名：台词”的姓名前缀，除非明确选择气泡内显示姓名模式。旁白不要画成带尾巴的对白气泡，不要指向人物。
 
 negative prompt:
@@ -965,7 +1140,7 @@ def write_task(data: dict, bundle_text: str, prompts):
 ## 最小入参
 
 ```json
-{json.dumps(data, ensure_ascii=False, indent=2)}
+{json.dumps(public_data(data), ensure_ascii=False, indent=2)}
 ```
 
 ## V2.0 结构化产物
@@ -1042,6 +1217,10 @@ def main():
     parser.add_argument("--title-text", dest="title_text", type=str)
     parser.add_argument("--narration-text", dest="narration_text", type=str)
     parser.add_argument("--project-negative-prompt", dest="project_negative_prompt", type=str)
+    parser.add_argument("--policy", dest="policy_path", default="config/prompt_policy.json")
+    parser.add_argument("--character-lock", dest="character_lock_path", default="config/character_lock_chen_nian_lie_gou.json")
+    parser.add_argument("--scene-lock", dest="scene_lock_path", default="config/scene_lock_chen_nian_lie_gou.json")
+    parser.add_argument("--text-strategy", dest="text_strategy_path", default="config/text_strategy.json")
     args = parser.parse_args()
 
     data = {}
@@ -1107,6 +1286,12 @@ def main():
         val = getattr(args, key)
         if val not in [None, ""]:
             data[key] = val
+
+    data["__policy_path"] = args.policy_path
+    data["__character_lock_path"] = args.character_lock_path
+    data["__scene_lock_path"] = args.scene_lock_path
+    data["__text_strategy_path"] = args.text_strategy_path
+    data = apply_policy_defaults(data)
 
     if loaded_from_input:
         errors = validate_input(data, args.input)

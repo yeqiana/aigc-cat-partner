@@ -14,6 +14,10 @@ ROOT = Path(__file__).resolve().parents[1]
 def main():
     parser = argparse.ArgumentParser(description="批量生成 Prompt 任务")
     parser.add_argument("--input", required=True, help="批量计划 JSON")
+    parser.add_argument("--policy", default="config/prompt_policy.json")
+    parser.add_argument("--character-lock", default="config/character_lock_chen_nian_lie_gou.json")
+    parser.add_argument("--scene-lock", default="config/scene_lock_chen_nian_lie_gou.json")
+    parser.add_argument("--text-strategy", default="config/text_strategy.json")
     args = parser.parse_args()
     plan_path = (ROOT / args.input) if not Path(args.input).is_absolute() else Path(args.input)
     plan = json.loads(plan_path.read_text(encoding="utf-8"))
@@ -26,7 +30,23 @@ def main():
     for idx, task in enumerate(tasks, 1):
         p = tmp_dir / f"task_{idx:02d}.json"
         p.write_text(json.dumps(task, ensure_ascii=False, indent=2), encoding="utf-8")
-        subprocess.run([sys.executable, str(ROOT / "tools" / "generate_prompt.py"), "--input", str(p)], check=True)
+        subprocess.run(
+            [
+                sys.executable,
+                str(ROOT / "tools" / "generate_prompt.py"),
+                "--input",
+                str(p),
+                "--policy",
+                args.policy,
+                "--character-lock",
+                args.character_lock,
+                "--scene-lock",
+                args.scene_lock,
+                "--text-strategy",
+                args.text_strategy,
+            ],
+            check=True,
+        )
     print(f"批量生成完成，共 {len(tasks)} 个任务。")
 
 if __name__ == "__main__":

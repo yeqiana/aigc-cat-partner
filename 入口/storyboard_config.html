@@ -573,7 +573,7 @@
         <a href="./入口_NEW.html">返回 NEW <span>↗</span></a>
       </nav>
       <div class="side-note">
-        规则：锚点图只锁定场景和关系，不能替代分镜。正式跑图前，每帧必须明确镜头、主体、动作、台词和气泡策略。
+        规则：人物锁定优先于剧情动作。正式跑图前，每帧必须明确盲人行为逻辑、镜头、主体、动作、空白气泡和后期叠字清单。
       </div>
     </aside>
 
@@ -642,10 +642,16 @@
             <div class="field">
               <label for="textRender">文字策略</label>
               <select id="textRender" data-config="text_render_mode">
-                <option>直接在图中生成文字</option>
                 <option>生成空白气泡 + 后期叠字图层</option>
                 <option>生成空白气泡 + 文案清单</option>
                 <option>仅生成文案清单</option>
+              </select>
+            </div>
+            <div class="field">
+              <label for="allowTextInImage">允许文字入图</label>
+              <select id="allowTextInImage" data-config="allow_text_in_image">
+                <option value="false">false</option>
+                <option value="true">true</option>
               </select>
             </div>
             <div class="field">
@@ -669,24 +675,19 @@
               <label for="dialogueNameMode">对白姓名</label>
               <select id="dialogueNameMode" data-config="dialogue_name_mode">
                 <option>气泡内不显示姓名</option>
-                <option>姓名小标签</option>
                 <option>气泡内显示姓名</option>
               </select>
             </div>
             <div class="field">
               <label for="characterLabelMode">人物标注</label>
               <select id="characterLabelMode" data-config="character_label_mode">
-                <option>首次出场/形象变化时标注</option>
                 <option>不标注</option>
-                <option>每帧标注</option>
               </select>
             </div>
             <div class="field">
               <label for="sceneLabelMode">场景标注</label>
               <select id="sceneLabelMode" data-config="scene_label_mode">
-                <option>主要场景切换时标注</option>
                 <option>不标注</option>
-                <option>每帧标注</option>
               </select>
             </div>
             <div class="field">
@@ -850,7 +851,7 @@
               </div>
             </div>
             <div class="warn">
-              验收提醒：如果一章只有一张大场景锚点图，人物关系会被画成“同一张海报”。至少需要补人物特写、手部或道具特写、冲突动作中景。当前默认直接生成短中文，若文字不稳，再切回空白气泡后期叠字。
+              验收提醒：当前页面已同步 v3 规范。默认不直接生成中文文字，不生成人物姓名标签；陶淮南必须体现8岁盲人小孩特征，分镜必须是9:16、2-3格、主画面 + 特写小窗。
             </div>
           </div>
         </section>
@@ -895,13 +896,14 @@
       "platform": "抖音竖屏",
       "output_mode": "单张大图",
       "bubble_mode": "多角色气泡",
-      "text_mode": "直接生成文字",
-      "text_render_mode": "直接在图中生成文字",
+      "allow_text_in_image": false,
+      "text_mode": "空白气泡后期加字",
+      "text_render_mode": "生成空白气泡 + 后期叠字图层",
       "title_render_mode": "不生成画面标题",
       "narration_mode": "独立旁白框",
       "dialogue_name_mode": "气泡内不显示姓名",
-      "character_label_mode": "首次出场/形象变化时标注",
-      "scene_label_mode": "主要场景切换时标注",
+      "character_label_mode": "不标注",
+      "scene_label_mode": "不标注",
       "emotion_acting_style": "克制现实",
       "expression_intensity": "轻微到中等",
       "body_language_mode": "手部/重心/距离表达",
@@ -1129,7 +1131,54 @@
                   "narration": "第一个秘密，比一句谢谢更早出现。"
             }
       ]
-};
+    };
+
+    const POLICY_DEFAULTS = {
+      allow_text_in_image: false,
+      text_mode: "空白气泡后期加字",
+      text_render_mode: "生成空白气泡 + 后期叠字图层",
+      title_render_mode: "不生成画面标题",
+      narration_mode: "独立旁白框",
+      dialogue_name_mode: "气泡内不显示姓名",
+      character_label_mode: "不标注",
+      scene_label_mode: "不标注",
+      in_image_storyboard: "开启",
+      storyboard_view: "特写 + 中景 + 全景",
+      storyboard_layout: "主画面 + 特写小窗"
+    };
+
+    const CHARACTER_LOCK_TEXT = [
+      "陶淮南：8岁盲人小孩，大而清亮但不聚焦的黑眼睛；视线不能准确对准人物、碗、冰溜子、门口或镜头；根据声音转头；用手摸索炕沿、碗、冰溜子确认位置；禁止画成普通能看见的小孩。",
+      "迟苦：8岁左右、瘦、苦、脏、沉默防备的农村小孩；肩窄、衣服空荡、脸上冻红和脏污；禁止画成干净漂亮、开朗阳光、现代城市儿童。",
+      "陶晓东：25岁左右年轻哥哥，黑色半长发到肩膀附近，随手扎小马尾或小辫子，深色旧厚外套或旧军大衣；禁止短发、寸头、黑帮、霸总。"
+    ].join("\n");
+
+    const SCENE_LOCK_TEXT = [
+      "场景必须保持2000年代中国北方现实生活质感。",
+      "农村老屋和窗外冰挂：北方寒冬，火炕、漏风窗、旧木门、窗框冰溜子、饭碗、纸灰、柴火味、风砸窗声和冰挂掉落声。"
+    ].join("\n");
+
+    function toBool(value) {
+      return value === true || value === "true" || value === "是" || value === "1";
+    }
+
+    function applyPolicyDefaults(input) {
+      const next = { ...input };
+      next.allow_text_in_image = toBool(next.allow_text_in_image);
+      if (!next.allow_text_in_image) {
+        next.text_mode = POLICY_DEFAULTS.text_mode;
+        next.text_render_mode = POLICY_DEFAULTS.text_render_mode;
+        next.title_render_mode = POLICY_DEFAULTS.title_render_mode;
+        next.dialogue_name_mode = POLICY_DEFAULTS.dialogue_name_mode;
+        next.character_label_mode = POLICY_DEFAULTS.character_label_mode;
+        next.scene_label_mode = POLICY_DEFAULTS.scene_label_mode;
+      }
+      next.narration_mode = next.narration_mode || POLICY_DEFAULTS.narration_mode;
+      next.in_image_storyboard = next.in_image_storyboard || POLICY_DEFAULTS.in_image_storyboard;
+      next.storyboard_view = next.storyboard_view || POLICY_DEFAULTS.storyboard_view;
+      next.storyboard_layout = POLICY_DEFAULTS.storyboard_layout;
+      return next;
+    }
 
     const configInputs = document.querySelectorAll("[data-config]");
     const pageTitle = document.getElementById("pageTitle");
@@ -1153,7 +1202,7 @@
     function syncConfigInputs() {
       configInputs.forEach(input => {
         const key = input.dataset.config;
-        input.value = state[key] ?? "";
+        input.value = key === "allow_text_in_image" ? String(Boolean(state[key])) : (state[key] ?? "");
       });
     }
 
@@ -1162,17 +1211,23 @@
       configInputs.forEach(input => {
         const key = input.dataset.config;
         input.addEventListener("input", () => {
-          const value = input.type === "number" ? Number(input.value) : input.value;
+          const value = key === "allow_text_in_image"
+            ? input.value === "true"
+            : input.type === "number" ? Number(input.value) : input.value;
           state[key] = value;
           if (key === "image_count") state.image_count = state.frames.length;
           if (key === "text_render_mode") state.text_mode = textModeForRender(value);
+          if (key === "allow_text_in_image" || key === "text_render_mode") {
+            state = applyPolicyDefaults(state);
+            syncConfigInputs();
+          }
           renderAll();
         });
       });
     }
 
     function chapterInputToState(input) {
-      return removeEmptyValues({
+      return applyPolicyDefaults(removeEmptyValues({
         story_template: input.story_template,
         project_name: input.project_name,
         story_id: input.story_id,
@@ -1186,6 +1241,7 @@
         platform: input.platform,
         output_mode: input.output_mode,
         bubble_mode: input.bubble_mode,
+        allow_text_in_image: input.allow_text_in_image,
         text_mode: input.text_mode,
         text_render_mode: input.text_render_mode,
         title_render_mode: input.title_render_mode,
@@ -1211,7 +1267,7 @@
           scene_references: input.scene_references || []
         },
         frames: input.custom_frames || input.frames || []
-      });
+      }));
     }
 
     function chapterSearchText(entry) {
@@ -1288,7 +1344,7 @@
     function textModeForRender(value) {
       if (value.includes("空白气泡")) return "空白气泡后期加字";
       if (value === "仅生成文案清单") return "无文字";
-      return "直接生成文字";
+      return state.allow_text_in_image ? "直接生成文字" : "空白气泡后期加字";
     }
 
     function isNarrationLine(line) {
@@ -1360,8 +1416,8 @@
         ${fieldTemplate("承接关系", "continuity_link", frame.continuity_link || "")}
         ${fieldTemplate("人物动线", "character_path", frame.character_path || "")}
         ${fieldTemplate("分格结构", "panel_composition", frame.panel_composition || "")}
-        ${fieldTemplate("人物姓名小标签", "character_label", frame.character_label || "")}
-        ${fieldTemplate("场景小标签", "scene_label", frame.scene_label || "")}
+        ${fieldTemplate("人物标注备注（不入图）", "character_label", frame.character_label || "")}
+        ${fieldTemplate("场景标注备注（不入图）", "scene_label", frame.scene_label || "")}
         ${fieldTemplate("画面证据，用顿号或逗号分隔", "visual_evidence", frame.visual_evidence.join("、"))}
         ${fieldTemplate("叙事状态", "state", frame.state)}
         <div class="field full dialogue">
@@ -1436,6 +1492,7 @@
         platform: state.platform,
         output_mode: state.output_mode,
         bubble_mode: state.bubble_mode,
+        allow_text_in_image: Boolean(state.allow_text_in_image),
         text_mode: state.text_mode,
         text_render_mode: state.text_render_mode,
         title_render_mode: state.title_render_mode,
@@ -1455,6 +1512,10 @@
         in_image_storyboard: state.in_image_storyboard,
         storyboard_view: state.storyboard_view,
         storyboard_layout: state.storyboard_layout,
+        policy: "config/prompt_policy.json",
+        character_lock: "config/character_lock_chen_nian_lie_gou.json",
+        scene_lock: "config/scene_lock_chen_nian_lie_gou.json",
+        text_strategy: "config/text_strategy.json",
         character_identity_refs: state.refs.character_identity_refs,
         scene_references: state.refs.scene_references,
         custom_frames: state.frames.map((frame, index) => ({
@@ -1500,23 +1561,24 @@
       const speakerMeta = lines
         .map(line => `${line.name} -> ${line.text}`)
         .join(" / ");
-      const titleRule = state.title_render_mode === "不生成画面标题"
-        ? "画面中禁止出现章节标题、帧标题、第1幕、第2幕、当前帧等顶部标题栏。"
-        : `画面标题模式：${state.title_render_mode}。`;
+      const titleRule = state.allow_text_in_image
+        ? "即使允许短文字入图，也禁止章节标题、帧标题、第1幕、第2幕、当前帧等顶部标题栏。"
+        : "画面中不要生成章节标题、帧标题、第1幕、第2幕、当前帧等顶部标题栏。";
       const narrationRule = state.narration_mode === "画外文案清单"
         ? `旁白只放在任务清单，不进入图片：${narrationCopy || "无"}`
         : state.narration_mode === "不使用旁白"
           ? "画面不生成旁白，只保留角色对白。"
-          : `${state.narration_mode}：${narrationCopy || "无"}；旁白框必须与角色对白气泡区分：使用矩形或窄条字幕框，无气泡尾巴，不指向任何人物。`;
+          : `${state.narration_mode}使用空白矩形框；后期旁白文本：${narrationCopy || "无"}；旁白框必须与角色对白气泡区分，无气泡尾巴，不指向任何人物。`;
       return [
         `气泡模式：${state.bubble_mode}`,
         `文字策略：${state.text_render_mode}`,
+        `allow_text_in_image：${Boolean(state.allow_text_in_image)}`,
         `对白姓名模式：${state.dialogue_name_mode}`,
         titleRule,
         narrationRule,
-        state.dialogue_name_mode === "气泡内显示姓名"
+        state.allow_text_in_image && state.dialogue_name_mode === "气泡内显示姓名"
           ? `角色对白：${speakerMeta || "无"}`
-          : `对白气泡正文：${dialogueTexts || "无"}；说话人定位仅供放置气泡参考：${speakerMeta || "无"}；气泡内禁止出现姓名前缀；旁白不进入角色对白气泡。`,
+          : `画面只生成空白对白气泡；后期台词文本：${dialogueTexts || "无"}；说话人定位仅供放置气泡参考：${speakerMeta || "无"}；气泡内不要出现姓名前缀；旁白不进入角色对白气泡。`,
         buildLabelRules(frame)
       ].join("\n");
     }
@@ -1524,13 +1586,9 @@
     function buildLabelRules(frame) {
       return [
         `人物姓名标注模式：${state.character_label_mode}`,
-        frame.character_label
-          ? `人物姓名小标签：${frame.character_label}；只在人物旁边小字标注，不放进对白气泡，不遮挡脸和手。`
-          : "本帧没有首次出场或形象变化时，不生成人物姓名标签。",
+        "本帧不生成任何人物姓名标签、角色介绍浮标或首次出场标注。",
         `场景标注模式：${state.scene_label_mode}`,
-        frame.scene_label
-          ? `场景小标签：${frame.scene_label}；只在主要场景切换或重要空间建立时出现，不要每格重复。`
-          : "本帧不是重要场景切换时，不生成场景标签。"
+        "本帧不生成场景文字标签；场景信息只作为配置和后期文字素材。"
       ].join("\n");
     }
 
@@ -1538,7 +1596,7 @@
       if (state.in_image_storyboard !== "开启") {
         return "图内分镜：关闭。当前图片是一张独立漫画格，但镜头必须明确，不要做成全章剧情海报。";
       }
-      return `图内分镜：开启。必须在同一张图中生成边界明确的2-3个漫画分镜格，不要只生成单幅插画；视角为${state.storyboard_view}，布局为${state.storyboard_layout}。`;
+      return `9:16抖音竖屏。图内分镜：开启。必须在同一张图中生成边界明确的2-3个漫画分镜格，不要只生成单幅插画；视角为${state.storyboard_view}，布局为${state.storyboard_layout}；必须包含空间建立镜头、动作推进镜头、手部/道具/人物反应特写。`;
     }
 
     function buildActingRules(frame) {
@@ -1582,7 +1640,16 @@
         .map(line => `${line.name} -> ${line.text}`)
         .join(" / ");
       return [
-        "【完整出图 Prompt】",
+        "最高优先级：人物锁定",
+        CHARACTER_LOCK_TEXT,
+        "",
+        "画风锁定",
+        state.style_prompt || "温柔现实向日系绘本插画，干净线稿，低饱和电影感光影，真实中国北方生活场景，人物表情克制，9:16竖屏构图。",
+        "",
+        "场景锁定",
+        SCENE_LOCK_TEXT,
+        "",
+        "本帧剧情",
         `项目：${state.project_name}`,
         `章节配置名：${state.story_title}（仅供任务识别，不等于画面标题）`,
         `原文来源：${state.source_file || "未配置"}（仅供任务识别，不入图）`,
@@ -1593,27 +1660,29 @@
         `当前情绪：${frame.emotion || frame.state}`,
         `动作：${frame.action}`,
         `画面证据：${frame.visual_evidence.join("、")}`,
-        `台词气泡正文：${dialogueTexts || "无"}`,
-        `旁白文本：${captions.join(" / ") || "无"}；旁白必须使用独立旁白框或画外文案清单，不要画成角色对白气泡。`,
-        `说话人定位（不入图）：${speakerMeta || "无"}`,
         "",
-        "【文字与旁白】",
-        buildTextRules(frame),
-        "",
-        "【分镜要求】",
+        "分镜要求",
         buildStoryboardRule(),
         "",
-        "【人物表演与情绪】",
+        "文字策略",
+        buildTextRules(frame),
+        "",
+        "后期叠字清单（不直接入图）",
+        `台词：${dialogueTexts || "无"}`,
+        `旁白：${captions.join(" / ") || "无"}`,
+        `说话人定位（不入图）：${speakerMeta || "无"}`,
+        "",
+        "人物表演与情绪",
         buildActingRules(frame),
         "",
-        "【漫画叙事与动线】",
+        "漫画叙事与动线",
         buildComicStorytellingRules(frame),
         "",
-        "【连续性要求】",
+        "连续性要求",
         "保持 v2 角色母版身份一致，北方冬季灵棚场景一致；如果是人物特写，优先脸部表情和手部动作；不要把所有剧情塞进同一张全景海报。",
         "",
-        "【禁止项】",
-        "不要生成第1幕、第2幕、当前帧、章节标题等顶部标签；对白气泡里不要出现陶淮南：、迟苦：、陶晓东：、旁白：等姓名前缀；旁白不要画成带尾巴的对白气泡，不要指向人物；不要额外添加未列出的文字；不要乱码；不要把儿童画成成年人。"
+        "禁止项 / Negative Prompt",
+        "不要生成姓名标签、首次出场标注、人物介绍浮标、第几章、第几帧、第1幕、当前帧、顶部标题栏、章节标题、中文乱码、角色名冒号台词；不要让陶淮南正常对视或准确盯着物体；不要把儿童画成成年人；不要把迟苦画成干净漂亮小男孩；不要把陶晓东画成短发、寸头、黑帮、霸总。"
       ].join("\n");
     }
 

@@ -1,0 +1,95 @@
+{
+  "version": "3.0",
+  "project": "陈年烈狗",
+  "purpose": "项目级 Prompt 规范约束层，用于稳定连续漫画的人物、场景、画风、分镜、文字和验收。",
+  "priority_order": [
+    "人物锁定",
+    "场景锁定",
+    "画风锁定",
+    "本帧剧情",
+    "分镜结构",
+    "文字排版"
+  ],
+  "rules": {
+    "character_over_action": "剧情动作与人物设定冲突时，优先保留人物设定。",
+    "blind_behavior_over_pose": "陶淮南动作与盲人行为逻辑冲突时，优先保留盲人行为逻辑。",
+    "text_after_character": "文字排版与人物稳定冲突时，默认空白气泡和后期叠字。",
+    "no_name_labels": "不得在图中生成人物姓名标签、角色介绍浮标或“角色名：台词”。",
+    "policy_feedback": "用户纠正人物漂移、眼睛、服装、年龄、场景错误时，必须判断是否沉淀进配置文件。"
+  },
+  "prompt_layers": [
+    {
+      "name": "人物锁定层",
+      "fields": ["characters", "age_stage", "visual_rules", "behavior_rules", "forbidden", "reference_ids"]
+    },
+    {
+      "name": "场景锁定层",
+      "fields": ["scene_id", "time", "space", "season_weather", "props", "sensory_details", "forbidden", "reference_ids"]
+    },
+    {
+      "name": "画风锁定层",
+      "fields": ["style_name", "style_prompt", "render_rules", "forbidden"]
+    },
+    {
+      "name": "本帧剧情层",
+      "fields": ["chapter", "frame_index", "action", "focus", "previous_action", "next_action", "visual_evidence"]
+    },
+    {
+      "name": "分镜结构层",
+      "fields": ["ratio", "panel_count", "layout", "required_shots", "continuity_rules"]
+    },
+    {
+      "name": "文字策略层",
+      "fields": ["allow_text_in_image", "bubble_mode", "narration_mode", "dialogue_name_mode", "post_text_list"]
+    },
+    {
+      "name": "负面约束层",
+      "fields": ["global_negative", "character_negative", "scene_negative", "text_negative", "composition_negative"]
+    },
+    {
+      "name": "验收层",
+      "fields": ["must_pass", "character_checks", "scene_checks", "text_checks", "storyboard_checks"]
+    }
+  ],
+  "storyboard": {
+    "ratio": "9:16",
+    "platform": "抖音竖屏",
+    "panel_count": "2-3",
+    "layout": "主画面 + 特写小窗",
+    "required_shots": [
+      "空间建立镜头",
+      "动作推进镜头",
+      "手部、道具或人物反应特写"
+    ],
+    "forbidden": [
+      "单幅海报式大图",
+      "无清晰分格边界",
+      "所有格子都是远景",
+      "所有格子都是人物站位展示"
+    ]
+  },
+  "negative_prompt": [
+    "姓名标签",
+    "首次出场标注",
+    "人物介绍浮标",
+    "第几章",
+    "第几帧",
+    "第1幕",
+    "当前帧",
+    "顶部标题栏",
+    "章节标题",
+    "中文乱码",
+    "角色名冒号台词",
+    "儿童成人化",
+    "单幅海报式大图"
+  ],
+  "acceptance": [
+    "人物年龄、发型、服装、体型符合角色锁定",
+    "陶淮南盲人视觉表现明确",
+    "场景年代、季节、道具符合场景锁定",
+    "画风连续稳定",
+    "9:16竖屏，2-3格漫画分镜，主画面 + 特写小窗",
+    "画面不出现人物姓名标签、章节标题、帧序号",
+    "默认只出现空白气泡和空白旁白框，文字供后期叠加"
+  ]
+}
