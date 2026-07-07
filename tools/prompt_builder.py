@@ -49,6 +49,43 @@ def render_template(template: str, values: dict[str, str]) -> str:
     return template
 
 
+SAFE_REWRITE_MAP = {
+    "追打": "危险追赶",
+    "殴打": "冲突压迫",
+    "暴打": "危险冲突",
+    "虐打": "危险冲突",
+    "虐待过程": "家庭冲突后的余波",
+    "击打瞬间": "保护者上前阻止的瞬间",
+    "施暴特写": "站位对峙和保护动作",
+    "挥棍打": "持棍逼近但被阻止",
+    "打孩子": "威胁靠近孩子但被阻止",
+    "打到流血": "冲突后的虚弱状态",
+    "喷血": "额角有旧伤痕",
+    "满脸血": "脸色苍白且衣领凌乱",
+    "血流一地": "地面凌乱",
+    "血流": "旧伤痕",
+    "开放伤口": "被毛巾轻轻按住的伤处",
+    "伤口特写": "毛巾、药瓶和担忧表情特写",
+    "血腥": "克制紧张",
+    "光身": "被旧毯或毛巾包住",
+    "脱光": "换上完整衣物",
+    "裸露": "完整衣物遮挡",
+    "抽筋": "身体发抖",
+    "痉挛": "虚弱发抖",
+    "黑帮": "可靠保护者",
+    "犯罪审美": "生活化保护感",
+    "暴力反派": "强硬但克制的保护者",
+    "霸总压迫": "可靠保护者的阻拦",
+}
+
+
+def safe_rewrite_text(value: Any) -> str:
+    text = str(value or "")
+    for source, target in SAFE_REWRITE_MAP.items():
+        text = text.replace(source, target)
+    return text
+
+
 def active_frame(data: dict[str, Any], frame_index: int) -> dict[str, Any]:
     frames = data.get("custom_frames")
     if isinstance(frames, list) and frames:
@@ -144,27 +181,39 @@ def text_strategy_text(text_strategy: dict[str, Any], data: dict[str, Any]) -> s
     return bullets(lines)
 
 
+def content_safety_rules_text(policy: dict[str, Any]) -> str:
+    safety = policy.get("content_safety", {})
+    lines = []
+    guide = safety.get("guide")
+    if guide:
+        lines.append(f"执行内容安全规范：{guide}")
+    lines.extend(safety.get("safe_rewrite_rules", []))
+    return bullets(lines)
+
+
 def post_text_list(frame: dict[str, Any]) -> str:
     lines = []
     title = frame.get("title")
     narration = frame.get("narration")
     if title:
-        lines.append(f"标题/配置名：{title}")
+        lines.append(f"标题/配置名：{safe_rewrite_text(title)}")
     if narration:
-        lines.append(f"旁白：{narration}")
+        lines.append(f"旁白：{safe_rewrite_text(narration)}")
     for item in frame.get("dialogue") or frame.get("character_lines") or []:
         if isinstance(item, dict):
             name = str(item.get("name", "角色")).strip()
             text = str(item.get("text", "")).strip()
             if not text or set(text) == {"?"} or set(name) == {"?"}:
                 continue
-            lines.append(f"{name}：{text}")
+            lines.append(f"{safe_rewrite_text(name)}：{safe_rewrite_text(text)}")
     return bullets(lines) if lines else "- 无；画面只保留空白气泡或留白。"
 
 
 def negative_prompt_text(policy: dict[str, Any], character_lock: dict[str, Any], scene_lock: dict[str, Any], text_strategy: dict[str, Any], data: dict[str, Any], frame: dict[str, Any]) -> str:
     items = []
     items.extend(policy.get("negative_prompt", []))
+    safety = policy.get("content_safety", {})
+    items.extend(safety.get("high_risk_terms", []))
     for char in character_lock.get("characters", {}).values():
         items.extend(char.get("forbidden", []))
     scene = choose_scene(scene_lock, data, frame)
@@ -211,16 +260,17 @@ def build_prompt(
         "style_lock": style_lock_text(data, character_lock),
         "scene_lock": scene_lock_text(scene_lock, data, frame),
         "project_name": str(data.get("project_name") or policy.get("project") or "陈年烈狗"),
-        "story_title": str(data.get("story_title") or frame.get("title") or "未命名章节"),
+        "story_title": safe_rewrite_text(data.get("story_title") or frame.get("title") or "未命名章节"),
         "frame_index": str(frame.get("index") or frame_index),
-        "scene": str(frame.get("scene") or data.get("scene") or ""),
-        "action": str(frame.get("action") or data.get("action") or ""),
-        "focus": str(frame.get("focus") or frame.get("subject_focus") or data.get("subject_state") or ""),
-        "previous_action": str(frame.get("previous_action") or ""),
-        "next_action": str(frame.get("next_action") or ""),
-        "visual_evidence": "、".join(as_lines(frame.get("visual_evidence"))) or "人物、动作、道具、场景都清晰可验收",
+        "scene": safe_rewrite_text(frame.get("scene") or data.get("scene") or ""),
+        "action": safe_rewrite_text(frame.get("action") or data.get("action") or ""),
+        "focus": safe_rewrite_text(frame.get("focus") or frame.get("subject_focus") or data.get("subject_state") or ""),
+        "previous_action": safe_rewrite_text(frame.get("previous_action") or ""),
+        "next_action": safe_rewrite_text(frame.get("next_action") or ""),
+        "visual_evidence": safe_rewrite_text("、".join(as_lines(frame.get("visual_evidence"))) or "人物、动作、道具、场景都清晰可验收"),
         "storyboard_rules": storyboard_rules_text(policy),
         "text_strategy": text_strategy_text(text_strategy, data),
+        "content_safety_rules": content_safety_rules_text(policy),
         "post_text_list": post_text_list(frame),
         "negative_prompt": negative_prompt_text(policy, character_lock, scene_lock, text_strategy, data, frame),
         "qa_checklist": qa_checklist_text(policy),

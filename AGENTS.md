@@ -29,6 +29,7 @@
 - `config/text_strategy.json`
 - `docs/PROMPT_POLICY.md`
 - `docs/CHARACTER_LOCK_POLICY.md`
+- `docs/CONTENT_SAFETY_PROMPT_GUIDE.md`
 
 ## 最高优先级规则
 
@@ -37,6 +38,7 @@
 如果剧情动作与人物设定冲突，优先保留人物设定。
 如果人物动作与盲人行为逻辑冲突，优先保留盲人行为逻辑。
 如果文字入图与人物稳定冲突，优先使用空白气泡和后期叠字。
+如果剧情原文包含儿童裸露、血腥伤口、击打瞬间、虐打过程、喷血、光身、抽筋、黑帮化等高风险表达，必须先按 `docs/CONTENT_SAFETY_PROMPT_GUIDE.md` 改写为克制、生活化、保护导向的视觉表达。
 
 ## 陈年烈狗人物锁定
 

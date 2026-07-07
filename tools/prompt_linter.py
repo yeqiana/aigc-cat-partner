@@ -14,7 +14,7 @@ from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
 
-NEGATION_WORDS = ["不要", "不得", "禁止", "不生成", "不直接", "不出现", "不入图", "仅配置", "Negative", "negative", "禁止项", "不是"]
+NEGATION_WORDS = ["不要", "不得", "禁止", "不生成", "不直接", "不出现", "不入图", "不表现", "不血腥", "仅配置", "Negative", "negative", "禁止项", "不是"]
 
 
 def is_negative_context(line: str) -> bool:
@@ -48,6 +48,10 @@ def non_instruction_lines(text: str) -> set[int]:
 
 def has_any(text: str, words: list[str]) -> bool:
     return any(word in text for word in words)
+
+
+def has_child_context(line: str) -> bool:
+    return has_any(line, ["儿童", "小孩", "孩子", "童年", "8岁", "八岁", "陶淮南", "迟苦"])
 
 
 def lint_text(text: str) -> list[dict[str, str | int]]:
@@ -100,6 +104,22 @@ def lint_text(text: str) -> list[dict[str, str | int]]:
             continue
         if has_any(line, forbidden_text) and not is_negative_context(line):
             issues.append({"level": "error", "line": line_no, "code": "FORBIDDEN_IN_IMAGE_TEXT", "message": "疑似要求生成禁用标题/帧序文字。"})
+
+    child_nudity_terms = ["裸露", "脱光", "光身", "裸体", "身体隐私", "隐私部位", "性暗示", "暧昧姿势"]
+    gore_terms = ["喷血", "满脸血", "血流", "血流一地", "开放伤口", "伤口特写", "血腥", "血肉", "重伤特写"]
+    violence_process_terms = ["追打", "殴打", "暴打", "虐打", "虐待过程", "击打瞬间", "施暴特写", "挥棍打", "打孩子", "打到流血"]
+    crime_aesthetic_terms = ["黑帮气场", "犯罪审美", "暴力反派", "凶狠施暴", "霸总压迫"]
+    for line_no, line in lines:
+        if line_no in non_instruction or is_negative_context(line):
+            continue
+        if has_child_context(line) and has_any(line, child_nudity_terms):
+            issues.append({"level": "error", "line": line_no, "code": "CHILD_SAFETY_RISK", "message": "儿童场景疑似包含裸露、身体隐私或性暗示，应改为完整衣物/毛巾/毯子包裹的生活化照顾。"})
+        if has_any(line, gore_terms):
+            issues.append({"level": "error", "line": line_no, "code": "GORE_RISK", "message": "疑似包含血腥、喷血、开放伤口或伤口特写，应改为旧伤痕、毛巾、药瓶、担忧表情等克制证据。"})
+        if has_any(line, violence_process_terms):
+            issues.append({"level": "error", "line": line_no, "code": "VIOLENCE_PROCESS_RISK", "message": "疑似包含施暴过程或击打瞬间，应改为危险临近、站位对峙、保护者阻止。"})
+        if has_any(line, crime_aesthetic_terms):
+            issues.append({"level": "error", "line": line_no, "code": "CRIME_AESTHETIC_RISK", "message": "疑似包含黑帮、犯罪审美或霸总压迫，应改为可靠保护者和克制阻拦。"})
 
     required_layout = ["9:16", "2-3", "主画面 + 特写小窗"]
     for marker in required_layout:

@@ -645,6 +645,7 @@
                 <option>生成空白气泡 + 后期叠字图层</option>
                 <option>生成空白气泡 + 文案清单</option>
                 <option>仅生成文案清单</option>
+                <option>直接在图中生成文字</option>
               </select>
             </div>
             <div class="field">
@@ -1155,7 +1156,14 @@
 
     const SCENE_LOCK_TEXT = [
       "场景必须保持2000年代中国北方现实生活质感。",
-      "农村老屋和窗外冰挂：北方寒冬，火炕、漏风窗、旧木门、窗框冰溜子、饭碗、纸灰、柴火味、风砸窗声和冰挂掉落声。"
+      "农村老屋和窗外冰挂：北方寒冬，火炕、漏风窗、旧木门、窗框冰溜子、饭碗、柴火味、风砸窗声和冰挂掉落声；纸灰和雪粒只能少量出现，不要铺满画面。"
+    ].join("\n");
+
+    const IMAGE_CLEANLINESS_TEXT = [
+      "画面干净，线稿清楚，人物脸部和手部边缘清晰。",
+      "降低颗粒感和脏污贴图，不要胶片噪点、密集雪点、密集纸灰、黑白斑点、粗糙颗粒覆盖。",
+      "雪花、纸灰、灰尘只作为少量环境细节，不能像噪点一样铺满人物和背景。",
+      "保留低饱和现实光影，但不要过度锐化、过度暗角、过度纹理化。"
     ].join("\n");
 
     function toBool(value) {
@@ -1210,19 +1218,24 @@
       syncConfigInputs();
       configInputs.forEach(input => {
         const key = input.dataset.config;
-        input.addEventListener("input", () => {
+        const handleConfigChange = () => {
           const value = key === "allow_text_in_image"
             ? input.value === "true"
             : input.type === "number" ? Number(input.value) : input.value;
           state[key] = value;
           if (key === "image_count") state.image_count = state.frames.length;
+          if (key === "text_render_mode" && value === "直接在图中生成文字") {
+            state.allow_text_in_image = true;
+          }
           if (key === "text_render_mode") state.text_mode = textModeForRender(value);
           if (key === "allow_text_in_image" || key === "text_render_mode") {
             state = applyPolicyDefaults(state);
             syncConfigInputs();
           }
           renderAll();
-        });
+        };
+        input.addEventListener("input", handleConfigChange);
+        input.addEventListener("change", handleConfigChange);
       });
     }
 
@@ -1347,23 +1360,62 @@
       return state.allow_text_in_image ? "直接生成文字" : "空白气泡后期加字";
     }
 
+    function isDirectTextMode() {
+      return Boolean(state.allow_text_in_image) && state.text_render_mode === "直接在图中生成文字";
+    }
+
     function isNarrationLine(line) {
       return ["旁白", "叙述", "画外音", "旁白/叙述"].includes(String(line?.name || "").trim());
     }
 
+    function isGarbledPlaceholder(value) {
+      const text = String(value || "").trim();
+      return !text || /^[?？]+$/.test(text) || text.includes("�");
+    }
+
+    function isValidDialogueLine(line) {
+      return line && !isGarbledPlaceholder(line.text) && !isGarbledPlaceholder(line.name);
+    }
+
+    function cleanDialogue(frame) {
+      return (frame.dialogue || []).filter(isValidDialogueLine);
+    }
+
     function characterDialogue(frame) {
-      return (frame.dialogue || []).filter(line => (line.name || line.text) && !isNarrationLine(line));
+      return cleanDialogue(frame).filter(line => !isNarrationLine(line));
     }
 
     function narrationTexts(frame) {
       const texts = [];
-      if (frame.narration) texts.push(frame.narration);
-      (frame.dialogue || [])
+      if (!isGarbledPlaceholder(frame.narration)) texts.push(frame.narration);
+      cleanDialogue(frame)
         .filter(isNarrationLine)
         .forEach(line => {
-          if (line.text) texts.push(line.text);
+          if (!isGarbledPlaceholder(line.text)) texts.push(line.text);
         });
       return [...new Set(texts.map(text => String(text).trim()).filter(Boolean))];
+    }
+
+    function shortText(text, maxLength = 18) {
+      return String(text || "")
+        .replace(/^[^：:]{2,8}[：:]/, "")
+        .replace(/[；;].*$/, "")
+        .trim()
+        .slice(0, maxLength);
+    }
+
+    function directDialogueTexts(frame) {
+      const lines = characterDialogue(frame).map(line => shortText(line.text)).filter(Boolean);
+      if (lines.length) return lines;
+      const captions = narrationTexts(frame).map(text => shortText(text)).filter(Boolean);
+      if (captions.length) return captions.slice(0, 2);
+      return [shortText(frame.action || frame.title || "继续")].filter(Boolean);
+    }
+
+    function directCaptionTexts(frame) {
+      const captions = narrationTexts(frame).map(text => shortText(text, 22)).filter(Boolean);
+      if (captions.length) return captions;
+      return [shortText(frame.state || frame.title || frame.action, 22)].filter(Boolean);
     }
 
     function renderTimeline() {
@@ -1422,10 +1474,10 @@
         ${fieldTemplate("叙事状态", "state", frame.state)}
         <div class="field full dialogue">
           <div class="label">台词 / 气泡</div>
-          ${frame.dialogue.map((line, index) => `
+          ${(frame.dialogue || []).map((line, index) => `
             <div class="line-row">
-              <input class="dialogue-field" data-line="${index}" data-key="name" value="${escapeHtml(line.name)}" aria-label="说话人">
-              <input class="dialogue-field" data-line="${index}" data-key="text" value="${escapeHtml(line.text)}" aria-label="台词">
+              <input class="dialogue-field" data-line="${index}" data-key="name" value="${isGarbledPlaceholder(line.name) ? "" : escapeHtml(line.name)}" placeholder="说话人" aria-label="说话人">
+              <input class="dialogue-field" data-line="${index}" data-key="text" value="${isGarbledPlaceholder(line.text) ? "" : escapeHtml(line.text)}" placeholder="台词留空则不导出" aria-label="台词">
             </div>
           `).join("")}
         </div>
@@ -1540,8 +1592,8 @@
           panel_composition: frame.panel_composition,
           character_label: frame.character_label,
           scene_label: frame.scene_label,
-          dialogue: frame.dialogue,
-          narration: frame.narration
+          dialogue: cleanDialogue(frame),
+          narration: isGarbledPlaceholder(frame.narration) ? "" : frame.narration
         }))
       };
     }
@@ -1558,6 +1610,8 @@
       const dialogueTexts = lines
         .map(line => line.text)
         .join(" / ");
+      const directBubbles = directDialogueTexts(frame).join(" / ");
+      const directCaptions = directCaptionTexts(frame).join(" / ");
       const speakerMeta = lines
         .map(line => `${line.name} -> ${line.text}`)
         .join(" / ");
@@ -1568,7 +1622,14 @@
         ? `旁白只放在任务清单，不进入图片：${narrationCopy || "无"}`
         : state.narration_mode === "不使用旁白"
           ? "画面不生成旁白，只保留角色对白。"
-          : `${state.narration_mode}使用空白矩形框；后期旁白文本：${narrationCopy || "无"}；旁白框必须与角色对白气泡区分，无气泡尾巴，不指向任何人物。`;
+          : isDirectTextMode()
+            ? `${state.narration_mode}：直接在矩形旁白框中写入短中文“${directCaptions || "无"}”；旁白框必须与角色对白气泡区分，无气泡尾巴，不指向任何人物。`
+            : `${state.narration_mode}使用空白矩形框；后期旁白文本：${narrationCopy || "无"}；旁白框必须与角色对白气泡区分，无气泡尾巴，不指向任何人物。`;
+      const dialogueRule = isDirectTextMode()
+        ? state.dialogue_name_mode === "气泡内显示姓名"
+          ? `必须在对白气泡内直接写入短中文台词，可带说话人：${speakerMeta || directBubbles || "无"}；不要额外添加未列出的文字。`
+          : `必须在对白气泡内直接写入短中文台词正文：“${directBubbles || "无"}”；说话人定位仅供放置气泡参考：${speakerMeta || "按人物位置放置"}；气泡内不要出现姓名前缀。`
+        : `画面只生成空白对白气泡；后期台词文本：${dialogueTexts || "无"}；说话人定位仅供放置气泡参考：${speakerMeta || "无"}；气泡内不要出现姓名前缀；旁白不进入角色对白气泡。`;
       return [
         `气泡模式：${state.bubble_mode}`,
         `文字策略：${state.text_render_mode}`,
@@ -1576,9 +1637,7 @@
         `对白姓名模式：${state.dialogue_name_mode}`,
         titleRule,
         narrationRule,
-        state.allow_text_in_image && state.dialogue_name_mode === "气泡内显示姓名"
-          ? `角色对白：${speakerMeta || "无"}`
-          : `画面只生成空白对白气泡；后期台词文本：${dialogueTexts || "无"}；说话人定位仅供放置气泡参考：${speakerMeta || "无"}；气泡内不要出现姓名前缀；旁白不进入角色对白气泡。`,
+        dialogueRule,
         buildLabelRules(frame)
       ].join("\n");
     }
@@ -1645,6 +1704,7 @@
         "",
         "画风锁定",
         state.style_prompt || "温柔现实向日系绘本插画，干净线稿，低饱和电影感光影，真实中国北方生活场景，人物表情克制，9:16竖屏构图。",
+        IMAGE_CLEANLINESS_TEXT,
         "",
         "场景锁定",
         SCENE_LOCK_TEXT,
@@ -1667,9 +1727,9 @@
         "文字策略",
         buildTextRules(frame),
         "",
-        "后期叠字清单（不直接入图）",
-        `台词：${dialogueTexts || "无"}`,
-        `旁白：${captions.join(" / ") || "无"}`,
+        isDirectTextMode() ? "文字入图清单（必须直接写进画面）" : "后期叠字清单（不直接入图）",
+        isDirectTextMode() ? `对白气泡文字：${directDialogueTexts(frame).join(" / ") || "无"}` : `台词：${dialogueTexts || "无"}`,
+        isDirectTextMode() ? `旁白框文字：${directCaptionTexts(frame).join(" / ") || "无"}` : `旁白：${captions.join(" / ") || "无"}`,
         `说话人定位（不入图）：${speakerMeta || "无"}`,
         "",
         "人物表演与情绪",
@@ -1682,7 +1742,7 @@
         "保持 v2 角色母版身份一致，北方冬季灵棚场景一致；如果是人物特写，优先脸部表情和手部动作；不要把所有剧情塞进同一张全景海报。",
         "",
         "禁止项 / Negative Prompt",
-        "不要生成姓名标签、首次出场标注、人物介绍浮标、第几章、第几帧、第1幕、当前帧、顶部标题栏、章节标题、中文乱码、角色名冒号台词；不要让陶淮南正常对视或准确盯着物体；不要把儿童画成成年人；不要把迟苦画成干净漂亮小男孩；不要把陶晓东画成短发、寸头、黑帮、霸总。"
+        "不要生成姓名标签、首次出场标注、人物介绍浮标、第几章、第几帧、第1幕、当前帧、顶部标题栏、章节标题、中文乱码、角色名冒号台词；不要让陶淮南正常对视或准确盯着物体；不要把儿童画成成年人；不要把迟苦画成干净漂亮小男孩；不要把陶晓东画成短发、寸头、黑帮、霸总；不要胶片噪点、密集颗粒、密集雪点、密集纸灰、脏污纹理覆盖、过度锐化。"
       ].join("\n");
     }
 

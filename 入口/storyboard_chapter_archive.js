@@ -381,16 +381,7 @@ window.STORYBOARD_CHAPTER_ARCHIVE = [
             "陶晓东三棍子抽躺酒鬼，冷脸指院门：滚"
           ],
           "camera": "动态中景",
-          "dialogue": [
-            {
-              "name": "???",
-              "text": "??"
-            },
-            {
-              "name": "??",
-              "text": "????????????"
-            }
-          ],
+          "dialogue": [],
           "narration": "动作高潮：陶晓东三棍子抽躺酒鬼，冷脸指院门：滚",
           "previous_action": "",
           "next_action": "迟志德走远后捡砖砸回院门，当的一声在夜里突兀惊心",
@@ -415,16 +406,7 @@ window.STORYBOARD_CHAPTER_ARCHIVE = [
             "迟志德走远后捡砖砸回院门，当的一声在夜里突兀惊心"
           ],
           "camera": "分镜中景",
-          "dialogue": [
-            {
-              "name": "??",
-              "text": "??"
-            },
-            {
-              "name": "???",
-              "text": "??"
-            }
-          ],
+          "dialogue": [],
           "narration": "悬念余波：迟志德走远后捡砖砸回院门，当的一声在夜里突兀惊心",
           "previous_action": "陶晓东三棍子抽躺酒鬼，冷脸指院门：滚",
           "next_action": "陶晓东进屋，陶淮南已自己摸黑穿上小毛衣，仰脸摸哥哥：打着你了吗？",
@@ -448,16 +430,7 @@ window.STORYBOARD_CHAPTER_ARCHIVE = [
             "陶晓东进屋，陶淮南已自己摸黑穿上小毛衣，仰脸摸哥哥：打着你了吗？"
           ],
           "camera": "人物/道具特写",
-          "dialogue": [
-            {
-              "name": "???",
-              "text": "??????"
-            },
-            {
-              "name": "???",
-              "text": "???"
-            }
-          ],
+          "dialogue": [],
           "narration": "人物特写：陶晓东进屋，陶淮南已自己摸黑穿上小毛衣，仰脸摸哥哥：打着你了吗？",
           "previous_action": "迟志德走远后捡砖砸回院门，当的一声在夜里突兀惊心",
           "next_action": "陶晓东给陶淮南擦脚，门外灵棚白布在夜风中晃动",
@@ -481,16 +454,7 @@ window.STORYBOARD_CHAPTER_ARCHIVE = [
             "陶晓东给陶淮南擦脚，门外灵棚白布在夜风中晃动"
           ],
           "camera": "分镜中景",
-          "dialogue": [
-            {
-              "name": "???",
-              "text": "?????"
-            },
-            {
-              "name": "???",
-              "text": "??????"
-            }
-          ],
+          "dialogue": [],
           "narration": "日常温情：陶晓东给陶淮南擦脚，门外灵棚白布在夜风中晃动",
           "previous_action": "陶晓东进屋，陶淮南已自己摸黑穿上小毛衣，仰脸摸哥哥：打着你了吗？",
           "next_action": "熄灭火盆旁，迟苦蜷成一团，双手捧着火盆外圈冻僵了",
@@ -514,12 +478,7 @@ window.STORYBOARD_CHAPTER_ARCHIVE = [
             "熄灭火盆旁，迟苦蜷成一团，双手捧着火盆外圈冻僵了"
           ],
           "camera": "环境建立远景",
-          "dialogue": [
-            {
-              "name": "??",
-              "text": "?????????????"
-            }
-          ],
+          "dialogue": [],
           "narration": "环境特写：熄灭火盆旁，迟苦蜷成一团，双手捧着火盆外圈冻僵了",
           "previous_action": "陶晓东给陶淮南擦脚，门外灵棚白布在夜风中晃动",
           "next_action": "迟苦被陶晓东夹回炕上，军大衣一盖，磕牙声喀嗒喀嗒在夜里响了很久",
@@ -543,16 +502,7 @@ window.STORYBOARD_CHAPTER_ARCHIVE = [
             "迟苦被陶晓东夹回炕上，军大衣一盖，磕牙声喀嗒喀嗒在夜里响了很久"
           ],
           "camera": "分镜中景",
-          "dialogue": [
-            {
-              "name": "???",
-              "text": "???"
-            },
-            {
-              "name": "??",
-              "text": "?????"
-            }
-          ],
+          "dialogue": [],
           "narration": "冲突收束：迟苦被陶晓东夹回炕上，军大衣一盖，磕牙声喀嗒喀嗒在夜里响了很久",
           "previous_action": "熄灭火盆旁，迟苦蜷成一团，双手捧着火盆外圈冻僵了",
           "next_action": "两小孩各睡炕一头，陶淮南背对迟苦把脸藏进小毯子，屏住呼吸",
@@ -576,16 +526,7 @@ window.STORYBOARD_CHAPTER_ARCHIVE = [
             "两小孩各睡炕一头，陶淮南背对迟苦把脸藏进小毯子，屏住呼吸"
           ],
           "camera": "人物近景",
-          "dialogue": [
-            {
-              "name": "???",
-              "text": "?????"
-            },
-            {
-              "name": "??",
-              "text": "???????????"
-            }
-          ],
+          "dialogue": [],
           "narration": "情绪帧：两小孩各睡炕一头，陶淮南背对迟苦把脸藏进小毯子，屏住呼吸",
           "previous_action": "迟苦被陶晓东夹回炕上，军大衣一盖，磕牙声喀嗒喀嗒在夜里响了很久",
           "next_action": "迟苦用铝饭盆帮陶淮南接尿，外屋锅台旁轻轻放下——咱们别说吧？",
@@ -609,16 +550,7 @@ window.STORYBOARD_CHAPTER_ARCHIVE = [
             "迟苦用铝饭盆帮陶淮南接尿，外屋锅台旁轻轻放下——咱们别说吧？"
           ],
           "camera": "分镜中景",
-          "dialogue": [
-            {
-              "name": "??",
-              "text": "??????"
-            },
-            {
-              "name": "???",
-              "text": "??"
-            }
-          ],
+          "dialogue": [],
           "narration": "建立连接：迟苦用铝饭盆帮陶淮南接尿，外屋锅台旁轻轻放下——咱们别说吧？",
           "previous_action": "两小孩各睡炕一头，陶淮南背对迟苦把脸藏进小毯子，屏住呼吸",
           "next_action": "",
@@ -722,16 +654,7 @@ window.STORYBOARD_CHAPTER_ARCHIVE = [
             "陶晓东用装菜的二大碗盛粥给迟苦，迟苦抬眼看了却偏过头不接"
           ],
           "camera": "分镜中景",
-          "dialogue": [
-            {
-              "name": "???",
-              "text": "???"
-            },
-            {
-              "name": "??",
-              "text": "????????????"
-            }
-          ],
+          "dialogue": [],
           "narration": "人物关系帧：陶晓东用装菜的二大碗盛粥给迟苦，迟苦抬眼看了却偏过头不接",
           "previous_action": "",
           "next_action": "陶淮南吃一半说饱了，拍拍炕沿：你吃我的饭，没凉呢",
@@ -756,16 +679,7 @@ window.STORYBOARD_CHAPTER_ARCHIVE = [
             "陶淮南吃一半说饱了，拍拍炕沿：你吃我的饭，没凉呢"
           ],
           "camera": "分镜中景",
-          "dialogue": [
-            {
-              "name": "???",
-              "text": "????"
-            },
-            {
-              "name": "???",
-              "text": "??????????"
-            }
-          ],
+          "dialogue": [],
           "narration": "温情时刻：陶淮南吃一半说饱了，拍拍炕沿：你吃我的饭，没凉呢",
           "previous_action": "陶晓东用装菜的二大碗盛粥给迟苦，迟苦抬眼看了却偏过头不接",
           "next_action": "冰挂砸窗声让陶淮南吓一跳，圆瞪着眼睛张嘴发愣",
@@ -789,16 +703,7 @@ window.STORYBOARD_CHAPTER_ARCHIVE = [
             "冰挂砸窗声让陶淮南吓一跳，圆瞪着眼睛张嘴发愣"
           ],
           "camera": "人物/道具特写",
-          "dialogue": [
-            {
-              "name": "??",
-              "text": "??"
-            },
-            {
-              "name": "???",
-              "text": "???"
-            }
-          ],
+          "dialogue": [],
           "narration": "反应特写：冰挂砸窗声让陶淮南吓一跳，圆瞪着眼睛张嘴发愣",
           "previous_action": "陶淮南吃一半说饱了，拍拍炕沿：你吃我的饭，没凉呢",
           "next_action": "迟苦从外头提溜着一根长长冰溜子跑进屋，往炕上一扔",
@@ -822,16 +727,7 @@ window.STORYBOARD_CHAPTER_ARCHIVE = [
             "迟苦从外头提溜着一根长长冰溜子跑进屋，往炕上一扔"
           ],
           "camera": "动态中景",
-          "dialogue": [
-            {
-              "name": "??",
-              "text": "??"
-            },
-            {
-              "name": "???",
-              "text": "???"
-            }
-          ],
+          "dialogue": [],
           "narration": "动作事件：迟苦从外头提溜着一根长长冰溜子跑进屋，往炕上一扔",
           "previous_action": "冰挂砸窗声让陶淮南吓一跳，圆瞪着眼睛张嘴发愣",
           "next_action": "陶淮南伸手摸冰溜子，指尖缩回又摸上，惊喜地学舌：冰溜子",
@@ -855,16 +751,7 @@ window.STORYBOARD_CHAPTER_ARCHIVE = [
             "陶淮南伸手摸冰溜子，指尖缩回又摸上，惊喜地学舌：冰溜子"
           ],
           "camera": "分镜中景",
-          "dialogue": [
-            {
-              "name": "??",
-              "text": "?????"
-            },
-            {
-              "name": "???",
-              "text": "????"
-            }
-          ],
+          "dialogue": [],
           "narration": "快乐时刻：陶淮南伸手摸冰溜子，指尖缩回又摸上，惊喜地学舌：冰溜子",
           "previous_action": "迟苦从外头提溜着一根长长冰溜子跑进屋，往炕上一扔",
           "next_action": "陶淮南问你爸为什么打你你咋不跑哇，迟苦沉默后转身跑了",
@@ -888,16 +775,7 @@ window.STORYBOARD_CHAPTER_ARCHIVE = [
             "陶淮南问你爸为什么打你你咋不跑哇，迟苦沉默后转身跑了"
           ],
           "camera": "人物近景",
-          "dialogue": [
-            {
-              "name": "???",
-              "text": "????????"
-            },
-            {
-              "name": "???",
-              "text": "??????"
-            }
-          ],
+          "dialogue": [],
           "narration": "情绪转折：陶淮南问你爸为什么打你你咋不跑哇，迟苦沉默后转身跑了",
           "previous_action": "陶淮南伸手摸冰溜子，指尖缩回又摸上，惊喜地学舌：冰溜子",
           "next_action": "第二天要走，陶淮南剥了一小堆瓜子仁想留给迟苦，却再没见着他",
@@ -921,12 +799,7 @@ window.STORYBOARD_CHAPTER_ARCHIVE = [
             "第二天要走，陶淮南剥了一小堆瓜子仁想留给迟苦，却再没见着他"
           ],
           "camera": "人物近景",
-          "dialogue": [
-            {
-              "name": "??",
-              "text": "??????????????"
-            }
-          ],
+          "dialogue": [],
           "narration": "失落收束：第二天要走，陶淮南剥了一小堆瓜子仁想留给迟苦，却再没见着他",
           "previous_action": "陶淮南问你爸为什么打你你咋不跑哇，迟苦沉默后转身跑了",
           "next_action": "",

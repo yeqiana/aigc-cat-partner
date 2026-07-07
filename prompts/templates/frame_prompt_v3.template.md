@@ -26,6 +26,9 @@
 后期叠字清单（不直接入图）
 {{post_text_list}}
 
+内容安全改写层
+{{content_safety_rules}}
+
 禁止项 / Negative Prompt
 {{negative_prompt}}
 
