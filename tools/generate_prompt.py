@@ -12,6 +12,7 @@ from __future__ import annotations
 
 import argparse
 import json
+import re
 from datetime import datetime
 from pathlib import Path
 from typing import Any
@@ -69,6 +70,14 @@ def load_text(path: Path, default: str = "") -> str:
     return path.read_text(encoding="utf-8").strip()
 
 
+def load_reference_manifest() -> dict:
+    return load_json(CONFIG_DIR / "reference_manifest.json", default={}) or {}
+
+
+def load_character_spec() -> dict:
+    return load_json(CONFIG_DIR / "character_spec.json", default={}) or {}
+
+
 def safe_filename(text: str) -> str:
     bad = '<>:"/\\|?*\n\r\t'
     for ch in bad:
@@ -78,6 +87,29 @@ def safe_filename(text: str) -> str:
 
 def short_text(text: str, max_chars: int = 16) -> str:
     return (text or "").strip()[:max_chars]
+
+
+def extracted_dialogue_candidates(frame: dict) -> list[dict]:
+    result: list[dict] = []
+    for source in [frame.get("narration"), frame.get("action"), frame.get("focus")]:
+        text = str(source or "").strip()
+        if not text:
+            continue
+        parts = [part.strip().strip("\"“”'‘’") for part in re.split(r"[：:]", text) if part.strip()]
+        if len(parts) > 1:
+            last = parts[-1]
+            if re.fullmatch(r"[\u4e00-\u9fa5…？！?!。]{1,18}", last) and not re.search(r"[，,、]", last):
+                result.append({"name": "角色", "text": short_text(last, 16)})
+        match = re.search(r"[—-]{1,2}\s*[\"“]?([^，,。；;\n]{1,18}[？！?!。]?)[”\"]?\s*$", text)
+        if match:
+            result.append({"name": "角色", "text": short_text(match.group(1).strip(), 16)})
+    seen: set[str] = set()
+    unique: list[dict] = []
+    for item in result:
+        if item["text"] and item["text"] not in seen:
+            seen.add(item["text"])
+            unique.append(item)
+    return unique[:2]
 
 
 def clamp_count(value: Any) -> int:
@@ -102,6 +134,25 @@ def normalize_lines(value: Any) -> list[str]:
         return [str(x).strip() for x in value if str(x).strip()]
     text = str(value).strip()
     return [text] if text else []
+
+
+def manifest_reference_lines(section: str) -> list[str]:
+    manifest = load_reference_manifest()
+    refs = manifest.get(section) or {}
+    lines = []
+    for ref_id, ref in refs.items():
+        if not isinstance(ref, dict):
+            continue
+        path = ref.get("path") or ""
+        usage = ref.get("usage") or ref.get("source_text") or ""
+        lock = ref.get("lock_strength") or ref.get("status") or ""
+        line = f"{ref_id}: {path}"
+        if usage:
+            line += f"；{usage}"
+        if lock:
+            line += f"；lock={lock}"
+        lines.append(line)
+    return lines
 
 
 def load_schema() -> dict:
@@ -355,10 +406,16 @@ def build_story_plan(data: dict) -> dict:
 
 def visual_evidence_for_frame(frame: dict) -> list[str]:
     evidence = frame.get("visual_evidence")
-    if isinstance(evidence, list) and evidence:
-        return [str(x) for x in evidence[:4]]
-    return ["主体清晰", "动作清楚", "关键道具可识别", "画面预留文字安全区"]
-
+    result = [str(x).strip() for x in evidence if str(x).strip()] if isinstance(evidence, list) else []
+    for key in ["scene_detail", "action_momentum_detail", "focus", "panel_composition"]:
+        value = str(frame.get(key) or "").strip()
+        if value and value not in result:
+            result.append(value)
+        if len(result) >= 4:
+            break
+    if result:
+        return result[:4]
+    return ["main subject clear", "action clear", "key prop recognizable", "safe blank text area"]
 
 def subject_state_for_frame(data: dict, frame: dict) -> str:
     return frame.get("state") or data.get("subject_state") or "主体状态承接上一张，身份、造型、关键道具和世界观保持一致。"
@@ -394,26 +451,28 @@ def build_frame_plan(data: dict, frames: list[dict]) -> list[dict]:
 
 
 def default_character_lines(data: dict, frame: dict) -> list[dict]:
-    title = frame.get("story_phase") or f"第{frame.get('index', 1)}幕"
     frame_lines = frame.get("dialogue") or frame.get("character_lines")
     if frame_lines:
         lines = []
         for item in frame_lines:
             if isinstance(item, dict):
-                lines.append({"name": short_text(item.get("name", "角色"), 8), "text": short_text(item.get("text", ""), 16)})
+                name = short_text(item.get("name", "角色"), 8)
+                text = short_text(item.get("text", ""), 16)
+                if text and name not in NARRATION_SPEAKERS:
+                    lines.append({"name": name, "text": text})
         if lines:
             return lines[:3]
     if data.get("character_lines"):
         lines = []
         for item in data.get("character_lines", []):
             if isinstance(item, dict):
-                lines.append({"name": short_text(item.get("name", "角色"), 8), "text": short_text(item.get("text", ""), 16)})
+                name = short_text(item.get("name", "角色"), 8)
+                text = short_text(item.get("text", ""), 16)
+                if text and name not in NARRATION_SPEAKERS:
+                    lines.append({"name": name, "text": text})
         if lines:
             return lines[:3]
-    return [
-        {"name": "角色A", "text": short_text("先看看情况", 16)},
-        {"name": "角色B", "text": short_text("事情不太对", 16)},
-    ] if data.get("bubble_mode") == "多角色气泡" else [{"name": "主角", "text": short_text(title, 16)}]
+    return extracted_dialogue_candidates(frame)
 
 
 def is_narration_line(item: dict) -> bool:
@@ -492,8 +551,12 @@ def interaction_prompt(interaction_mode: str, title: str) -> str:
 def required_references_for_frame(data: dict, frame: dict) -> list[str]:
     idx = frame.get("index", 1)
     continuous = to_bool_text(data.get("continuous_story", "否")) == "是"
-    base = normalize_lines(data.get("identity_references")) or ["身份参考图 / 角色设定表", "风格参考图 / 世界观设定表"]
-    scene_refs = normalize_lines(data.get("scene_references"))
+    base = (
+        normalize_lines(data.get("identity_references"))
+        or manifest_reference_lines("identity_references")
+        or ["身份参考图 / 角色设定表", "风格参考图 / 世界观设定表"]
+    )
+    scene_refs = normalize_lines(data.get("scene_references")) or manifest_reference_lines("scene_master_references")
     scene_ref = scene_refs[0] if scene_refs else "当前场景母版图 / 场景设定"
     if not continuous:
         return base + [scene_ref]
@@ -529,7 +592,9 @@ def line_block(items: list[str]) -> str:
 
 def character_lock_block(data: dict) -> str:
     lock = load_character_lock(data)
+    spec = load_character_spec()
     chars = lock.get("characters", {})
+    spec_chars = spec.get("characters", {})
     active_ids = data.get("character_ids") or ["tao_huainan_child", "chi_ku_child", "tao_xiaodong_young"]
     lines = list(lock.get("global_rules", []))
     for char_id in active_ids:
@@ -539,6 +604,17 @@ def character_lock_block(data: dict) -> str:
         lines.append(f"{char.get('display_name', char_id)}｜{char.get('stage', '')}：{char.get('must', '')}")
         lines.extend(char.get("visual_rules", []))
         lines.extend(char.get("behavior_rules", []))
+        spec_char = spec_chars.get(char_id)
+        if spec_char:
+            spec_bits = [
+                spec_char.get("identity"),
+                spec_char.get("age_stage"),
+                spec_char.get("face_or_shape"),
+                spec_char.get("hair_or_head_features"),
+                spec_char.get("outfit_or_marker"),
+                spec_char.get("body_or_posture"),
+            ]
+            lines.extend(f"character_spec补充：{item}" for item in spec_bits if item)
         if char.get("forbidden"):
             lines.append("禁止：" + "；".join(char.get("forbidden", [])))
     return line_block(lines) or "使用输入中的人物视觉基因，保持年龄、五官、发型、服装和行为逻辑稳定。"
@@ -782,12 +858,18 @@ def text_layer_block(data: dict, frame: dict) -> str:
         lines.append("不使用旁白文字，画面只保留角色对白气泡。")
     if dialogue_name_mode == "气泡内显示姓名":
         lines.append("对白气泡可显示“角色名：台词”，但只在用户明确选择此模式时使用。")
-        for item in character_lines:
-            lines.append(f"对白气泡：{item['name']}：{item['text']}")
+        if character_lines:
+            for item in character_lines:
+                lines.append(f"对白气泡：{item['name']}：{item['text']}")
+        else:
+            lines.append("本帧没有角色对白：不要生成对白气泡，不要把旁白、动作描述或镜头说明放入气泡。")
     else:
         lines.append("对白气泡规则：气泡内只生成角色台词正文，不要生成说话人姓名，不要出现“陶淮南：”“迟苦：”“陶晓东：”“旁白：”等姓名前缀；旁白不进入角色对白气泡。")
-        for item in character_lines:
-            lines.append(f"说话人定位（不入图）：{item['name']}；气泡文字：{item['text']}")
+        if character_lines:
+            for item in character_lines:
+                lines.append(f"说话人定位（不入图）：{item['name']}；气泡文字：{item['text']}")
+        else:
+            lines.append("本帧没有角色对白：不要生成对白气泡，不要把旁白、动作描述或镜头说明放入气泡。")
     if data.get("text_render_mode") == "直接在图中生成文字":
         return "允许短文字直接出现在画面中，但必须清晰、无乱码、无多余字符；不要额外添加未列出的文字。\n" + "\n".join(lines)
     if data.get("text_mode") == "空白气泡后期加字":
@@ -1309,3 +1391,4 @@ def main():
 
 if __name__ == "__main__":
     main()
+

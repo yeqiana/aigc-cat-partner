@@ -1404,12 +1404,30 @@
         .slice(0, maxLength);
     }
 
+    function extractedDialogueCandidates(frame) {
+      const sources = [frame.narration, frame.action, frame.focus].filter(Boolean);
+      const result = [];
+      sources.forEach(source => {
+        const text = String(source || "").trim();
+        const colonParts = text.split(/[：:]/).map(part => part.trim()).filter(Boolean);
+        if (colonParts.length > 1) {
+          const last = colonParts[colonParts.length - 1]
+            .replace(/^["“”'‘’]+|["“”'‘’]+$/g, "")
+            .trim();
+          if (/^[\u4e00-\u9fa5…？！?!。]{1,18}$/.test(last) && !/[，,、]/.test(last)) {
+            result.push(last);
+          }
+        }
+        const dashMatch = text.match(/[—-]{1,2}\s*["“]?([^，,。；;\n]{1,18}[？！?!。]?)[”"]?\s*$/);
+        if (dashMatch && dashMatch[1]) result.push(dashMatch[1].trim());
+      });
+      return [...new Set(result.map(text => shortText(text, 18)).filter(Boolean))];
+    }
+
     function directDialogueTexts(frame) {
       const lines = characterDialogue(frame).map(line => shortText(line.text)).filter(Boolean);
       if (lines.length) return lines;
-      const captions = narrationTexts(frame).map(text => shortText(text)).filter(Boolean);
-      if (captions.length) return captions.slice(0, 2);
-      return [shortText(frame.action || frame.title || "继续")].filter(Boolean);
+      return extractedDialogueCandidates(frame);
     }
 
     function directCaptionTexts(frame) {
@@ -1627,8 +1645,12 @@
             : `${state.narration_mode}使用空白矩形框；后期旁白文本：${narrationCopy || "无"}；旁白框必须与角色对白气泡区分，无气泡尾巴，不指向任何人物。`;
       const dialogueRule = isDirectTextMode()
         ? state.dialogue_name_mode === "气泡内显示姓名"
-          ? `必须在对白气泡内直接写入短中文台词，可带说话人：${speakerMeta || directBubbles || "无"}；不要额外添加未列出的文字。`
-          : `必须在对白气泡内直接写入短中文台词正文：“${directBubbles || "无"}”；说话人定位仅供放置气泡参考：${speakerMeta || "按人物位置放置"}；气泡内不要出现姓名前缀。`
+          ? directBubbles
+            ? `必须在对白气泡内直接写入角色对白短句，可带说话人：${speakerMeta || directBubbles}；不要额外添加未列出的文字；旁白、动作描述、镜头说明不得放入对白气泡。`
+            : "本帧没有可入图角色对白：不要生成对白气泡；只用画面动作和独立旁白框推进，不要把旁白或动作描述塞进对白气泡。"
+          : directBubbles
+            ? `必须在对白气泡内直接写入角色对白短句正文：“${directBubbles}”；说话人定位仅供放置气泡参考：${speakerMeta || "按人物位置放置"}；气泡内不要出现姓名前缀；旁白、动作描述、镜头说明不得放入对白气泡。`
+            : "本帧没有可入图角色对白：不要生成对白气泡；只用画面动作和独立旁白框推进，不要把旁白或动作描述塞进对白气泡。"
         : `画面只生成空白对白气泡；后期台词文本：${dialogueTexts || "无"}；说话人定位仅供放置气泡参考：${speakerMeta || "无"}；气泡内不要出现姓名前缀；旁白不进入角色对白气泡。`;
       return [
         `气泡模式：${state.bubble_mode}`,
@@ -1728,7 +1750,7 @@
         buildTextRules(frame),
         "",
         isDirectTextMode() ? "文字入图清单（必须直接写进画面）" : "后期叠字清单（不直接入图）",
-        isDirectTextMode() ? `对白气泡文字：${directDialogueTexts(frame).join(" / ") || "无"}` : `台词：${dialogueTexts || "无"}`,
+        isDirectTextMode() ? `对白气泡文字：${directDialogueTexts(frame).join(" / ") || "本帧无角色对白，不生成对白气泡"}` : `台词：${dialogueTexts || "无"}`,
         isDirectTextMode() ? `旁白框文字：${directCaptionTexts(frame).join(" / ") || "无"}` : `旁白：${captions.join(" / ") || "无"}`,
         `说话人定位（不入图）：${speakerMeta || "无"}`,
         "",

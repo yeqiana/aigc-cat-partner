@@ -10,6 +10,7 @@ from __future__ import annotations
 
 import argparse
 import json
+import re
 from pathlib import Path
 from typing import Any
 
@@ -70,6 +71,21 @@ SAFE_REWRITE_MAP = {
     "光身": "被旧毯或毛巾包住",
     "脱光": "换上完整衣物",
     "裸露": "完整衣物遮挡",
+    "儿童身体隐私": "儿童敏感身体细节",
+    "身体隐私": "敏感身体细节",
+    "排泄": "私密生活照护",
+    "身体接触": "照护距离",
+    "身体帮扶": "生活帮扶",
+    "接尿": "夜里照护后的铝盆被放回锅台旁",
+    "尿": "夜里照护",
+    "撒尿": "夜里照护",
+    "帮他方便": "低声照护后把铝盆放回锅台旁",
+    "帮忙方便": "低声照护后把铝盆放回锅台旁",
+    "裤子": "旧棉衣衣角",
+    "下身": "门帘外的模糊动线",
+    "身体暴露": "完整衣物遮挡",
+    "身体照料": "照护后的物件交接",
+    "近距离身体照料": "照护后的物件交接和低声交流",
     "抽筋": "身体发抖",
     "痉挛": "虚弱发抖",
     "黑帮": "可靠保护者",
@@ -81,6 +97,14 @@ SAFE_REWRITE_MAP = {
 
 def safe_rewrite_text(value: Any) -> str:
     text = str(value or "")
+    phrase_rules = [
+        (r"用铝盆帮[^，。；、]*接尿", "把照护后的铝盆轻轻放回锅台旁"),
+        (r"帮[^，。；、]*(接尿|撒尿|方便)", "在门帘外低声照护后退开"),
+        (r"涉及[^，。；、]*(裤子|下身|身体照料)[^，。；、]*", "只保留旧棉衣衣角、门帘和低声交流"),
+        (r"[^，。；、]*(近距离身体照料)[^，。；、]*", "只表现照护后的物件交接和低声交流"),
+    ]
+    for pattern, replacement in phrase_rules:
+        text = re.sub(pattern, replacement, text)
     for source, target in SAFE_REWRITE_MAP.items():
         text = text.replace(source, target)
     return text
@@ -188,7 +212,7 @@ def content_safety_rules_text(policy: dict[str, Any]) -> str:
     if guide:
         lines.append(f"执行内容安全规范：{guide}")
     lines.extend(safety.get("safe_rewrite_rules", []))
-    return bullets(lines)
+    return bullets([safe_rewrite_text(line) for line in lines])
 
 
 def post_text_list(frame: dict[str, Any]) -> str:
@@ -212,8 +236,6 @@ def post_text_list(frame: dict[str, Any]) -> str:
 def negative_prompt_text(policy: dict[str, Any], character_lock: dict[str, Any], scene_lock: dict[str, Any], text_strategy: dict[str, Any], data: dict[str, Any], frame: dict[str, Any]) -> str:
     items = []
     items.extend(policy.get("negative_prompt", []))
-    safety = policy.get("content_safety", {})
-    items.extend(safety.get("high_risk_terms", []))
     for char in character_lock.get("characters", {}).values():
         items.extend(char.get("forbidden", []))
     scene = choose_scene(scene_lock, data, frame)
@@ -229,7 +251,7 @@ def negative_prompt_text(policy: dict[str, Any], character_lock: dict[str, Any],
     seen = set()
     result = []
     for item in items:
-        item = str(item).strip()
+        item = safe_rewrite_text(item).strip()
         if item and item not in seen:
             seen.add(item)
             result.append(item)

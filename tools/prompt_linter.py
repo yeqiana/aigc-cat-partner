@@ -98,6 +98,16 @@ def lint_text(text: str) -> list[dict[str, str | int]]:
         if has_any(line, direct_text_markers) and not is_negative_context(line) and "allow_text_in_image=true" not in line:
             issues.append({"level": "error", "line": line_no, "code": "DIRECT_TEXT_RISK", "message": "疑似要求直接生成中文文字、标题或姓名。"})
 
+    narration_in_bubble_patterns = [
+        re.compile(r"对白气泡[：:][^。\n]*(旁白|叙述|动作描述|镜头说明)"),
+        re.compile(r"(旁白|叙述|动作描述|镜头说明)[^。\n]*(进入|写入|放入|塞进)[^。\n]*对白气泡"),
+    ]
+    for line_no, line in lines:
+        if line_no in non_instruction or is_negative_context(line):
+            continue
+        if any(pattern.search(line) for pattern in narration_in_bubble_patterns):
+            issues.append({"level": "error", "line": line_no, "code": "NARRATION_IN_DIALOGUE_BUBBLE", "message": "旁白、动作描述或镜头说明不得进入对白气泡；对白气泡只放角色台词。"})
+
     forbidden_text = ["第几帧", "第几章", "第1幕", "当前帧", "章节标题", "顶部标题栏"]
     for line_no, line in lines:
         if line_no in non_instruction:
@@ -106,6 +116,7 @@ def lint_text(text: str) -> list[dict[str, str | int]]:
             issues.append({"level": "error", "line": line_no, "code": "FORBIDDEN_IN_IMAGE_TEXT", "message": "疑似要求生成禁用标题/帧序文字。"})
 
     child_nudity_terms = ["裸露", "脱光", "光身", "裸体", "身体隐私", "隐私部位", "性暗示", "暧昧姿势"]
+    child_care_terms = ["接尿", "尿", "撒尿", "帮他方便", "帮忙方便", "裤子", "下身", "身体暴露", "身体照料", "近距离身体照料", "掀衣", "脱衣", "脱裤", "脱下", "排泄"]
     gore_terms = ["喷血", "满脸血", "血流", "血流一地", "开放伤口", "伤口特写", "血腥", "血肉", "重伤特写"]
     violence_process_terms = ["追打", "殴打", "暴打", "虐打", "虐待过程", "击打瞬间", "施暴特写", "挥棍打", "打孩子", "打到流血"]
     crime_aesthetic_terms = ["黑帮气场", "犯罪审美", "暴力反派", "凶狠施暴", "霸总压迫"]
@@ -114,6 +125,8 @@ def lint_text(text: str) -> list[dict[str, str | int]]:
             continue
         if has_child_context(line) and has_any(line, child_nudity_terms):
             issues.append({"level": "error", "line": line_no, "code": "CHILD_SAFETY_RISK", "message": "儿童场景疑似包含裸露、身体隐私或性暗示，应改为完整衣物/毛巾/毯子包裹的生活化照顾。"})
+        if has_child_context(line) and has_any(line, child_care_terms):
+            issues.append({"level": "error", "line": line_no, "code": "CHILD_CARE_BODY_RISK", "message": "未成年人照护场景疑似包含排泄、衣裤、下身或近距离身体照料，应改为照护后的铝盆、门帘、锅台、低声交流和关系变化。"})
         if has_any(line, gore_terms):
             issues.append({"level": "error", "line": line_no, "code": "GORE_RISK", "message": "疑似包含血腥、喷血、开放伤口或伤口特写，应改为旧伤痕、毛巾、药瓶、担忧表情等克制证据。"})
         if has_any(line, violence_process_terms):
