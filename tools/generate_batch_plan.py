@@ -73,10 +73,15 @@ def hydrate_from_chapter_input(task: dict) -> dict:
 def main():
     parser = argparse.ArgumentParser(description="批量生成 Prompt 任务")
     parser.add_argument("--input", required=True, help="批量计划 JSON")
-    parser.add_argument("--policy", default="config/prompt_policy.json")
-    parser.add_argument("--character-lock", default="config/character_lock_chen_nian_lie_gou.json")
-    parser.add_argument("--scene-lock", default="config/scene_lock_chen_nian_lie_gou.json")
-    parser.add_argument("--text-strategy", default="config/text_strategy.json")
+    parser.add_argument("--project-profile", default=None, help="项目层 profile；不传则只使用通用层配置")
+    parser.add_argument("--policy", default=None)
+    parser.add_argument("--character-lock", default=None)
+    parser.add_argument("--scene-lock", default=None)
+    parser.add_argument("--text-strategy", default=None)
+    parser.add_argument("--character-spec", default=None)
+    parser.add_argument("--reference-manifest", default=None)
+    parser.add_argument("--negative-prompt-common", default=None)
+    parser.add_argument("--negative-prompt-project", default=None)
     args = parser.parse_args()
     plan_path = (ROOT / args.input) if not Path(args.input).is_absolute() else Path(args.input)
     plan = json.loads(plan_path.read_text(encoding="utf-8"))
@@ -90,23 +95,22 @@ def main():
         task = hydrate_from_chapter_input(task)
         p = tmp_dir / f"task_{idx:02d}.json"
         p.write_text(json.dumps(task, ensure_ascii=False, indent=2), encoding="utf-8")
-        subprocess.run(
-            [
-                sys.executable,
-                str(ROOT / "tools" / "generate_prompt.py"),
-                "--input",
-                str(p),
-                "--policy",
-                args.policy,
-                "--character-lock",
-                args.character_lock,
-                "--scene-lock",
-                args.scene_lock,
-                "--text-strategy",
-                args.text_strategy,
-            ],
-            check=True,
-        )
+        command = [sys.executable, str(ROOT / "tools" / "generate_prompt.py"), "--input", str(p)]
+        optional_args = {
+            "--project-profile": args.project_profile,
+            "--policy": args.policy,
+            "--character-lock": args.character_lock,
+            "--scene-lock": args.scene_lock,
+            "--text-strategy": args.text_strategy,
+            "--character-spec": args.character_spec,
+            "--reference-manifest": args.reference_manifest,
+            "--negative-prompt-common": args.negative_prompt_common,
+            "--negative-prompt-project": args.negative_prompt_project,
+        }
+        for flag, value in optional_args.items():
+            if value:
+                command.extend([flag, value])
+        subprocess.run(command, check=True)
     print(f"批量生成完成，共 {len(tasks)} 个任务。")
 
 if __name__ == "__main__":

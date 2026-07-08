@@ -19,7 +19,19 @@ from typing import Any
 
 ROOT = Path(__file__).resolve().parents[1]
 CONFIG_DIR = ROOT / "config"
+COMMON_CONFIG_DIR = CONFIG_DIR / "common"
 OUTPUT_DIR = ROOT / "outputs" / "batch_plans"
+
+DEFAULT_CONFIG_PATHS = {
+    "__policy_path": "config/common/prompt_policy.json",
+    "__character_lock_path": "config/common/character_lock.json",
+    "__scene_lock_path": "config/common/scene_lock.json",
+    "__text_strategy_path": "config/common/text_strategy.json",
+    "__character_spec_path": "config/common/character_spec.json",
+    "__reference_manifest_path": "config/common/reference_manifest.json",
+    "__negative_prompt_common_path": "config/negative_prompt_common.txt",
+    "__negative_prompt_project_path": "config/common/negative_prompt_project.txt",
+}
 
 BUBBLE_MODES = ["无", "单角色气泡", "多角色气泡", "旁白标题"]
 TEXT_MODES = ["无文字", "直接生成文字", "空白气泡后期加字"]
@@ -70,12 +82,12 @@ def load_text(path: Path, default: str = "") -> str:
     return path.read_text(encoding="utf-8").strip()
 
 
-def load_reference_manifest() -> dict:
-    return load_json(CONFIG_DIR / "reference_manifest.json", default={}) or {}
+def load_reference_manifest(data: dict) -> dict:
+    return load_json(config_path(data, "__reference_manifest_path"), default={}) or {}
 
 
-def load_character_spec() -> dict:
-    return load_json(CONFIG_DIR / "character_spec.json", default={}) or {}
+def load_character_spec(data: dict) -> dict:
+    return load_json(config_path(data, "__character_spec_path"), default={}) or {}
 
 
 def safe_filename(text: str) -> str:
@@ -136,8 +148,8 @@ def normalize_lines(value: Any) -> list[str]:
     return [text] if text else []
 
 
-def manifest_reference_lines(section: str) -> list[str]:
-    manifest = load_reference_manifest()
+def manifest_reference_lines(data: dict, section: str) -> list[str]:
+    manifest = load_reference_manifest(data)
     refs = manifest.get(section) or {}
     lines = []
     for ref_id, ref in refs.items():
@@ -170,24 +182,56 @@ def public_data(data: dict) -> dict:
     return {key: value for key, value in data.items() if not str(key).startswith("__")}
 
 
-def policy_path(data: dict, key: str, default_name: str) -> Path:
-    return resolve_repo_path(data.get(key), CONFIG_DIR / default_name)
+def config_path(data: dict, key: str) -> Path:
+    return resolve_repo_path(data.get(key), ROOT / DEFAULT_CONFIG_PATHS[key])
+
+
+def apply_project_profile(data: dict, profile_value: str | None) -> dict:
+    if not profile_value:
+        return data
+    profile_path = resolve_repo_path(profile_value, ROOT / profile_value)
+    profile = load_json(profile_path, default={}) or {}
+    config_paths = profile.get("config_paths", {})
+    result = dict(data)
+    path_mapping = {
+        "policy": "__policy_path",
+        "character_lock": "__character_lock_path",
+        "scene_lock": "__scene_lock_path",
+        "text_strategy": "__text_strategy_path",
+        "character_spec": "__character_spec_path",
+        "reference_manifest": "__reference_manifest_path",
+        "negative_prompt_common": "__negative_prompt_common_path",
+        "negative_prompt_project": "__negative_prompt_project_path",
+    }
+    for profile_key, data_key in path_mapping.items():
+        if config_paths.get(profile_key):
+            result.setdefault(data_key, config_paths[profile_key])
+    result["__project_profile_path"] = str(profile_path)
+    result["__project_layer_name"] = profile.get("project_name", "")
+    return result
+
+
+def apply_default_config_paths(data: dict) -> dict:
+    result = dict(data)
+    for key, default_value in DEFAULT_CONFIG_PATHS.items():
+        result.setdefault(key, default_value)
+    return result
 
 
 def load_prompt_policy(data: dict) -> dict:
-    return load_json(policy_path(data, "__policy_path", "prompt_policy.json"), default={}) or {}
+    return load_json(config_path(data, "__policy_path"), default={}) or {}
 
 
 def load_character_lock(data: dict) -> dict:
-    return load_json(policy_path(data, "__character_lock_path", "character_lock_chen_nian_lie_gou.json"), default={}) or {}
+    return load_json(config_path(data, "__character_lock_path"), default={}) or {}
 
 
 def load_scene_lock(data: dict) -> dict:
-    return load_json(policy_path(data, "__scene_lock_path", "scene_lock_chen_nian_lie_gou.json"), default={}) or {}
+    return load_json(config_path(data, "__scene_lock_path"), default={}) or {}
 
 
 def load_text_strategy(data: dict) -> dict:
-    return load_json(policy_path(data, "__text_strategy_path", "text_strategy.json"), default={}) or {}
+    return load_json(config_path(data, "__text_strategy_path"), default={}) or {}
 
 
 def load_templates() -> dict:
@@ -553,10 +597,10 @@ def required_references_for_frame(data: dict, frame: dict) -> list[str]:
     continuous = to_bool_text(data.get("continuous_story", "否")) == "是"
     base = (
         normalize_lines(data.get("identity_references"))
-        or manifest_reference_lines("identity_references")
+        or manifest_reference_lines(data, "identity_references")
         or ["身份参考图 / 角色设定表", "风格参考图 / 世界观设定表"]
     )
-    scene_refs = normalize_lines(data.get("scene_references")) or manifest_reference_lines("scene_master_references")
+    scene_refs = normalize_lines(data.get("scene_references")) or manifest_reference_lines(data, "scene_master_references")
     scene_ref = scene_refs[0] if scene_refs else "当前场景母版图 / 场景设定"
     if not continuous:
         return base + [scene_ref]
@@ -576,8 +620,8 @@ def generation_type_for_frame(data: dict, frame: dict) -> str:
 
 
 def negative_prompt(data: dict) -> str:
-    common = load_text(CONFIG_DIR / "negative_prompt_common.txt")
-    project = load_text(CONFIG_DIR / "negative_prompt_project.txt")
+    common = load_text(config_path(data, "__negative_prompt_common_path"))
+    project = load_text(config_path(data, "__negative_prompt_project_path"))
     inline = data.get("project_negative_prompt") or ""
     policy = load_prompt_policy(data)
     text_strategy = load_text_strategy(data)
@@ -592,10 +636,10 @@ def line_block(items: list[str]) -> str:
 
 def character_lock_block(data: dict) -> str:
     lock = load_character_lock(data)
-    spec = load_character_spec()
+    spec = load_character_spec(data)
     chars = lock.get("characters", {})
     spec_chars = spec.get("characters", {})
-    active_ids = data.get("character_ids") or ["tao_huainan_child", "chi_ku_child", "tao_xiaodong_young"]
+    active_ids = data.get("character_ids") or lock.get("default_character_ids") or list(chars.keys())[:3]
     lines = list(lock.get("global_rules", []))
     for char_id in active_ids:
         char = chars.get(char_id)
@@ -864,7 +908,7 @@ def text_layer_block(data: dict, frame: dict) -> str:
         else:
             lines.append("本帧没有角色对白：不要生成对白气泡，不要把旁白、动作描述或镜头说明放入气泡。")
     else:
-        lines.append("对白气泡规则：气泡内只生成角色台词正文，不要生成说话人姓名，不要出现“陶淮南：”“迟苦：”“陶晓东：”“旁白：”等姓名前缀；旁白不进入角色对白气泡。")
+        lines.append("对白气泡规则：气泡内只生成角色台词正文，不要生成说话人姓名，不要出现“角色名：台词”“旁白：”等姓名或叙述前缀；旁白不进入角色对白气泡。")
         if character_lines:
             for item in character_lines:
                 lines.append(f"说话人定位（不入图）：{item['name']}；气泡文字：{item['text']}")
@@ -1299,10 +1343,15 @@ def main():
     parser.add_argument("--title-text", dest="title_text", type=str)
     parser.add_argument("--narration-text", dest="narration_text", type=str)
     parser.add_argument("--project-negative-prompt", dest="project_negative_prompt", type=str)
-    parser.add_argument("--policy", dest="policy_path", default="config/prompt_policy.json")
-    parser.add_argument("--character-lock", dest="character_lock_path", default="config/character_lock_chen_nian_lie_gou.json")
-    parser.add_argument("--scene-lock", dest="scene_lock_path", default="config/scene_lock_chen_nian_lie_gou.json")
-    parser.add_argument("--text-strategy", dest="text_strategy_path", default="config/text_strategy.json")
+    parser.add_argument("--project-profile", dest="project_profile_path", default=None, help="项目层 profile；不传则只使用通用层配置")
+    parser.add_argument("--policy", dest="policy_path", default=None)
+    parser.add_argument("--character-lock", dest="character_lock_path", default=None)
+    parser.add_argument("--scene-lock", dest="scene_lock_path", default=None)
+    parser.add_argument("--text-strategy", dest="text_strategy_path", default=None)
+    parser.add_argument("--character-spec", dest="character_spec_path", default=None)
+    parser.add_argument("--reference-manifest", dest="reference_manifest_path", default=None)
+    parser.add_argument("--negative-prompt-common", dest="negative_prompt_common_path", default=None)
+    parser.add_argument("--negative-prompt-project", dest="negative_prompt_project_path", default=None)
     args = parser.parse_args()
 
     data = {}
@@ -1369,10 +1418,21 @@ def main():
         if val not in [None, ""]:
             data[key] = val
 
-    data["__policy_path"] = args.policy_path
-    data["__character_lock_path"] = args.character_lock_path
-    data["__scene_lock_path"] = args.scene_lock_path
-    data["__text_strategy_path"] = args.text_strategy_path
+    data = apply_project_profile(data, args.project_profile_path or data.get("project_profile"))
+    explicit_config_paths = {
+        "__policy_path": args.policy_path,
+        "__character_lock_path": args.character_lock_path,
+        "__scene_lock_path": args.scene_lock_path,
+        "__text_strategy_path": args.text_strategy_path,
+        "__character_spec_path": args.character_spec_path,
+        "__reference_manifest_path": args.reference_manifest_path,
+        "__negative_prompt_common_path": args.negative_prompt_common_path,
+        "__negative_prompt_project_path": args.negative_prompt_project_path,
+    }
+    for key, value in explicit_config_paths.items():
+        if value:
+            data[key] = value
+    data = apply_default_config_paths(data)
     data = apply_policy_defaults(data)
 
     if loaded_from_input:

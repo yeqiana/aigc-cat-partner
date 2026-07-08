@@ -1,0 +1,25 @@
+{
+  "version": "1.0",
+  "project_name": "陈年烈狗",
+  "purpose": "《陈年烈狗》项目层 profile。保留现有项目数据，通用生成器只有显式指定本 profile 时才读取这些配置。",
+  "config_paths": {
+    "policy": "config/prompt_policy.json",
+    "character_lock": "config/character_lock_chen_nian_lie_gou.json",
+    "scene_lock": "config/scene_lock_chen_nian_lie_gou.json",
+    "text_strategy": "config/text_strategy.json",
+    "character_spec": "config/character_spec.json",
+    "reference_manifest": "config/reference_manifest.json",
+    "negative_prompt_common": "config/negative_prompt_common.txt",
+    "negative_prompt_project": "config/negative_prompt_project.txt"
+  },
+  "data_roots": {
+    "settings": "00_设定文档",
+    "style_masters": "02_风格母版图",
+    "scene_assets": "03_场景资产",
+    "chapter_inputs": "prompts/chapter"
+  },
+  "usage": {
+    "single": "python tools/generate_prompt.py --project-profile projects/chen_nian_lie_gou/project_profile.json --input examples/chennianliegou_ch3_pipeline_input.json",
+    "batch": "python tools/generate_batch_plan.py --project-profile projects/chen_nian_lie_gou/project_profile.json --input prompts/batch/chapters_001_010.batch_plan.json"
+  }
+}

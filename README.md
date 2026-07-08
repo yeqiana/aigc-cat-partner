@@ -25,6 +25,8 @@
 
 ## 最快使用方式
 
+默认入口只读取 `config/common/` 通用层配置，不会读取任何具体 IP 的人物、场景、原文或母版图。
+
 ```bash
 python tools/generate_prompt.py --input examples/generic_suspense_series.sample.json
 ```
@@ -37,6 +39,23 @@ outputs/batch_plans/{timestamp}_{scene}_{ratio}_{count}张_V2_pipeline/
 
 先检查结构化产物，再进入真实图片生成。
 
+## 通用层 / 项目层隔离
+
+本仓库保留两层：
+
+| 层级 | 位置 | 用途 |
+|---|---|---|
+| 通用层 | `config/common/`、`tools/`、`examples/generic_suspense_series.sample.json` | 只保留连载流水线、文字策略、通用负面词和空模板，不写具体 IP。 |
+| 项目层 | `projects/{project_id}/project_profile.json` 指向的配置和资产 | 保存具体 IP 的人物锁定、场景锁定、参考图、原文、母版图和项目专属负面词。 |
+
+换 IP 时，只新增或替换项目层 profile 指向的项目配置；不要改通用层默认配置。
+
+当前《陈年烈狗》项目数据已保留在原位置，使用时显式指定：
+
+```bash
+python tools/generate_prompt.py --project-profile projects/chen_nian_lie_gou/project_profile.json --input examples/chennianliegou_ch3_pipeline_input.json
+```
+
 ## 批量生成
 
 ```bash
@@ -44,6 +63,12 @@ python tools/generate_batch_plan.py --input examples/batch_plan.sample.json
 ```
 
 批量工具会逐个调用 `tools/generate_prompt.py`，生成多组任务目录。
+
+项目层批量生成同样显式传入 profile：
+
+```bash
+python tools/generate_batch_plan.py --project-profile projects/chen_nian_lie_gou/project_profile.json --input prompts/batch/chapters_001_010.batch_plan.json
+```
 
 ## 目录结构
 
@@ -55,6 +80,7 @@ python tools/generate_batch_plan.py --input examples/batch_plan.sample.json
 │   └── validate_config.py        # 可选：验证配置完整性
 │
 ├── config/                   # 配置定义
+│   ├── common/               # 通用层默认配置，不绑定具体 IP
 │   ├── series_input_schema.json
 │   ├── minimal_input_schema.json
 │   ├── story_templates.json
@@ -65,6 +91,10 @@ python tools/generate_batch_plan.py --input examples/batch_plan.sample.json
 │   ├── negative_prompt_common.txt
 │   ├── negative_prompt_project.txt
 │   └── negative_prompt.txt
+│
+├── projects/                 # 项目层 profile，不搬迁项目数据
+│   └── chen_nian_lie_gou/
+│       └── project_profile.json
 │
 ├── examples/                 # 输入样例
 │   ├── generic_suspense_series.sample.json

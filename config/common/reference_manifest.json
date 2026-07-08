@@ -1,0 +1,8 @@
+{
+  "version": "1.0",
+  "project_name": "通用剧情连载",
+  "purpose": "通用层参考图清单模板。换 IP 时在项目层维护身份、风格、场景参考。",
+  "identity_references": {},
+  "style_references": {},
+  "scene_master_references": {}
+}

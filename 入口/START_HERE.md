@@ -11,6 +11,8 @@
 python tools/generate_prompt.py --input examples/generic_suspense_series.sample.json
 ```
 
+默认命令只使用 `config/common/` 通用层配置，不会读取当前项目的具体人物和场景数据。
+
 5. 打开输出目录 `outputs/batch_plans/*_V2_pipeline/`。
 6. 先检查：
    - `story_plan.json`
@@ -22,6 +24,16 @@ python tools/generate_prompt.py --input examples/generic_suspense_series.sample.
    - `prompt_task.md`
 7. 人工确认后，再按 `prompt_task.md` 的顺序逐张生成图片。
 8. 每张图生成后先验收；失败先返工，不进入下一张。
+
+## 项目层入口
+
+如果要使用当前《陈年烈狗》项目数据，显式传入项目 profile：
+
+```bash
+python tools/generate_prompt.py --project-profile projects/chen_nian_lie_gou/project_profile.json --input examples/chennianliegou_ch3_pipeline_input.json
+```
+
+换新 IP 时，只新增一个新的 `projects/{project_id}/project_profile.json`，让它指向新项目自己的配置和资产；通用层不用改，也不需要删除当前项目数据。
 
 ## 推荐默认组合
 
